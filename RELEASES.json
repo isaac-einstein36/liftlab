@@ -1,0 +1,21 @@
+[
+  {
+    "version": "1.0.0",
+    "date": "2026-05-12",
+    "url": "https://raw.githubusercontent.com/YOUR_USERNAME/liftlab/main/index.html",
+    "notes": [
+      "Initial release",
+      "274 exercises across 11 muscle groups",
+      "Body map muscle selector",
+      "Smart exercise suggestions (least-used first)",
+      "Live workout tracker with sets, weight, reps",
+      "Rest timer with haptic feedback",
+      "GitHub Gist sync for portable data",
+      "Multiple lifting profiles",
+      "Personal bests and workout history",
+      "Superset support and drag-to-reorder",
+      "Push/Pull/Legs and other preset plans",
+      "Custom exercise creator"
+    ]
+  }
+]
