@@ -1,8 +1,14 @@
 [
   {
+    "version": "2.0.0",
+    "date": "2026-05-12",
+    "notes": [
+      "Claude updates"
+    ]
+  },
+  {
     "version": "1.0.0",
     "date": "2026-05-12",
-    "url": "https://raw.githubusercontent.com/YOUR_USERNAME/liftlab/main/index.html",
     "notes": [
       "Initial release",
       "274 exercises across 11 muscle groups",
