@@ -1,5 +1,15 @@
 [
   {
+  "version": "1.2.2",
+  "date": "2026-05-13",
+  "notes": [
+    "Fixed: Starting a workout showed only the timer — exercises, sets, and weight inputs now render correctly",
+    "Fixed: Build tab now updates instantly when adding exercises from the muscle picker — no longer requires switching tabs",
+    "Fixed: Duplicate 'In workout' badge no longer appears when removing and re-adding an exercise in the picker",
+    "Fixed: Set notes and weight/rep values now save correctly per profile during multi-profile workouts"
+    ]
+  },
+  {
   "version": "1.2.1",
   "date": "2026-05-13",
   "notes": [
