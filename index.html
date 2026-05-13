@@ -142,6 +142,32 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .timer-wrap{text-align:center;padding:20px 0}
 .timer-num{font-size:54px;font-weight:700;letter-spacing:-2px;font-variant-numeric:tabular-nums}
 .timer-ring-wrap{position:relative;display:inline-block}
+/* Swipe to delete */
+.swipeable{position:relative;overflow:hidden;border-radius:14px;margin-bottom:8px}
+.swipe-inner{transition:transform .2s ease;will-change:transform;background:var(--surface);border:.5px solid var(--border);border-radius:14px}
+.swipe-inner.dragging{transition:none}
+.swipe-del-bg{position:absolute;right:0;top:0;bottom:0;background:var(--red);display:flex;align-items:center;justify-content:flex-end;padding:0 20px;border-radius:0 14px 14px 0;min-width:80px}
+.swipe-del-bg svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* Favorites */
+.fav-btn{background:none;border:none;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;font-size:18px;opacity:.4;transition:opacity .2s,transform .2s}
+.fav-btn.on{opacity:1;transform:scale(1.15)}
+/* Filter section labels */
+.filter-section{padding:0 16px 4px;display:flex;align-items:center;gap:6px}
+.filter-section-lbl{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.6px;text-transform:uppercase;white-space:nowrap}
+.filter-section-line{flex:1;height:.5px;background:var(--border)}
+/* Superset connector */
+.ss-connector{display:flex;align-items:center;gap:8px;padding:2px 16px 2px 16px;position:relative}
+.ss-connector-line{width:2px;height:24px;background:linear-gradient(var(--amber),var(--amber));border-radius:1px;margin-left:10px;flex-shrink:0}
+.ss-connector-label{font-size:10px;font-weight:700;color:var(--amber);background:var(--amber-dim);border:.5px solid rgba(251,191,36,.3);padding:2px 10px;border-radius:100px;letter-spacing:.3px}
+/* Warm-up set tag */
+.warmup-tag{font-size:9px;font-weight:700;color:var(--teal);background:var(--teal-dim);padding:1px 6px;border-radius:4px;letter-spacing:.3px;text-transform:uppercase;flex-shrink:0}
+/* Rest timer countdown ring */
+.rest-ring-wrap{position:relative;width:120px;height:120px;margin:0 auto 8px}
+.rest-ring-wrap svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+.rest-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+/* Skip rest btn */
+.skip-rest-btn{background:var(--surface3);border:none;color:var(--t2);font-size:12px;font-weight:600;padding:6px 16px;border-radius:100px;cursor:pointer;font-family:inherit;transition:all .15s}
+.skip-rest-btn:active{opacity:.7}
 </style>
 </head>
 <body>
@@ -174,7 +200,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.0.0';
+const CURRENT_VERSION = '1.1.0';
 const RELEASES_URL = '';
 
 // ---- Exercise Database (injected) ----
@@ -572,13 +598,13 @@ const App = {
       <!-- Add Exercises -->
       <div class="section-lbl">Add Exercises</div>
 
-      <!-- Body map picker -->
-      <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:12px">
+      <!-- Muscle group picker -->
+      <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:12px">
         ${Object.entries(MUSCLE_META).map(([mu,v])=>`
-          <button onclick="App.openExercisePicker('${mu}')" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--surface2);border:.5px solid var(--border);border-radius:12px;padding:10px 14px;cursor:pointer;border:.5px solid var(--border);min-width:64px;position:relative">
+          <button data-muscle-btn="${mu}" onclick="App.openExercisePicker('${mu}')" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--surface2);border:.5px solid var(--border);border-radius:12px;padding:10px 14px;cursor:pointer;min-width:64px;position:relative">
             <span style="font-size:20px">${v.emoji}</span>
             <span style="font-size:10px;font-weight:600;color:var(--t2)">${mu}</span>
-            ${exList.filter(e=>{const ex=getExercise(e.exId);return ex&&ex.muscle===mu;}).length?`<span style="position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--accent)"></span>`:''}
+            <span class="muscle-dot" style="position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--accent);display:${exList.filter(e=>{const ex=getExercise(e.exId);return ex&&ex.muscle===mu;}).length?'block':'none'}"></span>
           </button>
         `).join('')}
       </div>
@@ -604,42 +630,49 @@ const App = {
     </div>`;
 
     this._initDragDrop();
+    requestAnimationFrame(()=>this._initSwipeToDelete());
   },
 
   buildExRow(e,i,all){
     const ex=e.info;
     if(!ex)return'';
     const rec=recommendWeight(ex.id);
-    const last=getLastPerformance(ex.id);
-    // Check superset
     const isSuper=e.supersetWith!=null;
-    const partnerIdx=isSuper?all.findIndex(x=>x.exId===e.supersetWith):-1;
-    return`
-    <div class="card" style="margin-bottom:10px;position:relative" id="bex-${i}" draggable="true" ondragstart="App._onDragStart(event,${i})" ondragover="App._onDragOver(event,${i})" ondrop="App._onDrop(event,${i})">
-      ${isSuper?`<div class="ss-b" style="margin-bottom:8px">SUPERSET</div>`:''}
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div class="drag-h">
-          <svg viewBox="0 0 24 24"><path d="M9 5h2M9 12h2M9 19h2M13 5h2M13 12h2M13 19h2"/></svg>
-        </div>
-        <div class="ex-ico" style="background:${(MUSCLE_META[ex.muscle]?.color||'#7c6dff')}22;width:36px;height:36px;border-radius:9px;font-size:16px">${muscleEmoji(ex.muscle)}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:14px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ex.name}</div>
-          <div style="font-size:11px;color:var(--t3)">${ex.muscle} · ${ex.target||''} · ${ex.equipment||'Bodyweight'}</div>
-        </div>
-        <div style="display:flex;gap:6px">
-          <button onclick="App.openBuildExOptions(${i})" class="btn-g" style="padding:4px 8px;font-size:12px">•••</button>
-          <button onclick="App.removeFromBuild(${i})" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px;padding:4px">✕</button>
-        </div>
-      </div>
-      ${rec?`<div style="font-size:11px;color:var(--accent2);margin-bottom:8px">💡 Last: ${rec.weight}lbs × ${rec.reps} reps</div>`:''}
-      <!-- Sets config -->
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px">
-        <span style="font-size:12px;color:var(--t3)">Sets:</span>
-        <div style="display:flex;gap:6px">
-          ${[2,3,4,5].map(n=>`<button onclick="App.setSets(${i},${n})" class="chip ${(e.sets||[]).length===n?'on':''}" style="padding:4px 10px;font-size:12px">${n}</button>`).join('')}
+    const nextEx=all[i+1];
+    // isSuperTop = this exercise is the first of the pair (partner is the next card)
+    const isSuperTop=isSuper&&nextEx&&nextEx.exId===e.supersetWith;
+    const isSuperBot=isSuper&&!isSuperTop;
+    const favs=DB.get('favorites')||[];
+    const isFav=favs.includes(ex.id);
+    const card=`
+    <div class="swipeable" id="bex-wrap-${i}" draggable="true" ondragstart="App._onDragStart(event,${i})" ondragover="App._onDragOver(event,${i})" ondrop="App._onDrop(event,${i})">
+      <div class="swipe-del-bg"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></div>
+      <div class="swipe-inner" id="bex-${i}">
+        ${isSuperBot?`<div style="display:flex;align-items:center;gap:7px;padding:5px 14px 0"><div style="width:2px;height:14px;background:var(--amber);border-radius:1px;margin-left:8px;flex-shrink:0"></div><span style="font-size:10px;font-weight:700;color:var(--amber);letter-spacing:.4px">SUPERSET</span></div>`:''}
+        <div style="padding:12px 14px">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:${rec?'6px':'10px'}">
+            <div class="drag-h" style="padding:4px 2px">
+              <svg viewBox="0 0 24 24"><path d="M9 5h2M9 12h2M9 19h2M13 5h2M13 12h2M13 19h2"/></svg>
+            </div>
+            <div style="width:36px;height:36px;border-radius:9px;background:${(MUSCLE_META[ex.muscle]?.color||'#7c6dff')}22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${muscleEmoji(ex.muscle)}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ex.name}</div>
+              <div style="font-size:11px;color:var(--t3)">${ex.muscle}${ex.target?' · '+ex.target:''} · ${ex.equipment||'Bodyweight'}</div>
+            </div>
+            <button class="fav-btn ${isFav?'on':''}" onclick="event.stopPropagation();App.toggleFav(${ex.id})">${isFav?'⭐':'☆'}</button>
+            <button onclick="App.openBuildExOptions(${i})" class="btn-g" style="padding:4px 8px;font-size:14px;color:var(--t3)">•••</button>
+          </div>
+          ${rec?`<div style="font-size:11px;color:var(--accent2);margin-bottom:9px;padding:4px 9px;background:var(--accent-dim);border-radius:6px;display:inline-flex;align-items:center;gap:4px"><span>💡</span><span>Last: ${rec.weight}lbs × ${rec.reps} reps</span></div>`:''}
+          <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+            <span style="font-size:12px;color:var(--t3);flex-shrink:0">Sets:</span>
+            ${[2,3,4,5].map(n=>`<button onclick="App.setSets(${i},${n})" class="chip ${(e.sets||[]).length===n?'on':''}" style="padding:4px 10px;font-size:12px">${n}</button>`).join('')}
+            ${!isSuper&&nextEx?`<button onclick="App.toggleSuperset(${i});App._refreshBuild()" style="margin-left:auto;font-size:10px;font-weight:700;color:var(--amber);background:var(--amber-dim);border:.5px solid rgba(251,191,36,.3);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:inherit">+ Superset ↓</button>`:isSuper?`<button onclick="App.toggleSuperset(${i});App._refreshBuild()" style="margin-left:auto;font-size:10px;font-weight:700;color:var(--t3);background:var(--surface3);border:none;border-radius:6px;padding:3px 9px;cursor:pointer;font-family:inherit">✕ Remove SS</button>`:''}
+          </div>
         </div>
       </div>
     </div>`;
+    const bridge=isSuperTop?`<div class="ss-bridge"><div class="ss-bridge-line"></div><div class="ss-bridge-lbl">↕ PAIRED WITH NEXT</div></div>`:'';
+    return card+bridge;
   },
 
   getSmartSuggestions(existing){
@@ -662,6 +695,31 @@ const App = {
       });
   },
 
+  _refreshBuild(){
+    // Re-render just the build list and muscle buttons without losing scroll position
+    const build=DB.get('buildWorkout')||{exercises:[]};
+    const exData=(build.exercises||[]).map(e=>({...e,info:getExercise(e.exId)}));
+    const listEl=document.getElementById('buildList');
+    if(listEl){
+      listEl.innerHTML=exData.length?exData.map((e,i)=>this.buildExRow(e,i,exData)).join(''):`
+        <div class="empty" style="padding:32px">
+          <span class="empty-ico">🏋️</span>
+          <div class="empty-t">No exercises yet</div>
+          <div class="empty-s">Add exercises to build your workout plan</div>
+        </div>`;
+      requestAnimationFrame(()=>this._initSwipeToDelete());
+    } else {
+      this.render();
+    }
+    // Update muscle dot indicators
+    document.querySelectorAll('[data-muscle-btn]').forEach(btn=>{
+      const mu=btn.getAttribute('data-muscle-btn');
+      const dot=btn.querySelector('.muscle-dot');
+      const hasEx=(build.exercises||[]).some(e=>{const ex=getExercise(e.exId);return ex&&ex.muscle===mu;});
+      if(dot)dot.style.display=hasEx?'block':'none';
+    });
+  },
+
   updateBuildName(v){
     const build=DB.get('buildWorkout')||{};
     DB.set('buildWorkout',{...build,name:v});
@@ -673,14 +731,14 @@ const App = {
     build.exercises=[...(build.exercises||[]),{exId,sets:[{weight:'',reps:'',completed:false},{weight:'',reps:'',completed:false},{weight:'',reps:'',completed:false}]}];
     DB.set('buildWorkout',build);
     this.toast('Added to workout ✓');
-    this.renderBuild(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
+    this._refreshBuild();
   },
 
   removeFromBuild(i){
     const build=DB.get('buildWorkout')||{exercises:[]};
     build.exercises.splice(i,1);
     DB.set('buildWorkout',build);
-    this.render();
+    this._refreshBuild();
   },
 
   setSets(i,n){
@@ -689,7 +747,7 @@ const App = {
     if(!ex)return;
     ex.sets=Array.from({length:n},(_,si)=>ex.sets[si]||{weight:'',reps:'',completed:false});
     DB.set('buildWorkout',build);
-    this.render();
+    this._refreshBuild();
   },
 
   clearBuild(){
@@ -760,6 +818,22 @@ const App = {
       'Cardio':'Maintain target heart rate. Focus on breathing rhythm.',
     };
     return descs[ex.muscle]||`Focus on proper form and controlled movement throughout the exercise.`;
+  },
+
+  toggleFav(exId){
+    let favs=DB.get('favorites')||[];
+    if(favs.includes(exId)){
+      favs=favs.filter(f=>f!==exId);
+      this.toast('Removed from favorites');
+    } else {
+      favs.push(exId);
+      this.toast('Added to favorites ⭐');
+    }
+    DB.set('favorites',favs);
+    schedSync();
+    // Update star button in-place if visible
+    const btn=document.querySelector(`.fav-btn[onclick*="toggleFav(${exId})"]`);
+    if(btn){btn.classList.toggle('on',favs.includes(exId));btn.textContent=favs.includes(exId)?'⭐':'☆';}
   },
 
   toggleSuperset(i){
@@ -840,12 +914,28 @@ const App = {
         ${exData.map((e,ei)=>this.liveExCard(e,ei,wk)).join('')}
 
         <!-- Rest timer -->
-        <div class="card" style="margin-top:12px;text-align:center" id="restTimerCard">
-          <div style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:8px">Rest Timer</div>
-          <div class="timer-num" id="restTimerDisp">0:00</div>
-          <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap">
-            ${[30,60,90,120].map(s=>`<button class="btn btn-sm btn-s" onclick="App.startRestTimer(${s})">${s}s</button>`).join('')}
-            <button class="btn btn-sm btn-d" onclick="App.stopRestTimer()" id="stopTimerBtn" style="display:none">Stop</button>
+        <div class="card" style="margin-top:12px;text-align:center;padding:18px 16px" id="restTimerCard">
+          <div style="font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:12px">Rest Timer</div>
+          <div class="rest-ring-wrap" id="restRingWrap">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+              <circle cx="55" cy="55" r="48" fill="none" stroke="var(--surface3)" stroke-width="6"/>
+              <circle cx="55" cy="55" r="48" fill="none" stroke="var(--accent)" stroke-width="6"
+                stroke-dasharray="301.6" stroke-dashoffset="301.6" stroke-linecap="round"
+                id="restRingCircle" style="transition:stroke-dashoffset 1s linear"/>
+            </svg>
+            <div class="rest-ring-num" id="restTimerDisp">—</div>
+          </div>
+          <div style="display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:10px">
+            ${[30,60,90,120].map(s=>`<button class="btn btn-sm btn-s" onclick="App.startRestTimer(${s})" style="min-width:48px">${s}s</button>`).join('')}
+          </div>
+          <div style="display:flex;gap:8px;justify-content:center">
+            <button class="skip-btn" onclick="App.stopRestTimer()" id="stopTimerBtn" style="display:none">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+              Stop
+            </button>
+            <button class="skip-btn" onclick="App.skipRestTimer()" id="skipTimerBtn" style="display:none">
+              Skip Rest ⏭
+            </button>
           </div>
         </div>
 
@@ -929,6 +1019,13 @@ const App = {
     s.completed=!s.completed;
     DB.set('activeWorkout',wk);
     this.state.activeWorkout=wk;
+    // Auto-start rest timer when a set is marked done
+    const settings=DB.get('settings')||{};
+    const autoRest=settings.autoRest!==false; // default on
+    if(s.completed&&autoRest){
+      const restSecs=settings.defaultRest||90;
+      this.startRestTimer(restSecs,true);
+    }
     // Update DOM in place
     const row=document.getElementById(`setrow-${ei}-${si}`);
     if(row){
@@ -973,32 +1070,52 @@ const App = {
 
   _restTimerInterval:null,
   _restRemaining:0,
-  startRestTimer(secs){
+  _restTotal:0,
+  startRestTimer(secs,autoScroll){
     clearInterval(this._restTimerInterval);
     this._restRemaining=secs;
+    this._restTotal=secs;
     const disp=document.getElementById('restTimerDisp');
     const stopBtn=document.getElementById('stopTimerBtn');
+    const skipBtn=document.getElementById('skipTimerBtn');
+    const ring=document.getElementById('restRingCircle');
+    const CIRC=301.6;
     if(stopBtn)stopBtn.style.display='inline-flex';
+    if(skipBtn)skipBtn.style.display='inline-flex';
+    if(disp)disp.textContent=fmtTime(secs);
+    if(ring)ring.style.strokeDashoffset=0;
+    // Scroll rest timer into view if autoScroll
+    if(autoScroll){const card=document.getElementById('restTimerCard');if(card)card.scrollIntoView({behavior:'smooth',block:'nearest'});}
     this._restTimerInterval=setInterval(()=>{
       this._restRemaining--;
-      if(disp)disp.textContent=fmtTime(this._restRemaining);
+      const pct=this._restTotal>0?this._restRemaining/this._restTotal:0;
+      if(disp)disp.textContent=this._restRemaining>0?fmtTime(this._restRemaining):'Done ✓';
+      if(ring)ring.style.strokeDashoffset=(1-pct)*CIRC;
       if(this._restRemaining<=0){
         clearInterval(this._restTimerInterval);
-        if(disp)disp.textContent='Done! ✓';
         if(stopBtn)stopBtn.style.display='none';
-        // Haptic if available
-        if(navigator.vibrate)navigator.vibrate([100,50,100]);
+        if(skipBtn)skipBtn.style.display='none';
+        if(navigator.vibrate)navigator.vibrate([100,50,100,50,200]);
+        setTimeout(()=>{if(disp)disp.textContent='—';if(ring)ring.style.strokeDashoffset=CIRC;},2000);
       }
     },1000);
-    if(disp)disp.textContent=fmtTime(secs);
   },
   stopRestTimer(){
     clearInterval(this._restTimerInterval);
     const disp=document.getElementById('restTimerDisp');
     const stopBtn=document.getElementById('stopTimerBtn');
-    if(disp)disp.textContent='0:00';
+    const skipBtn=document.getElementById('skipTimerBtn');
+    const ring=document.getElementById('restRingCircle');
+    if(disp)disp.textContent='—';
     if(stopBtn)stopBtn.style.display='none';
+    if(skipBtn)skipBtn.style.display='none';
+    if(ring)ring.style.strokeDashoffset=301.6;
     this._restRemaining=0;
+  },
+  skipRestTimer(){
+    // Same as stop but with a small animation
+    this.stopRestTimer();
+    this.toast('Rest skipped ⏭');
   },
 
   finishWorkout(){
@@ -1046,6 +1163,10 @@ const App = {
     if(filters.muscle)shown=shown.filter(e=>e.muscle===filters.muscle);
     if(filters.equipment)shown=shown.filter(e=>e.equipment===filters.equipment);
     if(filters.level)shown=shown.filter(e=>e.level===filters.level);
+    const favs=DB.get('favorites')||[];
+    if(filters.favOnly)shown=shown.filter(e=>favs.includes(e.id));
+    const usedIds=new Set((DB.get('workoutHistory')||[]).filter(w=>w.profileId===this.state.profileId).flatMap(w=>(w.exercises||[]).map(ex=>ex.exId)));
+    if(filters.newOnly)shown=shown.filter(e=>!usedIds.has(e.id));
     // Sort: unseen first, then by usage frequency
     const history=(DB.get('workoutHistory')||[]).filter(w=>w.profileId===this.state.profileId);
     const usageCounts={};
@@ -1062,15 +1183,27 @@ const App = {
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
         <input type="text" placeholder="Search exercises..." value="${filters.search}" oninput="App._exSearch(this.value)">
       </div>
-      <!-- Filters -->
+      <!-- Filters: Muscle -->
+      <div class="fsec"><div class="fsec-lbl">Muscle</div><div class="fsec-line"></div>${filters.muscle?`<button class="btn-g" style="padding:2px 8px;font-size:11px" onclick="App._exFilter('muscle','')">✕ ${filters.muscle}</button>`:''}</div>
       <div class="fc">
-        ${Object.keys(MUSCLE_META).map(mu=>`<div class="fc-chip ${filters.muscle===mu?'on':''}" onclick="App._exFilter('muscle','${mu}')">${mu}</div>`).join('')}
+        ${Object.keys(MUSCLE_META).map(mu=>`<div class="fc-chip ${filters.muscle===mu?'on':''}" onclick="App._exFilter('muscle','${mu}')">${MUSCLE_META[mu].emoji} ${mu}</div>`).join('')}
       </div>
-      <div class="fc" style="margin-top:-4px">
+      <!-- Filters: Equipment -->
+      <div class="fsec"><div class="fsec-lbl">Equipment</div><div class="fsec-line"></div>${filters.equipment?`<button class="btn-g" style="padding:2px 8px;font-size:11px" onclick="App._exFilter('equipment','')">✕ ${filters.equipment}</button>`:''}</div>
+      <div class="fc">
         ${EQUIPMENT_LIST.map(eq=>`<div class="fc-chip ${filters.equipment===eq?'on':''}" onclick="App._exFilter('equipment','${eq}')">${eq}</div>`).join('')}
-        ${['Beginner','Intermediate','Advanced'].map(l=>`<div class="fc-chip ${filters.level===l?'on':''}" onclick="App._exFilter('level','${l}')">${l}</div>`).join('')}
       </div>
-      ${filters.muscle||filters.equipment||filters.level?`<button class="btn-g" style="padding:4px 16px;font-size:12px" onclick="App._exClearFilters()">Clear filters</button>`:''}
+      <!-- Filters: Difficulty -->
+      <div class="fsec"><div class="fsec-lbl">Difficulty</div><div class="fsec-line"></div>${filters.level?`<button class="btn-g" style="padding:2px 8px;font-size:11px" onclick="App._exFilter('level','')">✕ ${filters.level}</button>`:''}</div>
+      <div class="fc">
+        ${['Beginner','Intermediate','Advanced'].map(l=>`<div class="fc-chip ${filters.level===l?'on':''}" onclick="App._exFilter('level','${l}')">${l==='Beginner'?'🟢':l==='Intermediate'?'🟡':'🔴'} ${l}</div>`).join('')}
+      </div>
+      <!-- Filters: Favorites -->
+      <div class="fsec"><div class="fsec-lbl">Show</div><div class="fsec-line"></div></div>
+      <div class="fc" style="margin-bottom:4px">
+        <div class="fc-chip ${filters.favOnly?'on':''}" onclick="App._exFilter('favOnly',!${!!filters.favOnly})">⭐ Favorites Only</div>
+        <div class="fc-chip ${filters.newOnly?'on':''}" onclick="App._exFilter('newOnly',!${!!filters.newOnly})">✨ Never Tried</div>
+      </div>
       <!-- Exercise list -->
       <div style="padding:0 16px">
         <div style="font-size:12px;color:var(--t3);margin-bottom:8px">${shown.length} exercises ${usageCounts?'· sorted by least used':''}</div>
@@ -1081,7 +1214,7 @@ const App = {
           <div class="ex-card" onclick="App.showExerciseDetail(${e.id})">
             <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22">${muscleEmoji(e.muscle)}</div>
             <div class="ex-info">
-              <div class="ex-name">${e.name}</div>
+              <div class="ex-name">${e.name}${favs.includes(e.id)?' ⭐':''}</div>
               <div class="ex-meta">${e.muscle} · ${e.target||'Total'} · ${e.equipment||'Bodyweight'}</div>
               ${pb?`<div style="font-size:10px;color:var(--green);margin-top:2px">🏆 PB: ${pb.weight}lbs × ${pb.reps}</div>`:''}
             </div>
@@ -1096,13 +1229,16 @@ const App = {
     </div>`;
   },
 
-  _exSearch(v){this.state.exFilters={...this.state.exFilters||{},search:v};this.renderExercises(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));},
+  _exSearch(v){this.state.exFilters={...this.state.exFilters||{},search:v};this._reEx();},
   _exFilter(type,val){
     const f=this.state.exFilters||{};
-    this.state.exFilters={...f,[type]:f[type]===val?'':val};
-    this.renderExercises(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
+    // boolean toggles
+    if(type==='favOnly'||type==='newOnly'){this.state.exFilters={...f,[type]:val===true||val==='true'?true:false};}
+    else {this.state.exFilters={...f,[type]:f[type]===val?'':val};}
+    this._reEx();
   },
-  _exClearFilters(){this.state.exFilters={muscle:'',equipment:'',level:'',search:''};this.renderExercises(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));},
+  _exClearFilters(){this.state.exFilters={muscle:'',equipment:'',level:'',search:'',favOnly:false,newOnly:false};this._reEx();},
+  _reEx(){this.renderExercises(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));},
 
   showExerciseDetail(exId){
     const ex=getExercise(exId);
@@ -1128,6 +1264,7 @@ const App = {
             <div style="font-size:18px;font-weight:700">${ex.name}</div>
             <div style="font-size:12px;color:var(--t3);margin-top:1px">${ex.muscle} · ${ex.target||'Total'}</div>
           </div>
+          <button class="fav-btn ${(DB.get('favorites')||[]).includes(ex.id)?'on':''}" onclick="App.toggleFav(${ex.id})" style="font-size:22px">${(DB.get('favorites')||[]).includes(ex.id)?'⭐':'☆'}</button>
         </div>
         <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
           ${levelPill(ex.level)}
@@ -1462,6 +1599,14 @@ const App = {
       <!-- Settings -->
       <div class="section-lbl">Settings</div>
       <div class="card">
+        <div class="ri" onclick="App.openRestSettings()">
+          <div class="ri-ico" style="background:var(--surface3)">⏱</div>
+          <div class="ri-c">
+            <div class="ri-t">Auto Rest Timer</div>
+            <div class="ri-s" id="restSettingLbl">${(()=>{const s=DB.get('settings')||{};return s.autoRest===false?'Off':`Auto-starts at ${s.defaultRest||90}s`})()}</div>
+          </div>
+          <div class="ri-r">›</div>
+        </div>
         <div class="ri" onclick="App.openGHSetup()">
           <div class="ri-ico" style="background:var(--surface3)">☁️</div>
           <div class="ri-c">
@@ -1494,7 +1639,23 @@ const App = {
         <button class="btn btn-d btn-full btn-sm" onclick="App.clearProfileData()">Clear All Workout History</button>
       </div>
 
-      <div style="text-align:center;margin-top:24px;font-size:11px;color:var(--t3)">LiftLab v${CURRENT_VERSION}<br>274 exercises · GitHub-synced</div>
+      <div class="section-lbl">Recommended Next Features</div>
+      <div class="card" style="margin-bottom:16px">
+        ${[
+          ['📈','Volume Charts','Graph total volume/weight over time per exercise'],
+          ['🤝','Workout Templates','Save today\u2019s workout as a reusable template'],
+          ['⚖️','Plate Calculator','Enter target weight → see exact plate math'],
+          ['📅','Training Calendar','Heatmap calendar showing workout frequency'],
+          ['🔔','Rest Timer Notifications','Background notification when rest ends'],
+          ['💬','Set Notes','Quick per-set notes (e.g. "felt heavy", "easy")'],
+          ['🏅','Milestone Badges','Celebrate PRs, streaks, first 100 sets etc.'],
+        ].map(([ico,title,sub])=>`
+        <div class="ri">
+          <div class="ri-ico" style="background:var(--surface3)">${ico}</div>
+          <div class="ri-c"><div class="ri-t">${title}</div><div class="ri-s">${sub}</div></div>
+        </div>`).join('')}
+      </div>
+      <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--t3)">LiftLab v${CURRENT_VERSION} · 274 exercises · GitHub-synced</div>
     </div>`;
   },
 
@@ -1566,6 +1727,53 @@ const App = {
     schedSync();
     this.toast('History cleared');
     this.render();
+  },
+
+  openRestSettings(){
+    const settings=DB.get('settings')||{};
+    const autoRest=settings.autoRest!==false;
+    const defaultRest=settings.defaultRest||90;
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    overlay.innerHTML=`
+    <div class="sheet">
+      <div class="sh-bar"></div>
+      <div class="sh-title">Rest Timer Settings</div>
+      <div class="sh-body" style="padding-bottom:24px">
+        <div class="fgrp">
+          <label class="f-lbl">Auto-start rest timer after each set</label>
+          <div class="seg" style="margin-bottom:4px">
+            <button class="seg-b ${autoRest?'on':''}" onclick="App._setRestAuto(true,this)">On</button>
+            <button class="seg-b ${!autoRest?'on':''}" onclick="App._setRestAuto(false,this)">Off</button>
+          </div>
+        </div>
+        <div class="fgrp">
+          <label class="f-lbl">Default rest duration</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${[30,45,60,90,120,180].map(s=>`<button onclick="App._setRestDuration(${s},this)" class="chip ${defaultRest===s?'on':''}">${s}s</button>`).join('')}
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--t3);line-height:1.6">Timer starts automatically when you check off a set. You can always start it manually too, or skip it with the ⏭ button.</div>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+  },
+  _setRestAuto(val,btn){
+    const settings=DB.get('settings')||{};
+    settings.autoRest=val;
+    DB.set('settings',settings);
+    btn.closest('.seg').querySelectorAll('.seg-b').forEach((b,i)=>b.classList.toggle('on',i===(val?0:1)));
+    const lbl=document.getElementById('restSettingLbl');
+    if(lbl)lbl.textContent=val?`Auto-starts at ${settings.defaultRest||90}s`:'Off';
+  },
+  _setRestDuration(secs,btn){
+    const settings=DB.get('settings')||{};
+    settings.defaultRest=secs;
+    DB.set('settings',settings);
+    btn.closest('[style*="flex-wrap"]').querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.textContent===secs+'s'));
+    const lbl=document.getElementById('restSettingLbl');
+    if(lbl&&settings.autoRest!==false)lbl.textContent=`Auto-starts at ${secs}s`;
   },
 
   exportData(){
@@ -1806,8 +2014,49 @@ const App = {
     },200);
   },
 
-  // ==================== DRAG & DROP ====================
-  _initDragDrop(){},
+  // ==================== DRAG & DROP + SWIPE TO DELETE ====================
+  _initDragDrop(){
+    this._initSwipeToDelete();
+  },
+  _initSwipeToDelete(){
+    document.querySelectorAll('.swipeable').forEach(wrap=>{
+      const inner=wrap.querySelector('.swipe-inner');
+      if(!inner||inner._swipeInit)return;
+      inner._swipeInit=true;
+      let startX=0,startY=0,curX=0,swiping=false,blocked=false;
+      const THRESHOLD=80;
+      inner.addEventListener('touchstart',e=>{
+        startX=e.touches[0].clientX;startY=e.touches[0].clientY;curX=0;swiping=false;blocked=false;
+      },{passive:true});
+      inner.addEventListener('touchmove',e=>{
+        const dx=e.touches[0].clientX-startX;
+        const dy=e.touches[0].clientY-startY;
+        if(!swiping&&!blocked){
+          if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>6){swiping=true;}
+          else if(Math.abs(dy)>6){blocked=true;}
+        }
+        if(!swiping)return;
+        curX=Math.min(0,dx); // only swipe left
+        inner.classList.add('no-trans');
+        inner.style.transform=`translateX(${curX}px)`;
+      },{passive:true});
+      inner.addEventListener('touchend',()=>{
+        inner.classList.remove('no-trans');
+        if(swiping&&curX<-THRESHOLD){
+          inner.style.transform='translateX(-100%)';
+          inner.style.opacity='0';
+          setTimeout(()=>{
+            // find index from id
+            const idx=parseInt(wrap.id.replace('bex-wrap-',''));
+            if(!isNaN(idx))App.removeFromBuild(idx);
+          },200);
+        } else {
+          inner.style.transform='';
+        }
+        swiping=false;curX=0;
+      });
+    });
+  },
   _onDragStart(e,i){this.state.dragSrc=i;e.dataTransfer.effectAllowed='move';},
   _onDragOver(e,i){e.preventDefault();e.dataTransfer.dropEffect='move';},
   _onDrop(e,i){
