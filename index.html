@@ -252,7 +252,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.2.0';
+const CURRENT_VERSION = '1.2.1';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -1392,7 +1392,7 @@ const App = {
       <!-- Filters: Difficulty -->
       <div class="fsec"><div class="fsec-lbl">Difficulty</div><div class="fsec-line"></div>${filters.level?`<button class="btn-g" style="padding:2px 8px;font-size:11px" onclick="App._exFilter('level','')">✕ ${filters.level}</button>`:''}</div>
       <div class="fc">
-        ${['Beginner','Intermediate','Advanced'].map(l=>`<div class="fc-chip ${filters.level===l?'on':''}" onclick="App._exFilter('level','${l}')">${l==='Beginner'?'🟢':l==='Intermediate'?'🟡':'🔴'} ${l}</div>`).join('')}
+        ${['Beginner','Intermediate','Advanced'].map(l=>`<div class="fc-chip ${filters.level===l?'on':''}" onclick="App._exFilter('level','${l}')">${l}</div>`).join('')}
       </div>
       <!-- Filters: Favorites -->
       <div class="fsec"><div class="fsec-lbl">Show</div><div class="fsec-line"></div></div>
@@ -1609,7 +1609,7 @@ const App = {
       <!-- Level + fav filters -->
       <div class="fsec"><div class="fsec-lbl">Difficulty</div><div class="fsec-line"></div></div>
       <div class="fc" style="margin-bottom:4px">
-        ${['Beginner','Intermediate','Advanced'].map(l=>`<div class="fc-chip" onclick="App._pickerFilter('level','${l}')">${'🟢🟡🔴'['BIA'.indexOf(l[0])]} ${l}</div>`).join('')}
+        ${['Beginner','Intermediate','Advanced'].map(l=>`<div class="fc-chip" onclick="App._pickerFilter('level','${l}')">${l}</div>`).join('')}
         <div class="fc-chip" onclick="App._pickerFilter('favOnly','toggle')">⭐ Favs Only</div>
         <div class="fc-chip" onclick="App._pickerFilter('newOnly','toggle')">✨ Never Tried</div>
       </div>
@@ -1639,10 +1639,9 @@ const App = {
     document.querySelectorAll('#pickerOverlay .fc-chip').forEach(chip=>{
       const t=chip.textContent.trim();
       const on=t===this._pickerFilterTarget||t===this._pickerFilterEquip||
-        ['Beginner','Intermediate','Advanced'].map(l=>'🟢🟡🔴'['BIA'.indexOf(l[0])]+' '+l).includes(t)?
-        t.includes(this._pickerFilterLevel):
-        (t.includes('Favs')&&this._pickerFavOnly)||(t.includes('Never')&&this._pickerNewOnly)||
-        t===this._pickerFilterTarget||t===this._pickerFilterEquip||t===this._pickerFilterLevel;
+        t===this._pickerFilterLevel||
+        (t.includes('Favs')&&this._pickerFavOnly)||
+        (t.includes('Never')&&this._pickerNewOnly);
       chip.classList.toggle('on',on);
     });
     this._pickerRenderList();
@@ -1880,22 +1879,7 @@ const App = {
         <button class="btn btn-d btn-full btn-sm" onclick="App.clearProfileData()">Clear All Workout History</button>
       </div>
 
-      <div class="section-lbl">Recommended Next Features</div>
-      <div class="card" style="margin-bottom:16px">
-        ${[
-          ['📈','Volume Charts','Graph total volume/weight over time per exercise'],
-          ['🤝','Workout Templates','Save today\u2019s workout as a reusable template'],
-          ['⚖️','Plate Calculator','Enter target weight → see exact plate math'],
-          ['📅','Training Calendar','Heatmap calendar showing workout frequency'],
-          ['🔔','Rest Timer Notifications','Background notification when rest ends'],
-          ['💬','Set Notes','Quick per-set notes (e.g. "felt heavy", "easy")'],
-          ['🏅','Milestone Badges','Celebrate PRs, streaks, first 100 sets etc.'],
-        ].map(([ico,title,sub])=>`
-        <div class="ri">
-          <div class="ri-ico" style="background:var(--surface3)">${ico}</div>
-          <div class="ri-c"><div class="ri-t">${title}</div><div class="ri-s">${sub}</div></div>
-        </div>`).join('')}
-      </div>
+      
       <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--t3)">LiftLab v${CURRENT_VERSION} · 274 exercises · GitHub-synced</div>
     </div>`;
   },
