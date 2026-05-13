@@ -1,5 +1,14 @@
 [
   {
+  "version": "1.2.1",
+  "date": "2026-05-13",
+  "notes": [
+    "Removed 'Recommended Next Features' section from Profile tab",
+    "Fixed difficulty filter chips (Beginner / Intermediate / Advanced) showing as horizontal lines on iOS — replaced emoji circle characters with plain text labels",
+    "Fixed exercise picker chip highlight logic after emoji removal"
+    ]
+  },
+  {
     "version": "1.2.0",
     "date": "2026-05-13",
     "notes": [
