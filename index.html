@@ -1035,9 +1035,18 @@ const App = {
   renderWorkoutLive(m,hT,hB){
     const wk=this.state.activeWorkout;
     if(!wk){this.nav('home');return;}
+
+    // ── Must declare these BEFORE the template literal that references them ──
+    const allProfiles=DB.get('profiles')||[];
+    const participantIds=wk.participants||[wk.profileId||this.state.profileId];
+    const participants=participantIds.map(pid=>allProfiles.find(p=>p.id===pid)).filter(Boolean);
+    const activePid=this.state.liveActivePid||wk.profileId||this.state.profileId;
+    const activeProf=participants.find(p=>p.id===activePid)||participants[0]||null;
+
     hT.innerHTML=`<span class="elapsed" id="wkElapsed">${fmtElapsed(this.state.workoutElapsed)}</span>`;
     hB.innerHTML=`
       <button class="btn btn-sm btn-d" onclick="App.cancelWorkout()">Cancel</button>
+      <button class="btn btn-sm btn-s" onclick="App.saveAsTemplate()" style="padding:8px 10px" title="Save template">💾</button>
       <button class="btn btn-sm btn-p" onclick="App.finishWorkout()">Finish</button>`;
 
     const exData=wk.exercises.map(e=>({...e,info:getExercise(e.exId)})).filter(e=>e.info);
@@ -1045,36 +1054,33 @@ const App = {
     const doneSets=exData.reduce((s,e)=>s+(e.sets||[]).filter(s=>s.completed).length,0);
     const pct=totalSets?Math.round(doneSets/totalSets*100):0;
 
+    // Build profile UI as strings first (avoids nested template literal issues)
+    const mpBarHtml=participants.length>1
+      ?`<div class="mp-bar"><span style="font-size:11px;font-weight:600;color:var(--t3);white-space:nowrap;flex-shrink:0">Logging for:</span>`
+        +participants.map(p=>`<div class="mp-prof ${p.id===activePid?'active':''}" onclick="App._setLiveProfile('${p.id}')"><div class="mp-prof-avatar" style="background:${p.color}22;border:1.5px solid ${p.color}">${p.emoji}</div><span class="mp-prof-name">${p.name}</span></div>`).join('')
+        +`</div>`
+      :'';
+    const profBannerHtml=activeProf
+      ?`<div style="padding:6px 16px;display:flex;align-items:center;gap:8px;background:${activeProf.color}11;border-bottom:.5px solid ${activeProf.color}33"><div style="width:20px;height:20px;border-radius:50%;background:${activeProf.color}33;border:1.5px solid ${activeProf.color};display:flex;align-items:center;justify-content:center;font-size:11px">${activeProf.emoji}</div><span style="font-size:12px;font-weight:600;color:${activeProf.color}">Logging for ${activeProf.name}</span></div>`
+      :'';
+    const exercisesHtml=exData.map((e,ei)=>this.liveExCard(e,ei,wk,activePid)).join('');
+
     m.innerHTML=`
     <div>
       <!-- Progress bar -->
       <div style="padding:12px 16px 0;background:var(--surface);border-bottom:.5px solid var(--border)">
         <div style="display:flex;justify-content:space-between;margin-bottom:4px">
           <span style="font-size:12px;color:var(--t2)">${wk.name}</span>
-          <span style="font-size:12px;font-weight:700;color:var(--accent2)">${doneSets}/${totalSets} sets</span>
+          <span style="font-size:12px;font-weight:700;color:var(--accent2)" id="setsCounter">${doneSets}/${totalSets} sets</span>
         </div>
-        <div class="prog-line"><div class="prog-fill" style="width:${pct}%"></div></div>
-        <div style="font-size:10px;color:var(--t3);text-align:right;padding-bottom:10px">${pct}% complete</div>
+        <div class="prog-line"><div class="prog-fill" id="progressBar" style="width:${pct}%"></div></div>
+        <div style="font-size:10px;color:var(--t3);text-align:right;padding-bottom:10px" id="pctLabel">${pct}% complete</div>
       </div>
-
-      <!-- Multi-profile switcher bar -->
-      ${participants.length>1?`
-      <div class="mp-bar">
-        <span style="font-size:11px;font-weight:600;color:var(--t3);white-space:nowrap;flex-shrink:0">Logging for:</span>
-        ${participants.map(p=>`
-          <div class="mp-prof ${p.id===activePid?'active':''}" onclick="App._setLiveProfile('${p.id}')">
-            <div class="mp-prof-avatar" style="background:${p.color}22;border:1.5px solid ${p.color}">${p.emoji}</div>
-            <span class="mp-prof-name">${p.name}</span>
-          </div>`).join('')}
-      </div>`:''}
-      <!-- Active profile indicator (always visible) -->
-      ${activeProf?`<div style="padding:6px 16px;display:flex;align-items:center;gap:8px;background:${activeProf.color}11;border-bottom:.5px solid ${activeProf.color}33">
-        <div style="width:20px;height:20px;border-radius:50%;background:${activeProf.color}33;border:1.5px solid ${activeProf.color};display:flex;align-items:center;justify-content:center;font-size:11px">${activeProf.emoji}</div>
-        <span style="font-size:12px;font-weight:600;color:${activeProf.color}">Logging sets for ${activeProf.name}</span>
-      </div>`:''}
+      ${mpBarHtml}
+      ${profBannerHtml}
       <!-- Exercises -->
       <div style="padding:12px 16px">
-        ${exData.map((e,ei)=>this.liveExCard(e,ei,wk,activePid)).join('')}
+        ${exercisesHtml}
 
         <!-- Rest timer -->
         <div class="card" style="margin-top:12px;text-align:center;padding:18px 16px" id="restTimerCard">
@@ -1185,7 +1191,12 @@ const App = {
   setVal(ei,si,field,val){
     const wk=this.state.activeWorkout;
     if(!wk)return;
-    wk.exercises[ei].sets[si][field]=field==='weight'?parseFloat(val)||'':parseInt(val)||'';
+    const pid=this.state.liveActivePid||(wk.profileId);
+    const sets=this._getSetsForProfile(wk.exercises[ei],pid);
+    if(!sets[si])return;
+    if(field==='note'){sets[si].note=val;}
+    else if(field==='weight'){sets[si].weight=parseFloat(val)||'';}
+    else if(field==='reps'){sets[si].reps=parseInt(val)||'';}
     DB.set('activeWorkout',wk);
   },
 
@@ -1677,25 +1688,16 @@ const App = {
     const idx=(build.exercises||[]).findIndex(e=>e.exId===exId);
     if(idx>=0){
       build.exercises.splice(idx,1);
-      this.toast('Removed from workout');
+      this.toast('Removed ✓');
     } else {
       build.exercises=[...(build.exercises||[]),{exId,sets:[{weight:'',reps:'',completed:false},{weight:'',reps:'',completed:false},{weight:'',reps:'',completed:false}]}];
-      this.toast(`Added ✓`);
+      this.toast('Added to workout ✓');
     }
     DB.set('buildWorkout',build);
-    // Update card style in overlay
-    const inBuild=new Set((build.exercises||[]).map(e=>e.exId));
-    document.querySelectorAll('#pickerOverlay .ex-card').forEach(card=>{
-      const onclick=card.getAttribute('onclick');
-      if(onclick&&onclick.includes(`(${exId},`)){
-        card.classList.toggle('sel',inBuild.has(exId));
-        const badge=card.querySelector('[style*="In workout"]');
-        if(inBuild.has(exId)&&!badge){
-          const div=card.querySelector('[style*="text-align:right"]');
-          if(div){const d=document.createElement('div');d.style.cssText='font-size:11px;color:var(--accent2);margin-top:2px';d.textContent='In workout';div.appendChild(d);}
-        } else if(!inBuild.has(exId)&&badge)badge.remove();
-      }
-    });
+    // Re-render picker list (fixes duplicate "In workout" badge bug)
+    this._pickerRenderList();
+    // Re-render build list behind the sheet so it's ready when sheet closes
+    this._refreshBuild();
   },
 
   // ==================== HISTORY ====================
