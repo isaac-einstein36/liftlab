@@ -1,26 +1,54 @@
 [
   {
-    "version": "2.0.0",
-    "date": "2026-05-12",
+    "version": "1.2.0",
+    "date": "2026-05-13",
     "notes": [
-      "Claude updates"
+      "Training Calendar — 6-month heatmap of workout frequency",
+      "Volume Charts — per-exercise progress graphs (max weight, total volume, sets done)",
+      "Plate Calculator — visual barbell plate math with color-coded plates",
+      "lbs ↔ kg converter built into Tools",
+      "Workout Templates — save any live workout as a reusable template",
+      "Per-set notes — add a note to any set during a workout",
+      "Milestones & Badges — 18 achievements to unlock",
+      "Multi-profile workouts — lift together, each gets their own history",
+      "Light / Dark / Auto theme toggle in Profile → Settings",
+      "Version history viewer with update prompts from GitHub",
+      "GitHub Gist setup wizard — step-by-step for new users",
+      "Superset visual overhaul — amber left-border group wrapper",
+      "Exercise picker now has full labelled filters matching the Exercise Browser",
+      "Build view refreshes instantly without navigating away",
+      "Favorites star is larger and amber-colored on all exercise cards",
+      "Start button shows exercise count (e.g. Start (6))"
+    ]
+  },
+  {
+    "version": "1.1.0",
+    "date": "2026-05-13",
+    "notes": [
+      "Swipe left to delete exercises from build view",
+      "Superset connector shown as amber bridge between paired exercises",
+      "Favorites — star any exercise from Build, Browser, or detail sheet",
+      "Exercise Browser filters organized into labeled sections",
+      "Added Favorites Only and Never Tried filter shortcuts",
+      "Rest timer redesigned with circular countdown ring",
+      "Skip Rest button added",
+      "Rest timer auto-starts after each completed set",
+      "Rest timer settings — configurable in Profile"
     ]
   },
   {
     "version": "1.0.0",
     "date": "2026-05-12",
     "notes": [
-      "Initial release",
-      "274 exercises across 11 muscle groups",
-      "Body map muscle selector",
-      "Smart exercise suggestions (least-used first)",
-      "Live workout tracker with sets, weight, reps",
-      "Rest timer with haptic feedback",
-      "GitHub Gist sync for portable data",
-      "Multiple lifting profiles",
-      "Personal bests and workout history",
+      "Initial release — 274 exercises across 11 muscle groups",
+      "Interactive SVG body map for muscle selection",
+      "Smart exercise suggestions sorted by least-recently-used",
+      "Live workout tracker with sets, weight, reps, and rest timer",
+      "GitHub Gist sync for portable data across devices",
+      "Multiple lifting profiles with per-profile history",
+      "Personal bests and full workout history",
       "Superset support and drag-to-reorder",
-      "Push/Pull/Legs and other preset plans",
+      "Push/Pull/Legs, Upper/Lower, Full Body, Arnold Split preset plans",
       "Custom exercise creator"
     ]
   }
