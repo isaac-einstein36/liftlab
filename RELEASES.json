@@ -1,6 +1,6 @@
 [
   {
-  "version": "1.2.6.1",
+  "version": "1.2.6",
   "date": "2026-05-13",
   "notes": [
     "Fixed: Participant checkboxes in Build now toggle correctly — tapping a row reliably adds or removes that profile",
@@ -10,7 +10,7 @@
     ]
   },
   {
-  "version": "1.2.6",
+  "version": "1.2.5",
   "date": "2026-05-13",
   "notes": [
     "Fixed: Participant selection in Build now uses custom tap-to-toggle rows instead of native checkboxes — fully visible and reliable on iOS",
