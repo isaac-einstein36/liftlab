@@ -1,5 +1,24 @@
 [
   {
+  "version": "1.2.6",
+  "date": "2026-05-13",
+  "notes": [
+    "Fixed: Participant checkboxes in Build now toggle correctly — tapping a row reliably adds or removes that profile",
+    "Fixed: Participants list is now properly persisted to storage on first load so toggling works from a correct baseline",
+    "Fixed: Header and nav bar now respond to Light/Dark/Auto theme",
+    "Fixed: Active profile banner always shows during a workout"
+    ]
+  },
+  {
+  "version": "1.2.6",
+  "date": "2026-05-13",
+  "notes": [
+    "Fixed: Participant selection in Build now uses custom tap-to-toggle rows instead of native checkboxes — fully visible and reliable on iOS",
+    "Fixed: Header and nav bar now respond to Light/Dark/Auto theme — were previously hardcoded dark regardless of setting",
+    "Improved: Participant rows show 'Included' label and colored highlight when selected, and update instantly on tap"
+    ]
+  },
+  {
   "version": "1.2.4",
   "date": "2026-05-13",
   "notes": [
