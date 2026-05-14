@@ -252,7 +252,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.2.3';
+const CURRENT_VERSION = '1.2.4';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -1055,13 +1055,24 @@ const App = {
     const pct=totalSets?Math.round(doneSets/totalSets*100):0;
 
     // Build profile UI as strings first (avoids nested template literal issues)
+    // Per-profile set completion counts (for the switcher chips)
+    const profileSetCounts=participantIds.reduce((acc,pid)=>{
+      const total=exData.reduce((s,e)=>s+(this._getSetsForProfile(e,pid)||[]).length,0);
+      const done=exData.reduce((s,e)=>s+(this._getSetsForProfile(e,pid)||[]).filter(s=>s.completed).length,0);
+      acc[pid]={total,done};return acc;
+    },{});
+
     const mpBarHtml=participants.length>1
-      ?`<div class="mp-bar"><span style="font-size:11px;font-weight:600;color:var(--t3);white-space:nowrap;flex-shrink:0">Logging for:</span>`
-        +participants.map(p=>`<div class="mp-prof ${p.id===activePid?'active':''}" onclick="App._setLiveProfile('${p.id}')"><div class="mp-prof-avatar" style="background:${p.color}22;border:1.5px solid ${p.color}">${p.emoji}</div><span class="mp-prof-name">${p.name}</span></div>`).join('')
-        +`</div>`
+      ?`<div style="background:var(--surface);border-bottom:.5px solid var(--border);padding:8px 14px 0"><div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Tap to switch who you're logging for</div><div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px">`
+        +participants.map(p=>{
+          const cnt=profileSetCounts[p.id]||{done:0,total:0};
+          const isActive=p.id===activePid;
+          return`<div onclick="App._setLiveProfile('${p.id}')" style="flex-shrink:0;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;border:1.5px solid ${isActive?p.color:'var(--border)'};background:${isActive?p.color+'18':'var(--surface2)'};cursor:pointer;transition:all .15s"><div style="width:28px;height:28px;border-radius:50%;background:${p.color}33;border:1.5px solid ${p.color};display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${p.emoji}</div><div><div style="font-size:13px;font-weight:700;color:${isActive?p.color:'var(--t1)'}">${p.name}</div><div style="font-size:10px;color:var(--t3)">${cnt.done}/${cnt.total} sets</div></div>${isActive?`<div style="width:6px;height:6px;border-radius:50%;background:${p.color};margin-left:2px;flex-shrink:0"></div>`:''}</div>`;
+        }).join('')
+        +`</div></div>`
       :'';
-    const profBannerHtml=activeProf
-      ?`<div style="padding:6px 16px;display:flex;align-items:center;gap:8px;background:${activeProf.color}11;border-bottom:.5px solid ${activeProf.color}33"><div style="width:20px;height:20px;border-radius:50%;background:${activeProf.color}33;border:1.5px solid ${activeProf.color};display:flex;align-items:center;justify-content:center;font-size:11px">${activeProf.emoji}</div><span style="font-size:12px;font-weight:600;color:${activeProf.color}">Logging for ${activeProf.name}</span></div>`
+    const profBannerHtml=activeProf&&participants.length>1
+      ?`<div style="padding:5px 16px;display:flex;align-items:center;gap:7px;background:${activeProf.color}0d"><div style="width:8px;height:8px;border-radius:50%;background:${activeProf.color};flex-shrink:0"></div><span style="font-size:11px;font-weight:600;color:${activeProf.color}">Logging sets for ${activeProf.name}</span></div>`
       :'';
     const exercisesHtml=exData.map((e,ei)=>this.liveExCard(e,ei,wk,activePid)).join('');
 
@@ -2018,10 +2029,13 @@ const App = {
     overlay.className='overlay';
     overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
     overlay.innerHTML=`
-    <div class="sheet">
+    <div class="sheet" style="max-height:60vh;display:flex;flex-direction:column">
       <div class="sh-bar"></div>
-      <div class="sh-title">Version History</div>
-      <div class="sh-body" style="padding-bottom:24px">
+      <div style="display:flex;align-items:center;padding:12px 20px 8px;flex-shrink:0">
+        <div style="font-size:17px;font-weight:700;flex:1">Version History</div>
+        <button onclick="this.closest('.overlay').remove()" style="background:var(--surface2);border:.5px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--t2);cursor:pointer;flex-shrink:0;line-height:1">✕</button>
+      </div>
+      <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 20px 24px;flex:1">
         ${this.state.updateAvailable?`
         <div style="background:var(--green-dim);border:.5px solid rgba(52,211,153,.3);border-radius:10px;padding:12px;margin-bottom:14px">
           <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:4px">🆕 Update Available — v${this.state.updateAvailable.version}</div>
