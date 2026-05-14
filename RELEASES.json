@@ -1,5 +1,17 @@
 [
   {
+  "version": "1.3.0",
+  "date": "2026-05-14",
+  "notes": [
+    "Exercise names now wrap to multiple lines — no more truncation on long names",
+    "Tab bar moved closer to the bottom of the screen on iPhone",
+    "Prebuilt plans (Push Day, PPL, etc.) now load into the Build tab for editing before starting — set participants, swap exercises, adjust sets",
+    "Save any workout as a custom plan — floppy disk icon in Build header, saved plans appear on Home screen",
+    "Supersets now support more than 2 exercises — tap '+ Add to SS' to chain a third, fourth, etc.",
+    "In-app update installer — tap 'Install Update Now' in Version History to update without leaving the app"
+    ]
+  },
+  {
   "version": "1.2.6",
   "date": "2026-05-13",
   "notes": [
