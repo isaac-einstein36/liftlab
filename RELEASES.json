@@ -1,5 +1,14 @@
 [
   {
+  "version": "1.2.3",
+  "date": "2026-05-13",
+  "notes": [
+    "Fixed: Home tab no longer shows blank — caused by a variable name collision in the muscle picker template",
+    "Improved: GitHub setup now lets you link an existing Gist ID instead of always creating a new one",
+    "Improved: Gist ID field is editable when already connected, so you can relink to a different Gist"
+    ]
+  },
+  {
   "version": "1.2.2",
   "date": "2026-05-13",
   "notes": [
