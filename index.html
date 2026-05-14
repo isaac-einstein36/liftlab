@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="htmlRoot">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -9,6 +9,8 @@
 <title>LiftLab</title>
 <style>
 :root{--bg:#08080f;--surface:#111118;--surface2:#1a1a24;--surface3:#22222e;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--accent:#7c6dff;--accent2:#a594ff;--accent-dim:rgba(124,109,255,0.14);--green:#34d399;--green-dim:rgba(52,211,153,0.14);--red:#f87171;--red-dim:rgba(248,113,113,0.14);--amber:#fbbf24;--amber-dim:rgba(251,191,36,0.13);--teal:#22d3ee;--teal-dim:rgba(34,211,238,0.11);--t1:#eeeeff;--t2:#8888aa;--t3:#50505f;--nav-h:68px;--hdr-h:54px;--safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px)}
+[data-theme="light"]{--bg:#f0f0f8;--surface:#ffffff;--surface2:#eeeef8;--surface3:#e2e2f0;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--t1:#0d0d1a;--t2:#55557a;--t3:#9090b0;--accent:#6355ee;--accent2:#4f44cc;--accent-dim:rgba(99,85,238,0.12)}
+@media(prefers-color-scheme:light){[data-theme="auto"]{--bg:#f0f0f8;--surface:#ffffff;--surface2:#eeeef8;--surface3:#e2e2f0;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--t1:#0d0d1a;--t2:#55557a;--t3:#9090b0;--accent:#6355ee;--accent2:#4f44cc;--accent-dim:rgba(99,85,238,0.12)}}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
 #app{display:flex;flex-direction:column;height:100%;height:-webkit-fill-available}
@@ -149,8 +151,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .swipe-del-bg{position:absolute;right:0;top:0;bottom:0;background:var(--red);display:flex;align-items:center;justify-content:flex-end;padding:0 20px;border-radius:0 14px 14px 0;min-width:80px}
 .swipe-del-bg svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 /* Favorites */
-.fav-btn{background:none;border:none;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;font-size:18px;opacity:.4;transition:opacity .2s,transform .2s}
-.fav-btn.on{opacity:1;transform:scale(1.15)}
+.fav-btn{background:none;border:none;cursor:pointer;padding:6px;line-height:1;flex-shrink:0;font-size:20px;opacity:.55;transition:opacity .2s,transform .2s;color:var(--amber)}
+.fav-btn.on{opacity:1;transform:scale(1.2)}
 /* Filter section labels */
 .filter-section{padding:0 16px 4px;display:flex;align-items:center;gap:6px}
 .filter-section-lbl{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.6px;text-transform:uppercase;white-space:nowrap}
@@ -168,6 +170,56 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 /* Skip rest btn */
 .skip-rest-btn{background:var(--surface3);border:none;color:var(--t2);font-size:12px;font-weight:600;padding:6px 16px;border-radius:100px;cursor:pointer;font-family:inherit;transition:all .15s}
 .skip-rest-btn:active{opacity:.7}
+/* Superset strong visual */
+.ss-group-wrap{border-left:3px solid var(--amber);border-radius:0 14px 14px 0;padding-left:0;margin-bottom:4px;position:relative;background:linear-gradient(90deg,rgba(251,191,36,.06) 0%,transparent 40%)}
+.ss-group-label{position:absolute;left:-1px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;font-size:9px;font-weight:800;color:var(--amber);letter-spacing:.5px;background:var(--amber-dim);padding:6px 2px;border-radius:0 4px 4px 0;border:1px solid rgba(251,191,36,.3);border-left:none}
+.ss-tag{background:var(--amber);color:#000;font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;letter-spacing:.4px}
+/* Multi-profile workout banner */
+.mp-bar{background:var(--surface2);border-bottom:.5px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none}
+.mp-bar::-webkit-scrollbar{display:none}
+.mp-prof{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:100px;border:1.5px solid transparent;cursor:pointer;flex-shrink:0;transition:all .15s}
+.mp-prof.active{border-color:var(--accent);background:var(--accent-dim)}
+.mp-prof-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.mp-prof-name{font-size:12px;font-weight:600;color:var(--t1)}
+/* Theme toggle */
+.theme-seg{display:flex;background:var(--surface2);border-radius:8px;padding:2px;gap:2px;border:.5px solid var(--border)}
+.theme-btn{flex:1;padding:5px 8px;font-size:12px;font-weight:600;border-radius:6px;border:none;background:none;color:var(--t2);cursor:pointer;transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px}
+.theme-btn.on{background:var(--accent);color:#fff}
+/* Version checker */
+.update-banner{background:var(--green-dim);border:.5px solid rgba(52,211,153,.3);border-radius:10px;padding:12px 14px;margin:0 16px 12px;display:flex;align-items:center;gap:10px}
+/* Gist wizard steps */
+.wizard-step{padding:16px 0}
+.wizard-num{width:28px;height:28px;border-radius:50%;background:var(--accent-dim);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent2);flex-shrink:0}
+.wizard-step-row{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
+/* Favorite star in exercise card */
+.fav-star{color:var(--amber);font-size:14px;flex-shrink:0;opacity:1}
+/* Calendar heatmap */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-day{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;cursor:pointer;transition:all .15s}
+.cal-day.empty{background:transparent;cursor:default}
+.cal-day.rest{background:var(--surface2);color:var(--t3)}
+.cal-day.w1{background:rgba(124,109,255,0.25);color:var(--accent2)}
+.cal-day.w2{background:rgba(124,109,255,0.45);color:var(--accent2)}
+.cal-day.w3{background:rgba(124,109,255,0.65);color:#fff}
+.cal-day.w4{background:var(--accent);color:#fff}
+.cal-day.today{box-shadow:0 0 0 1.5px var(--green)}
+/* Badge cards */
+.badge-card{display:flex;flex-direction:column;align-items:center;gap:5px;padding:13px 8px;background:var(--surface2);border-radius:14px;border:.5px solid var(--border);min-width:90px;flex-shrink:0;text-align:center}
+.badge-ico{font-size:28px;line-height:1}
+.badge-name{font-size:11px;font-weight:700;color:var(--t1);line-height:1.3}
+.badge-sub{font-size:9px;color:var(--t3);line-height:1.4}
+.badge-card.locked{opacity:.35;filter:grayscale(.7)}
+.badge-card.unlocked{border-color:var(--amber);background:var(--amber-dim)}
+/* Set notes */
+.set-note-input{background:none;border:none;border-bottom:.5px solid var(--border);color:var(--t2);font-size:12px;padding:3px 2px;width:100%;outline:none;font-family:inherit;font-style:italic}
+.set-note-input::placeholder{color:var(--t3)}
+/* Template card */
+.tmpl-card{background:var(--surface2);border:.5px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;transition:all .15s;flex-shrink:0;width:158px}
+.tmpl-card:active{background:var(--surface3)}
+/* Volume bars */
+.vchart-svg{overflow:visible}
+/* Plate calculator */
+.plate{display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;writing-mode:vertical-rl}
 </style>
 </head>
 <body>
@@ -200,8 +252,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.1.0';
-const RELEASES_URL = '';
+const CURRENT_VERSION = '1.2.3';
+const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
 const EXERCISE_DB = [{"id":1001,"name":"Incline Hip Thrust","origName":"Incline Hip Thrust","muscle":"Abdominals","target":"Lower","secondary":"","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1002,"name":"Lying Hip Thrust","origName":"Lying Hip Thrust","muscle":"Abdominals","target":"Lower","secondary":"","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1003,"name":"Standard Leg Raises","origName":"Leg Raises","muscle":"Abdominals","target":"Lower","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1004,"name":"Medicine Ball Reverse Crunch","origName":"Reverse Medicine Ball Crunch","muscle":"Abdominals","target":"Lower","secondary":"","equipment":"Medicine Ball","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1005,"name":"Incline Reverse Crunch","origName":"Incline Reverse Crunch","muscle":"Abdominals","target":"Lower","secondary":"","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1006,"name":"Standard Reverse Crunch","origName":"Reverse Crunch","muscle":"Abdominals","target":"Lower","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1007,"name":"ABC's Scissors","origName":"ABC's","muscle":"Abdominals","target":"Lower","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1008,"name":"Horizontal Scissors","origName":"Scissors","muscle":"Abdominals","target":"Lower","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1009,"name":"Standard Windshield Wipers","origName":"Windshield Wipers","muscle":"Abdominals","target":"Lower","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1010,"name":"Bent Knee Medicine Ball Hip Rotation","origName":"Bent-Knee Medicine Ball Hip Rotation","muscle":"Abdominals","target":"Obliques","secondary":"","equipment":"Medicine Ball","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1011,"name":"Reverse Cable Chop","origName":"Reverse Cable Chop","muscle":"Abdominals","target":"Obliques","secondary":"","equipment":"Cable","level":"Advanced","pp":"Push","modality":"C","joint":"M","ulc":"Core"},{"id":1012,"name":"Cable Chop","origName":"Cable Chop","muscle":"Abdominals","target":"Obliques","secondary":"","equipment":"Cable","level":"Advanced","pp":"Push","modality":"C","joint":"M","ulc":"Core"},{"id":1013,"name":"Cross Medicine Ball Crunch","origName":"Cross Crunch w/ Medicine Ball","muscle":"Abdominals","target":"Obliques","secondary":"","equipment":"Medicine Ball","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1014,"name":"Bicycle Crunch","origName":"Bicycle Crunch","muscle":"Abdominals","target":"Obliques","secondary":"","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1015,"name":"Cross Crunch","origName":"Cross Crunch","muscle":"Abdominals","target":"Obliques","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1016,"name":"Alternating Heel Touch","origName":"Alternating Heel Touch","muscle":"Abdominals","target":"Obliques","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1017,"name":"Oblique Mountain Climbers","origName":"Oblique Mountain Climbers","muscle":"Abdominals","target":"Obliques","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1018,"name":"Cross and Decline Sit-Up","origName":"Decline Cross Sit-Up","muscle":"Abdominals","target":"Obliques","secondary":"","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1019,"name":"Decline w/ Twist Sit-Up","origName":"Decline Sit-Up w/ Twist","muscle":"Abdominals","target":"Obliques","secondary":"","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1020,"name":"Standard Trunk Rotator","origName":"Trunk Rotator","muscle":"Abdominals","target":"Obliques","secondary":"","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1021,"name":"Standard In and Outs","origName":"In and Outs","muscle":"Abdominals","target":"Total","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1022,"name":"Ab Wheel Kneeling Ab Rollout","origName":"Kneeling Ab Rollout","muscle":"Abdominals","target":"Total","secondary":"","equipment":"Ab Wheel","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1023,"name":"Medicine Ball Mountain Climbers","origName":"Oblique Mountain Climbers","muscle":"Abdominals","target":"Total","secondary":"","equipment":"Medicine Ball","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1024,"name":"Standard Mountain Climbers","origName":"Oblique Mountain Climbers","muscle":"Abdominals","target":"Total","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1025,"name":"Front Plank","origName":"Front Plank (from toes)","muscle":"Abdominals","target":"Total","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Static","modality":"FW","joint":"M","ulc":"Core"},{"id":1026,"name":"Front Tripod (1 arm and 2 legs) Plank","origName":"Front Plank (tripod - 1 arm and 2 legs or 2 legs and 1 arm)","muscle":"Abdominals","target":"Total","secondary":"","equipment":"Bodyweight","level":"Advanced","pp":"Static","modality":"FW","joint":"M","ulc":"Core"},{"id":1027,"name":"Side Plank","origName":"Side-Plank (from toes)","muscle":"Abdominals","target":"Total","secondary":"","equipment":"Bodyweight","level":"Advanced","pp":"Static","modality":"FW","joint":"M","ulc":"Core"},{"id":1028,"name":"Side (hip lift) Plank","origName":"Side-Plank (hip lift)","muscle":"Abdominals","target":"Total","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Static","modality":"FW","joint":"M","ulc":"Core"},{"id":1029,"name":"Standard Superman/Banana","origName":"Superman/Banana","muscle":"Abdominals","target":"Total","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1030,"name":"Standard V-Up","origName":"V-Up","muscle":"Abdominals","target":"Total","secondary":"","equipment":"Standard","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1031,"name":"Medicine Ball V-Up","origName":"Medicine Ball V-Up","muscle":"Abdominals","target":"Total","secondary":"","equipment":"Medicine Ball","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1032,"name":"Bent Knee Crunch","origName":"Bent-Knee Crunch","muscle":"Abdominals","target":"Upper","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1033,"name":"Decline Crunch","origName":"Decline Crunch","muscle":"Abdominals","target":"Upper","secondary":"","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1034,"name":"Standard Crunch","origName":"Crunch","muscle":"Abdominals","target":"Upper","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1035,"name":"Weighted Crunch","origName":"Weighted Crunch","muscle":"Abdominals","target":"Upper","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1036,"name":"Standard Heel Touch","origName":"Heel Touch","muscle":"Abdominals","target":"Upper","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1037,"name":"Bent Knee Sit-Up","origName":"Bent Knee Sit-Up","muscle":"Abdominals","target":"Upper","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1038,"name":"Decline Sit-Up","origName":"Decline Sit-Up","muscle":"Abdominals","target":"Upper","secondary":"","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1039,"name":"Standard Sit-Up","origName":"Sit-Up","muscle":"Abdominals","target":"Upper","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Core"},{"id":1040,"name":"Standard Toe-Touches","origName":"Toe-Touches","muscle":"Abdominals","target":"Upper","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1041,"name":"Standard Back Raise","origName":"Back Raise","muscle":"Back","target":"Lower","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Pull","modality":"FW","joint":"M","ulc":"Core"},{"id":1042,"name":"Standard Superman Hold","origName":"Superman Hold","muscle":"Back","target":"Lower","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Pull","modality":"FW","joint":"M","ulc":"Core"},{"id":1043,"name":"Cable Rope Face Pull","origName":"Cable Rope Face Pull","muscle":"Back","target":"Traps","secondary":"Shoulder","equipment":"Cable Rope","level":"Intermediate","pp":"Pull","modality":"C","joint":"M","ulc":"Upper"},{"id":1044,"name":"Close Grip Cable Lat Pulldown","origName":"Close-Grip Lat Pulldown","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Cable","level":"Beginner","pp":"Pull","modality":"M","joint":"M","ulc":"Upper"},{"id":1045,"name":"Reverse Grip Cable Lat Pulldown","origName":"Reverse-Grip Lat Pullown","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Cable","level":"Intermediate","pp":"Pull","modality":"C","joint":"M","ulc":"Upper"},{"id":1046,"name":"Single-Arm Cable Lat Pulldown","origName":"Single-Arm Lat Pulldown","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Cable","level":"Intermediate","pp":"Pull","modality":"C","joint":"M","ulc":"Upper"},{"id":1047,"name":"Standard Cable Lat Pulldown","origName":"Lat Pulldown","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Cable","level":"Beginner","pp":"Pull","modality":"C","joint":"M","ulc":"Upper"},{"id":1048,"name":"Wide Grip Cable Lat Pulldown","origName":"Wide-Grip Lat Pulldown","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Cable","level":"Beginner","pp":"Pull","modality":"C","joint":"M","ulc":"Upper"},{"id":1049,"name":"Inverted Pull-Up","origName":"Inverted Pull-Up","muscle":"Back","target":"Middle/Upper","secondary":"","equipment":"Bodyweight","level":"Advanced","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1050,"name":"Reverse Grip Pull-Up","origName":"Reverse-Grip Pull-Up","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Bodyweight","level":"Advanced","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1051,"name":"Standard Pull-Up","origName":"Pull-Up","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Bodyweight","level":"Beginner","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1052,"name":"V-Bar Pull-Up","origName":"V-Bar Pull-Up","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Bodyweight","level":"Advanced","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1053,"name":"Rope Cable Row","origName":"Rope Cable Row","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Rope Cable","level":"Intermediate","pp":"Pull","modality":"C","joint":"M","ulc":"Upper"},{"id":1054,"name":"Bent-Over Dumbbell Row","origName":"Bent-Over Dumbbell Row","muscle":"Back","target":"Middle/Upper","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1055,"name":"Bent-Over Alternating Dumbbell Row","origName":"Bent-Over Alternating Dumbbell Row","muscle":"Back","target":"Middle/Upper","secondary":"","equipment":"Dumbbell","level":"Intermediate","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1056,"name":"Bent-Over Hammer Dumbbell Row","origName":"Bent-Over Hammer Dumbbell Row","muscle":"Back","target":"Middle/Upper","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1057,"name":"Reverse Incline Dumbbell Dumbbell Row","origName":"Reverse Incline Dumbbell Row","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Dumbbell","level":"Advanced","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1058,"name":"Single-Arm Dumbbell Row","origName":"One Arm Dumbbell Row","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1059,"name":"Single-Arm Dumbbell Row","origName":"Single-Arm Dumbbell Row","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1060,"name":"Machine Cable Row","origName":"Machine Row","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Cable","level":"Beginner","pp":"Pull","modality":"M","joint":"M","ulc":"Upper"},{"id":1061,"name":"Seated Cable Row","origName":"Seated Cable Row","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Cable","level":"Beginner","pp":"Pull","modality":"C","joint":"M","ulc":"Upper"},{"id":1062,"name":"Single-Arm Cable Row","origName":"Single-Arm Cable Row","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Cable","level":"Intermediate","pp":"Pull","modality":"C","joint":"M","ulc":"Upper"},{"id":1063,"name":"Standing Cable Row","origName":"Standing Cable Row","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Cable","level":"Beginner","pp":"Pull","modality":"C","joint":"M","ulc":"Upper"},{"id":1064,"name":"Standing Single-Arm Cable Row","origName":"Standing Single-Arm Cable Row","muscle":"Back","target":"Middle/Upper","secondary":"Shoulder","equipment":"Cable","level":"Intermediate","pp":"Pull","modality":"C","joint":"M","ulc":"Upper"},{"id":1065,"name":"Bent-Over Barbell Row","origName":"Bent-Over Barbell Row","muscle":"Back","target":"Middle/Upper","secondary":"","equipment":"Barbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1066,"name":"Bent-Over Reverse-Grip Barbell Row","origName":"Bent-Over Reverse-Grip Barbell Row","muscle":"Back","target":"Middle/Upper","secondary":"","equipment":"Barbell","level":"Advanced","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1067,"name":"Overhead Rope Cable Curl","origName":"Overhead Rope Cable Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Rope Cable","level":"Advanced","pp":"Pull","modality":"C","joint":"S","ulc":"Upper"},{"id":1068,"name":"Rope Cable Curl","origName":"Rope Cable Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Rope Cable","level":"Intermediate","pp":"Pull","modality":"C","joint":"S","ulc":"Upper"},{"id":1069,"name":"EZ-Bar Curl","origName":"EZ-Bar Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"EZ-Bar","level":"Intermediate","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1070,"name":"Alternating Dumbbell Curl","origName":"Alternating Dumbbell Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1071,"name":"Incline Single-Arm Dumbbell Curl","origName":"Single-Arm Dumbbell Curl w/ Incline Bench","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1072,"name":"Reverse Dumbbell Curl","origName":"Reverse Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1073,"name":"Seated Dumbbell Curl","origName":"Seated Dumbbell Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1074,"name":"Seated Alternating Dumbbell Curl","origName":"Seated Alternating Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1075,"name":"Dumbbell Curl","origName":"Dumbbell Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1076,"name":"Kneeling Cable Curl","origName":"Kneeling Cable Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Cable","level":"Beginner","pp":"Pull","modality":"C","joint":"S","ulc":"Upper"},{"id":1077,"name":"Lying Cable Curl","origName":"Lying Cable Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Cable","level":"Intermediate","pp":"Pull","modality":"C","joint":"S","ulc":"Upper"},{"id":1078,"name":"Lying High Cable Curl","origName":"Lying High Cable Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Cable","level":"Advanced","pp":"Pull","modality":"C","joint":"S","ulc":"Upper"},{"id":1079,"name":"Lyng Double Biceps Cable Curl","origName":"Lying Double Biceps Cable Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Cable","level":"Intermediate","pp":"Pull","modality":"C","joint":"S","ulc":"Upper"},{"id":1080,"name":"Overhead Double Biceps Cable Curl","origName":"Overhead Double Biceps Cable Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Cable","level":"Advanced","pp":"Pull","modality":"C","joint":"S","ulc":"Upper"},{"id":1081,"name":"Single-Arm Cable Curl","origName":"Single-Arm Cable Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Cable","level":"Intermediate","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1082,"name":"Cable Curl","origName":"Cable Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Cable","level":"Intermediate","pp":"Pull","modality":"C","joint":"S","ulc":"Upper"},{"id":1083,"name":"Barbell Curl","origName":"Barbell Curl","muscle":"Biceps","target":"Brachialis","secondary":"","equipment":"Barbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1084,"name":"Incline Dumbbell Curl","origName":"Incline Dumbbell Curl","muscle":"Biceps","target":"Long Head","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1085,"name":"Incline Alternating Dumbbell Curl","origName":"Incline Alternating Dumbbell Curl","muscle":"Biceps","target":"Long Head","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1086,"name":"Alternating Dumbbell Hammer Curl","origName":"Alternating Hammer Curl","muscle":"Biceps","target":"Long Head","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1087,"name":"Cross Body Dumbbell Hammer Curl","origName":"Cross Body Hammer Curl","muscle":"Biceps","target":"Long Head","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1088,"name":"Incline Dumbbell Hammer Curl","origName":"Incline Hammer Curl","muscle":"Biceps","target":"Long Head","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1089,"name":"Incline Alternating Dumbbell Hammer Curl","origName":"Incline Alternating Hammer Curl","muscle":"Biceps","target":"Long Head","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1090,"name":"Seated Dumbbell Hammer Curl","origName":"Seated Hammer Curl","muscle":"Biceps","target":"Long Head","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1091,"name":"Seated Alternating Dumbbell Hammer Curl","origName":"Seated Alternating Hammer Curl","muscle":"Biceps","target":"Long Head","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1092,"name":"Standard Dumbbell Hammer Curl","origName":"Hammer Curl","muscle":"Biceps","target":"Long Head","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1093,"name":"Dumbbell Concentration Curl","origName":"Concentration Dumbbell Curl","muscle":"Biceps","target":"Long/Short Head","secondary":"","equipment":"Dumbbell","level":"Intermediate","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1094,"name":"EZ-Bar Preacher Curl","origName":"Preacher EZ-Bar Curl","muscle":"Biceps","target":"Short Head","secondary":"","equipment":"EZ-Bar","level":"Advanced","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1095,"name":"Hammer Dumbbell Preacher Curl","origName":"Preacher Hammer Dumbbell Curl","muscle":"Biceps","target":"Short Head","secondary":"","equipment":"Dumbbell","level":"Intermediate","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1096,"name":"Single-Arm Dumbbell Preacher Curl","origName":"Preacher Single-Arm Dumbbell Curl","muscle":"Biceps","target":"Short Head","secondary":"","equipment":"Dumbbell","level":"Intermediate","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1097,"name":"Dumbbell Preacher Curl","origName":"Preacher Dumbbell Curl","muscle":"Biceps","target":"Short Head","secondary":"","equipment":"Dumbbell","level":"Intermediate","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1098,"name":"Cable Preacher Curl","origName":"Preacher Cable Curl","muscle":"Biceps","target":"Short Head","secondary":"","equipment":"Cable","level":"Advanced","pp":"Pull","modality":"C","joint":"S","ulc":"Upper"},{"id":1099,"name":"Barbell Preacher Curl","origName":"Preacher Barbell Curl","muscle":"Biceps","target":"Short Head","secondary":"","equipment":"Barbell","level":"Advanced","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1100,"name":"Dumbbell Spider Curl","origName":"Spider Curl","muscle":"Biceps","target":"Short Head","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper"},{"id":1101,"name":"Seated Calf Raise","origName":"Seated Calf Raise","muscle":"Calves","target":"Lower","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"M","joint":"S","ulc":"Lower"},{"id":1102,"name":"Seated Single-Leg Calf Raise","origName":"Seated Single-Leg Calf Raise","muscle":"Calves","target":"Lower","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"M","joint":"S","ulc":"Lower"},{"id":1103,"name":"Single-Leg Calf Press","origName":"Single-Leg Calf Press","muscle":"Calves","target":"Upper","secondary":"","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"M","joint":"S","ulc":"Lower"},{"id":1104,"name":"Standard Calf Press","origName":"Calf Press","muscle":"Calves","target":"Upper","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"M","joint":"S","ulc":"Lower"},{"id":1105,"name":"Smith Machine Calf Raise","origName":"Smith Machine Calf Raise","muscle":"Calves","target":"Upper","secondary":"","equipment":"Smith Machine","level":"Intermediate","pp":"Push","modality":"M","joint":"S","ulc":"Lower"},{"id":1106,"name":"Single-Leg Dumbbell Calf Raise","origName":"Single-Leg Dumbbell Calf Raise","muscle":"Calves","target":"Upper","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"S","ulc":"Lower"},{"id":1107,"name":"Dumbbell Calf Raise","origName":"Dumbbell Calf Raise","muscle":"Calves","target":"Upper","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Lower"},{"id":1108,"name":"Barbell Calf Raise","origName":"Barbell Calf Raise","muscle":"Calves","target":"Upper","secondary":"","equipment":"Barbell","level":"Advanced","pp":"Push","modality":"FW","joint":"S","ulc":"Lower"},{"id":1109,"name":"Decline Smith Machine Bench Press","origName":"Decline Smith Machine Bench Press","muscle":"Chest","target":"Lower","secondary":"","equipment":"Smith Machine","level":"Advanced","pp":"Push","modality":"M","joint":"M","ulc":"Upper"},{"id":1110,"name":"Decline Dumbbell Bench Press","origName":"Decline Dumbbell Bench Press","muscle":"Chest","target":"Lower","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1111,"name":"Decline Dumbbell Fly","origName":"Decline Dumbbell Fly","muscle":"Chest","target":"Lower","secondary":"Back","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1112,"name":"Elevated Push-Up","origName":"Elevated Push-Up","muscle":"Chest","target":"Lower","secondary":"Back","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1113,"name":"High Cable Cable Crossover","origName":"High Cable Crossover","muscle":"Chest","target":"Outter","secondary":"","equipment":"Cable","level":"Advanced","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1114,"name":"Low Cable Cable Crossover","origName":"Low Cable Crossover","muscle":"Chest","target":"Outter","secondary":"","equipment":"Cable","level":"Intermediate","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1115,"name":"Incline Dumbbell Fly","origName":"Incline Dumbbell Fly","muscle":"Chest","target":"Outter","secondary":"Back","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1116,"name":"Incline Twisting Dumbbell Fly","origName":"Incline Twisting Dumbbell Fly","muscle":"Chest","target":"Outter","secondary":"Back","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1117,"name":"Dumbbell Fly","origName":"Dumbbell Fly","muscle":"Chest","target":"Outter","secondary":"Back","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1118,"name":"Incline Cable Fly","origName":"Incline Cable Fly","muscle":"Chest","target":"Outter","secondary":"Back","equipment":"Cable","level":"Advanced","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1119,"name":"Cable Fly","origName":"Cable Fly","muscle":"Chest","target":"Outter","secondary":"","equipment":"Cable","level":"Advanced","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1120,"name":"Pec Deck Fly","origName":"Pec Deck Fly","muscle":"Chest","target":"Outter","secondary":"Back","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"M","joint":"S","ulc":"Upper"},{"id":1121,"name":"Smith Machine Bench Press","origName":"Smith Machine Bench Press","muscle":"Chest","target":"Total","secondary":"","equipment":"Smith Machine","level":"Intermediate","pp":"Push","modality":"M","joint":"M","ulc":"Upper"},{"id":1122,"name":"Alternating Dumbbell Bench Press","origName":"Alternating Dumbbell Bench Press","muscle":"Chest","target":"Total","secondary":"","equipment":"Dumbbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1123,"name":"Flat Dumbbell Bench Press","origName":"Flat Bench Press","muscle":"Chest","target":"Total","secondary":"","equipment":"Dumbbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1124,"name":"Single-Arm Dumbbell Bench Press","origName":"Single-Arm Dumbbell Bench Press","muscle":"Chest","target":"Total","secondary":"","equipment":"Dumbbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1125,"name":"Twisting Dumbbell Bench Press","origName":"Twisting Dumbbell Bench Press","muscle":"Chest","target":"Total","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1126,"name":"Dumbbell Bench Press","origName":"Dumbbell Bench Press","muscle":"Chest","target":"Total","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1127,"name":"Barbell Bench Press","origName":"Barbell Bench Press","muscle":"Chest","target":"Total","secondary":"","equipment":"Barbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1128,"name":"Standard Chest Press","origName":"Chest Press","muscle":"Chest","target":"Total","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"M","joint":"M","ulc":"Upper"},{"id":1129,"name":"Crossover Medicine Ball Push-Up","origName":"Medicine Ball Crossover Push-Up","muscle":"Chest","target":"Total","secondary":"","equipment":"Medicine Ball","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1130,"name":"Dumbbell Push-Up","origName":"Dumbbell Push-Up","muscle":"Chest","target":"Total","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1131,"name":"Standard Push-Up","origName":"Push-Up","muscle":"Chest","target":"Total","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1132,"name":"Wide Grip Push-Up","origName":"Wide-Grip Push-Up","muscle":"Chest","target":"Total","secondary":"Back","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1133,"name":"Incline Smith Machine Bench Press","origName":"Incline Smith Machine Bench Press","muscle":"Chest","target":"Upper","secondary":"","equipment":"Smith Machine","level":"Advanced","pp":"Push","modality":"M","joint":"M","ulc":"Upper"},{"id":1134,"name":"Incline Dumbbell Bench Press","origName":"Incline Dumbbell Bench Press","muscle":"Chest","target":"Upper","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1135,"name":"Incline Alternating Dumbbell Bench Press","origName":"Incline Alternating Dumbbell Bench Press","muscle":"Chest","target":"Upper","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1136,"name":"Incline Hammer Dumbbell Bench Press","origName":"Incline Hammer Dumbbell Bench Press","muscle":"Chest","target":"Upper","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1137,"name":"Incline Single-Arm Dumbbell Bench Press","origName":"Incline Single-Arm Dumbbell Bench Press","muscle":"Chest","target":"Upper","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1138,"name":"Incline Twisting Dumbbell Bench Press","origName":"Incline Twisting Dumbbell Bench Press","muscle":"Chest","target":"Upper","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1139,"name":"Incline Barbell Bench Press","origName":"Incline Barbell Bench Press","muscle":"Chest","target":"Upper","secondary":"","equipment":"Barbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1140,"name":"Decline Push-Up","origName":"Declined Push-Up","muscle":"Chest","target":"Upper","secondary":"Shoulder","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1141,"name":"Barbell Deadlift","origName":"Deadlift","muscle":"Legs","target":"Hamstrings","secondary":"Back","equipment":"Barbell","level":"Advanced","pp":"Pull","modality":"FW","joint":"S","ulc":"Lower"},{"id":1142,"name":"Bent-Knee Single-Leg Hip Lift","origName":"Bent-Knee Single-Leg Hip Lift","muscle":"Legs","target":"Hamstrings","secondary":"Glutes","equipment":"Bodyweight","level":"Advanced","pp":"Pull","modality":"FW","joint":"M","ulc":"Lower"},{"id":1143,"name":"Elevated Hip Lift","origName":"Elevated Hip Lift","muscle":"Legs","target":"Hamstrings","secondary":"Glutes","equipment":"Bodyweight","level":"Intermediate","pp":"Pull","modality":"FW","joint":"M","ulc":"Lower"},{"id":1144,"name":"Elevated Single-Leg Hip Lift","origName":"Elevated Single-Leg Hip Lift","muscle":"Legs","target":"Hamstrings","secondary":"Glutes","equipment":"Bodyweight","level":"Advanced","pp":"Pull","modality":"FW","joint":"M","ulc":"Lower"},{"id":1145,"name":"Single-Leg Hip Lift","origName":"Single-Leg Hip Lift","muscle":"Legs","target":"Hamstrings","secondary":"Glutes","equipment":"Bodyweight","level":"Intermediate","pp":"Pull","modality":"FW","joint":"M","ulc":"Lower"},{"id":1146,"name":"Standard Hip Lift","origName":"Hip Lift","muscle":"Legs","target":"Hamstrings","secondary":"Glutes","equipment":"Bodyweight","level":"Beginner","pp":"Pull","modality":"FW","joint":"M","ulc":"Lower"},{"id":1147,"name":"Lying Dumbbell Leg Curl","origName":"Lying Leg Curl","muscle":"Legs","target":"Hamstrings","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"M","joint":"S","ulc":"Lower"},{"id":1148,"name":"Lying Alternating Dumbbell Leg Curl","origName":"Lying Alternating Leg Curl","muscle":"Legs","target":"Hamstrings","secondary":"","equipment":"Dumbbell","level":"Intermediate","pp":"Pull","modality":"M","joint":"S","ulc":"Lower"},{"id":1149,"name":"Lying Single-Leg Dumbbell Leg Curl","origName":"Lying Single-Leg Curl","muscle":"Legs","target":"Hamstrings","secondary":"","equipment":"Dumbbell","level":"Intermediate","pp":"Pull","modality":"M","joint":"S","ulc":"Lower"},{"id":1150,"name":"Standard Dumbbell Leg Curl","origName":"Leg Curl","muscle":"Legs","target":"Hamstrings","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"M","joint":"S","ulc":"Lower"},{"id":1151,"name":"Seated Cable Leg Curl","origName":"Seated Leg Curl","muscle":"Legs","target":"Hamstrings","secondary":"","equipment":"Cable","level":"Beginner","pp":"Pull","modality":"M","joint":"S","ulc":"Lower"},{"id":1152,"name":"Single-Leg Dumbbell Box Squat","origName":"Single-Leg Dumbbell Box Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1153,"name":"Single-Leg Box Squat","origName":"Single-Leg Box Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1154,"name":"Dumbbell Diagonal Lunge","origName":"Dumbbell Diagonal Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1155,"name":"Barbell Diagonal Lunge","origName":"Barbell Diagonal Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Barbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1156,"name":"Standard Diagonal Lunge","origName":"Diagonal Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1157,"name":"Barbell Hack Squat","origName":"Barbell Hack Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Barbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1158,"name":"Standard Hack Squat","origName":"Machine Hack Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"M","joint":"M","ulc":"Lower"},{"id":1159,"name":"Barbell Lateral Squat","origName":"Lateral Barbell Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Barbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1160,"name":"Standard Lateral Squat","origName":"Lateral Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1161,"name":"Alternating Leg Extension","origName":"Alternating Leg Extension","muscle":"Legs","target":"Quadriceps","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"M","joint":"S","ulc":"Lower"},{"id":1162,"name":"Single-Leg Leg Extension","origName":"Single-Leg Extension","muscle":"Legs","target":"Quadriceps","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"M","joint":"S","ulc":"Lower"},{"id":1163,"name":"Standard Leg Extension","origName":"Leg Extension","muscle":"Legs","target":"Quadriceps","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"M","joint":"S","ulc":"Lower"},{"id":1164,"name":"Standard Leg Press","origName":"Leg Press","muscle":"Legs","target":"Quadriceps","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"M","joint":"M","ulc":"Lower"},{"id":1165,"name":"Dumbbell Lunge","origName":"Dumbbell Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1166,"name":"Barbell Lunge","origName":"Barbell Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Barbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1167,"name":"Standard Lunge","origName":"Forward Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1168,"name":"Dumbbell Reverse Lunge","origName":"Dumbbell Reverse Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Dumbbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1169,"name":"Barbell Reverse Lunge","origName":"Barbell Reverse Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Barbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1170,"name":"Standard Reverse Lunge","origName":"Reverse Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1171,"name":"Dumbbell Side Lunge","origName":"Dumbbell Side Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Dumbbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1172,"name":"Barbell Side Lunge","origName":"Barbell Side Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Barbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1173,"name":"Standard Side Lunge","origName":"Barbell Side Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1174,"name":"Single-Arm Dumbbell Side Squat","origName":"Single-Arm Dumbbell Side Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Dumbbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1175,"name":"Single-Arm Barbell Side Squat","origName":"Single-Arm Barbell Side Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Barbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1176,"name":"Dumbbell Split Squat","origName":"Dumbbell Split Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1177,"name":"Barbell Split Squat","origName":"Barbell Split Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Barbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1178,"name":"Standard Split Squat","origName":"Split Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Bodyweight","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1179,"name":"Smith Machine Squat","origName":"Smith Machine Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Smith Machine","level":"Intermediate","pp":"Push","modality":"M","joint":"M","ulc":"Lower"},{"id":1180,"name":"Single-Leg Dumbbell Squat","origName":"Single-Leg Dumbbell Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Dumbbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1181,"name":"Dumbbell Squat","origName":"Dumbbell Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1182,"name":"Single-Leg Barbell Squat","origName":"Single-Leg Barbell Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Barbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1183,"name":"Barbell Squat","origName":"Barbell Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Barbell","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1184,"name":"Single-Leg Squat","origName":"Single-Leg Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1185,"name":"Standard Squat","origName":"Squat","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1186,"name":"Dumbbell Step-Up","origName":"Dumbbell Step-Up","muscle":"Legs","target":"Quadriceps","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1187,"name":"Lateral Barbell Step-Up","origName":"Lateral Barbell Step-Up","muscle":"Legs","target":"Quadriceps","secondary":"","equipment":"Barbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1188,"name":"Barbell Step-Up","origName":"Barbell Step-Up","muscle":"Legs","target":"Quadriceps","secondary":"","equipment":"Barbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1189,"name":"Lateral Step-Up","origName":"Lateral Step-Up","muscle":"Legs","target":"Quadriceps","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1190,"name":"Standard Step-Up","origName":"Step-Up","muscle":"Legs","target":"Quadriceps","secondary":"","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1191,"name":"Dumbbell Walking Lunge","origName":"Dumbbell Walking Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1192,"name":"Barbell Walking Lunge","origName":"Barbell Walking Lunge","muscle":"Legs","target":"Quadriceps","secondary":"Glutes","equipment":"Barbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1193,"name":"Standard Walking Lunge","origName":"Walking Lunge","muscle":"Legs","target":"Quadriceps","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Lower"},{"id":1194,"name":"Plate Front Raise","origName":"Front Plate Raise","muscle":"Shoulders","target":"Front Delt","secondary":"Back","equipment":"Plate","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1195,"name":"Dumbbell Front Raise","origName":"Dumbbell Front Raise","muscle":"Shoulders","target":"Front Delt","secondary":"Back","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1196,"name":"Cable Front Raise","origName":"Cable Front Raise","muscle":"Shoulders","target":"Front Delt","secondary":"Back","equipment":"Cable","level":"Intermediate","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1197,"name":"Barbell Front Raise","origName":"Barbell Front Raise","muscle":"Shoulders","target":"Front Delt","secondary":"Back","equipment":"Barbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1198,"name":"Smith Machine Shoulder Press","origName":"Smith Machine Shoulder Press","muscle":"Shoulders","target":"Front Delt","secondary":"Biceps","equipment":"Smith Machine","level":"Advanced","pp":"Push","modality":"M","joint":"M","ulc":"Upper"},{"id":1199,"name":"Alternating Dumbbell Shoulder Press","origName":"Dumbbell Alternating Shoulder Press","muscle":"Shoulders","target":"Front Delt","secondary":"Biceps","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1200,"name":"Arnold Press Dumbbell Shoulder Press","origName":"Arnold Dumbbell Press","muscle":"Shoulders","target":"Front Delt","secondary":"Biceps","equipment":"Dumbbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1201,"name":"Single-Arm Dumbbell Shoulder Press","origName":"Single-Arm Dumbbell Shoulder Press","muscle":"Shoulders","target":"Front Delt","secondary":"Biceps","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1202,"name":"Twisting Dumbbell Shoulder Press","origName":"Dumbbell Twisting Shoulder Press","muscle":"Shoulders","target":"Front Delt","secondary":"Biceps","equipment":"Dumbbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1203,"name":"Dumbbell Shoulder Press","origName":"Dumbbell Shoulder Press","muscle":"Shoulders","target":"Front Delt","secondary":"Biceps","equipment":"Dumbbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1204,"name":"Barbell Shoulder Press","origName":"Barbell Shoulder Press","muscle":"Shoulders","target":"Front Delt","secondary":"Biceps","equipment":"Barbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1205,"name":"Standard Shoulder Press","origName":"Machine Shoulder Press","muscle":"Shoulders","target":"Front Delt","secondary":"Biceps","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"M","joint":"M","ulc":"Upper"},{"id":1206,"name":"Dumbbell Lateral Raise","origName":"Dumbbell Lateral Raise","muscle":"Shoulders","target":"Lateral Delt","secondary":"Traps","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1207,"name":"Single-Arm Cable Lateral Raise","origName":"Single-Arm Cable Lateral Raise","muscle":"Shoulders","target":"Lateral Delt","secondary":"Traps","equipment":"Cable","level":"Intermediate","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1208,"name":"Cable Lateral Raise","origName":"Cable Lateral Raise","muscle":"Shoulders","target":"Lateral Delt","secondary":"Traps","equipment":"Cable","level":"Intermediate","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1209,"name":"Lying Dumbbell External Rotation","origName":"Lying Dumbbell External Rotation","muscle":"Shoulders","target":"Rear Delt","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1210,"name":"Standard Pec Deck Rear Delt Extensions","origName":"Pec Deck Real Delt Extensions","muscle":"Shoulders","target":"Rear Delt","secondary":"","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"M","joint":"S","ulc":"Upper"},{"id":1211,"name":"Bent-Over Dumbbell Rear Delt Raise","origName":"Bent-Over Dumbbell Rear Delt Raise","muscle":"Shoulders","target":"Rear Delt","secondary":"","equipment":"Dumbbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1212,"name":"Lying Dumbbell Rear Delt Raise","origName":"Lying Dumbbell Rear Delt Raise","muscle":"Shoulders","target":"Rear Delt","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1213,"name":"Lying Single-Arm Dumbbell Rear Delt Raise","origName":"Lying Single-Arm Dumbbell Rear Delt Raise","muscle":"Shoulders","target":"Rear Delt","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1214,"name":"Reverse Incline Dumbbell Rear Delt Raise","origName":"Reverse Incline Dumbbell Rear Delt Raise","muscle":"Shoulders","target":"Rear Delt","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1215,"name":"Seated Dumbbell Rear Delt Raise","origName":"Seated Dumbbell Rear Delt Raise","muscle":"Shoulders","target":"Rear Delt","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1216,"name":"Bent-Over Cable Rear Delt Raise","origName":"Bent-Over Cable Rear Delt Raise","muscle":"Shoulders","target":"Rear Delt","secondary":"","equipment":"Cable","level":"Advanced","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1217,"name":"Kneeling Single-Arm Cable Rear Delt Raise","origName":"Kneeling Single-Arm Cable Rear Delt Raise","muscle":"Shoulders","target":"Rear Delt","secondary":"","equipment":"Cable","level":"Advanced","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1218,"name":"Cable External Rotation","origName":"Cable External Rotation","muscle":"Shoulders","target":"Rotator Cuff","secondary":"","equipment":"Cable","level":"Beginner","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1219,"name":"Dumbbell Shrugs","origName":"Shoulder Shrugs","muscle":"Shoulders","target":"Traps","secondary":"","equipment":"Dumbbell","level":"Intermediate","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1220,"name":"Barbell Shrugs","origName":"Shoulder Shrugs","muscle":"Shoulders","target":"Traps","secondary":"","equipment":"Barbell","level":"Intermediate","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper"},{"id":1221,"name":"Bench Dips","origName":"Bench Dips","muscle":"Triceps","target":"Total","secondary":"Chest","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1222,"name":"Forward Lean Dips","origName":"Forward Lean Dips","muscle":"Triceps","target":"Total","secondary":"Chest","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1223,"name":"Standard Dips","origName":"Dips","muscle":"Triceps","target":"Total","secondary":"Chest","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1224,"name":"Close-Grip Dumbbell Bench Press","origName":"Close-Grip Bench Press","muscle":"Triceps","target":"Total","secondary":"Chest","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1225,"name":"Diamond Push-Up","origName":"Diamond Push-Up","muscle":"Triceps","target":"Total","secondary":"Chest","equipment":"Bodyweight","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper"},{"id":1226,"name":"Overhead Rope Cable Tricep Extension","origName":"Overhead Rope Cable Tricep Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"Rope Cable","level":"Intermediate","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1227,"name":"Decline EZ-Bar Tricep Extension","origName":"Decline EZ-Bar Tricep Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"EZ-Bar","level":"Advanced","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1228,"name":"Incline EZ-Bar Tricep Extension","origName":"Incline EZ-Bar Tricep Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"EZ-Bar","level":"Advanced","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1229,"name":"Lying EZ-Bar Tricep Extension","origName":"Lying EZ-Bar Triceps Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"EZ-Bar","level":"Intermediate","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1230,"name":"Lying Overhead EZ-Bar Tricep Extension","origName":"Lying Overhead EZ-Bar Tricep Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"EZ-Bar","level":"Intermediate","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1231,"name":"Lying Reverse EZ-Bar Tricep Extension","origName":"Lying Reverse EZ-Bar Triceps Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"EZ-Bar","level":"Advanced","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1232,"name":"Overhead EZ-Bar Tricep Extension","origName":"Overhead EZ-Bar Triceps Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"EZ-Bar","level":"Advanced","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1233,"name":"Decline Dumbbell Tricep Extension","origName":"Decline Dumbbell Triceps Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1234,"name":"Decline Single-Arm Dumbbell Tricep Extension","origName":"Decline Single Dumbbell Triceps Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1235,"name":"Lying Single Dumbbell Tricep Extension","origName":"Lying Single Dumbbell Triceps Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1236,"name":"Lying Single-Arm Dumbbell Tricep Extension","origName":"Lying Single-Arm Dumbbell Triceps Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1237,"name":"Overhead Dumbbell Tricep Extension","origName":"Overhead Dumbbell Triceps Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1238,"name":"Overhead Single-Arm Dumbbell Tricep Extension","origName":"Overhead Single Dumbbell Tricep Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1239,"name":"Overhead Single-Arm Dumbbell Tricep Extension","origName":"Overhead Single-Arm Dumbbell Tricep Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1240,"name":"Kneeling Cable Tricep Extension","origName":"Kneeling Cable Triceps Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"Cable","level":"Beginner","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1241,"name":"Leaning Overhead Cable Tricep Extension","origName":"Leaning Overhead Tricep Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"Cable","level":"Intermediate","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1242,"name":"Low Cable Tricep Extension","origName":"Low Cable Triceps Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"Cable","level":"Intermediate","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1243,"name":"Lying Cable Tricep Extension","origName":"Lying Cable Triceps Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"Cable","level":"Intermediate","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1244,"name":"Overhead Single-Arm Cable Tricep Extension","origName":"Overhead Single-Arm Cable Tricep Extension","muscle":"Triceps","target":"Total","secondary":"","equipment":"Cable","level":"Intermediate","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1245,"name":"Dumbbell Tricep Kickback","origName":"Dumbbell Kickback","muscle":"Triceps","target":"Total","secondary":"","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"S","ulc":"Upper"},{"id":1246,"name":"V-Bar Tricep Pushdown","origName":"V-Bar Tricep Pushdown","muscle":"Triceps","target":"Total","secondary":"","equipment":"V-Bar","level":"Beginner","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1247,"name":"Rope Rope Cable Tricep Pushdown","origName":"Reverse Tricep Pushdown","muscle":"Triceps","target":"Total","secondary":"","equipment":"Rope Cable","level":"Advanced","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1248,"name":"Single-Arm Rope Cable Tricep Pushdown","origName":"Single-Arm Triceps Pushdown","muscle":"Triceps","target":"Total","secondary":"","equipment":"Rope Cable","level":"Intermediate","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"id":1249,"name":"Rope Cable Tricep Pushdown","origName":"Rope Triceps Pushdown","muscle":"Triceps","target":"Total","secondary":"","equipment":"Rope Cable","level":"Intermediate","pp":"Push","modality":"C","joint":"S","ulc":"Upper"},{"muscle":"Glutes","target":"Total","secondary":"Hamstrings","name":"Barbell Hip Thrust","origName":"Barbell Hip Thrust","equipment":"Barbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Lower","id":2000},{"muscle":"Glutes","target":"Total","secondary":"Hamstrings","name":"Dumbbell Hip Thrust","origName":"Dumbbell Hip Thrust","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower","id":2001},{"muscle":"Glutes","target":"Total","secondary":"Hamstrings","name":"Cable Kickback","origName":"Cable Kickback","equipment":"Cable","level":"Beginner","pp":"Push","modality":"C","joint":"S","ulc":"Lower","id":2002},{"muscle":"Glutes","target":"Total","secondary":"","name":"Glute Bridge","origName":"Glute Bridge","equipment":"Bodyweight","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower","id":2003},{"muscle":"Glutes","target":"Total","secondary":"Quads","name":"Bulgarian Split Squat","origName":"Bulgarian Split Squat","equipment":"Dumbbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower","id":2004},{"muscle":"Glutes","target":"Abductors","secondary":"","name":"Cable Hip Abduction","origName":"Cable Hip Abduction","equipment":"Cable","level":"Beginner","pp":"Push","modality":"C","joint":"S","ulc":"Lower","id":2005},{"muscle":"Glutes","target":"Abductors","secondary":"","name":"Machine Hip Abduction","origName":"Machine Hip Abduction","equipment":"","level":"Beginner","pp":"Push","modality":"M","joint":"S","ulc":"Lower","id":2006},{"muscle":"Forearms","target":"Total","secondary":"","name":"Barbell Wrist Curl","origName":"Barbell Wrist Curl","equipment":"Barbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper","id":2007},{"muscle":"Forearms","target":"Total","secondary":"","name":"Reverse Barbell Wrist Curl","origName":"Reverse Barbell Wrist Curl","equipment":"Barbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper","id":2008},{"muscle":"Forearms","target":"Total","secondary":"","name":"Dumbbell Wrist Curl","origName":"Dumbbell Wrist Curl","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"S","ulc":"Upper","id":2009},{"muscle":"Forearms","target":"Total","secondary":"Biceps","name":"Farmer Carry","origName":"Farmer Carry","equipment":"Dumbbell","level":"Beginner","pp":"Static","modality":"FW","joint":"M","ulc":"Upper","id":2010},{"muscle":"Cardio","target":"Total","secondary":"","name":"Treadmill Run","origName":"Treadmill Run","equipment":"Machine","level":"Beginner","pp":"Cardio","modality":"M","joint":"M","ulc":"Lower","id":2011},{"muscle":"Cardio","target":"Total","secondary":"","name":"Rowing Machine","origName":"Rowing Machine","equipment":"Machine","level":"Beginner","pp":"Cardio","modality":"M","joint":"M","ulc":"Upper","id":2012},{"muscle":"Cardio","target":"Total","secondary":"","name":"Stationary Bike","origName":"Stationary Bike","equipment":"Machine","level":"Beginner","pp":"Cardio","modality":"M","joint":"M","ulc":"Lower","id":2013},{"muscle":"Cardio","target":"Total","secondary":"","name":"Jump Rope","origName":"Jump Rope","equipment":"Bodyweight","level":"Beginner","pp":"Cardio","modality":"FW","joint":"M","ulc":"Lower","id":2014},{"muscle":"Cardio","target":"Total","secondary":"","name":"Burpees","origName":"Burpees","equipment":"Bodyweight","level":"Intermediate","pp":"Cardio","modality":"FW","joint":"M","ulc":"Upper","id":2015},{"muscle":"Chest","target":"Inner","secondary":"Triceps","name":"Close-Grip Barbell Bench Press","origName":"Close-Grip Barbell Bench Press","equipment":"Barbell","level":"Intermediate","pp":"Push","modality":"FW","joint":"M","ulc":"Upper","id":2016},{"muscle":"Legs","target":"Hamstrings","secondary":"Glutes","name":"Romanian Deadlift","origName":"Romanian Deadlift","equipment":"Barbell","level":"Intermediate","pp":"Pull","modality":"FW","joint":"M","ulc":"Lower","id":2017},{"muscle":"Legs","target":"Hamstrings","secondary":"Glutes","name":"Dumbbell Romanian Deadlift","origName":"Dumbbell Romanian Deadlift","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"M","ulc":"Lower","id":2018},{"muscle":"Legs","target":"Hamstrings","secondary":"","name":"Nordic Hamstring Curl","origName":"Nordic Hamstring Curl","equipment":"Bodyweight","level":"Advanced","pp":"Pull","modality":"FW","joint":"S","ulc":"Lower","id":2019},{"muscle":"Legs","target":"Quadriceps","secondary":"Glutes","name":"Goblet Squat","origName":"Goblet Squat","equipment":"Dumbbell","level":"Beginner","pp":"Push","modality":"FW","joint":"M","ulc":"Lower","id":2020},{"muscle":"Legs","target":"Quadriceps","secondary":"Glutes","name":"Front Squat","origName":"Front Squat","equipment":"Barbell","level":"Advanced","pp":"Push","modality":"FW","joint":"M","ulc":"Lower","id":2021},{"muscle":"Back","target":"Middle/Upper","secondary":"Biceps","name":"T-Bar Row","origName":"T-Bar Row","equipment":"Barbell","level":"Intermediate","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper","id":2022},{"muscle":"Back","target":"Middle/Upper","secondary":"Biceps","name":"Chest-Supported Dumbbell Row","origName":"Chest-Supported Dumbbell Row","equipment":"Dumbbell","level":"Beginner","pp":"Pull","modality":"FW","joint":"M","ulc":"Upper","id":2023},{"muscle":"Back","target":"Lower","secondary":"Glutes","name":"Good Morning","origName":"Good Morning","equipment":"Barbell","level":"Advanced","pp":"Pull","modality":"FW","joint":"M","ulc":"Lower","id":2024}];
@@ -372,6 +424,9 @@ const App = {
   _toastTimer:null,
 
   init(){
+    // Apply saved theme
+    const theme=DB.get('theme')||'auto';
+    document.getElementById('htmlRoot').setAttribute('data-theme',theme);
     // ensure profiles
     let profiles=DB.get('profiles')||[];
     if(!profiles.length){profiles=[{id:uuid(),name:'Me',color:'#7c6dff',emoji:'💪',created:new Date().toISOString()}];DB.set('profiles',profiles);}
@@ -382,9 +437,33 @@ const App = {
     const aw=DB.get('activeWorkout');
     if(aw){this.state.activeWorkout=aw;this._startTimer();}
     this.nav('home');
-    // background sync
-    const c=GH.creds();
-    if(c)GH.sync().then(()=>this.refreshSync());
+    // background sync + version check
+    const ghc=GH.creds();
+    if(ghc)GH.sync().then(()=>this.refreshSync());
+    this._checkVersion();
+  },
+
+  async _checkVersion(){
+    if(!RELEASES_URL)return;
+    try{
+      const r=await fetch(RELEASES_URL+'?_='+Date.now());
+      if(!r.ok)return;
+      const releases=await r.json();
+      DB.set('releases',releases);
+      const latest=releases[0];
+      if(latest&&latest.version!==CURRENT_VERSION){
+        this.state.updateAvailable=latest;
+        // show banner if on home
+        if(this.state.view==='home')this.render();
+      }
+    }catch(e){}
+  },
+
+  setTheme(t){
+    DB.set('theme',t);
+    document.getElementById('htmlRoot').setAttribute('data-theme',t);
+    // update buttons if settings open
+    document.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('on',b.dataset.theme===t));
   },
 
   nav(view){
@@ -411,6 +490,10 @@ const App = {
       case'history':this.renderHistory(m,hT,hB);break;
       case'profile':this.renderProfile(m,hT,hB);break;
       case'workout_live':this.renderWorkoutLive(m,hT,hB);break;
+      case'calendar':this.renderCalendar(m,hT,hB);break;
+      case'charts':this.renderCharts(m,hT,hB);break;
+      case'tools':this.renderTools(m,hT,hB);break;
+      case'badges':this.renderBadges(m,hT,hB);break;
       default:this.renderHome(m,hT,hB);
     }
   },
@@ -437,6 +520,16 @@ const App = {
 
     m.innerHTML=`
     <div style="padding:16px">
+      <!-- Update banner -->
+      ${this.state.updateAvailable?`
+      <div class="update-banner" onclick="App.openVersionHistory()">
+        <span style="font-size:22px">🆕</span>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--green)">Update Available — v${this.state.updateAvailable.version}</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:2px">Tap to see what's new</div>
+        </div>
+        <span style="font-size:16px;color:var(--t3)">›</span>
+      </div>`:''}
       <!-- Profile banner -->
       <div class="card" style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,var(--surface) 0%,rgba(124,109,255,0.1) 100%);border-color:rgba(124,109,255,0.2)">
         <div class="avatar" style="background:${prof.color}22;border:2px solid ${prof.color};font-size:20px;width:52px;height:52px">${prof.emoji}</div>
@@ -482,10 +575,10 @@ const App = {
 
       <!-- Quick muscle picks -->
       <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-top:10px;padding-bottom:2px">
-        ${Object.entries(MUSCLE_META).map(([m,v])=>`
-          <button onclick="App.quickMuscle('${m}')" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--surface2);border:.5px solid var(--border);border-radius:12px;padding:10px 14px;cursor:pointer;border:none;min-width:64px">
+        ${Object.entries(MUSCLE_META).map(([mu,v])=>`
+          <button onclick="App.quickMuscle('${mu}')" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--surface2);border:.5px solid var(--border);border-radius:12px;padding:10px 14px;cursor:pointer;border:none;min-width:64px">
             <span style="font-size:20px">${v.emoji}</span>
-            <span style="font-size:10px;font-weight:600;color:var(--t2);letter-spacing:.2px">${m}</span>
+            <span style="font-size:10px;font-weight:600;color:var(--t2);letter-spacing:.2px">${mu}</span>
           </button>
         `).join('')}
       </div>
@@ -577,6 +670,7 @@ const App = {
     const exList=build.exercises||[];
     const exData=exList.map(e=>({...e,info:getExercise(e.exId)}));
 
+    const startCount=exList.length;
     m.innerHTML=`
     <div style="padding:16px">
       <!-- Workout name -->
@@ -590,7 +684,7 @@ const App = {
           <div class="empty" style="padding:32px">
             <span class="empty-ico">🏋️</span>
             <div class="empty-t">No exercises yet</div>
-            <div class="empty-s">Add exercises to build your workout plan</div>
+            <div class="empty-s">Pick a muscle group below to add exercises</div>
           </div>
         `}
       </div>
@@ -609,28 +703,52 @@ const App = {
         `).join('')}
       </div>
 
-      <!-- Suggested for variety -->
-      ${exList.length?`
+      <!-- Smart suggestions -->
+      <div id="buildSuggestionsWrap" style="${exList.length?'':'display:none'}">
         <div class="section-lbl" style="padding-top:4px">Smart Suggestions</div>
-        <div style="font-size:13px;color:var(--t3);padding:0 16px 8px">Exercises you haven't done recently</div>
-        ${this.getSmartSuggestions(exList).slice(0,3).map(e=>`
-          <div class="ex-card" onclick="App.addExerciseToBuild(${e.id})">
-            <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22">${muscleEmoji(e.muscle)}</div>
-            <div class="ex-info">
-              <div class="ex-name">${e.name}</div>
-              <div class="ex-meta">${e.muscle} · ${e.equipment||'Bodyweight'}</div>
-            </div>
-            <div style="color:var(--t3);font-size:11px">${levelPill(e.level)}</div>
-          </div>
-        `).join('')}
-      `:''}
+        <div style="font-size:13px;color:var(--t3);padding:0 0 8px">Exercises you haven't done recently</div>
+        <div id="buildSuggestions">
+          ${exList.length?this.getSmartSuggestions(exList).slice(0,3).map(e=>`
+            <div class="ex-card" onclick="App.addExerciseToBuild(${e.id})">
+              <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22">${muscleEmoji(e.muscle)}</div>
+              <div class="ex-info">
+                <div class="ex-name">${e.name}</div>
+                <div class="ex-meta">${e.muscle} · ${e.equipment||'Bodyweight'}</div>
+              </div>
+              <div>${levelPill(e.level)}</div>
+            </div>`).join(''):''}
+        </div>
+      </div>
+
+      <!-- Multi-profile toggle -->
+      <div class="section-lbl" style="padding-top:4px">Participants</div>
+      <div style="margin-bottom:12px">
+        ${(DB.get('profiles')||[]).map(p=>`
+          <label style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;border-bottom:.5px solid var(--border)">
+            <input type="checkbox" ${(build.participants||[build.profileId||this.state.profileId]).includes(p.id)?'checked':''} onchange="App._toggleParticipant('${p.id}',this.checked)" style="width:18px;height:18px;accent-color:var(--accent);border-radius:4px;flex-shrink:0">
+            <div class="avatar" style="background:${p.color}22;border:1.5px solid ${p.color};width:30px;height:30px;font-size:14px">${p.emoji}</div>
+            <span style="font-size:14px;font-weight:600">${p.name}</span>
+          </label>`).join('')}
+      </div>
 
       <!-- Clear -->
-      ${exList.length?`<div style="margin-top:20px"><button class="btn btn-d btn-full btn-sm" onclick="App.clearBuild()">Clear Workout</button></div>`:''}
+      <div id="buildClearBtn" style="${exList.length?'':'display:none'}">
+        <button class="btn btn-d btn-full btn-sm" onclick="App.clearBuild()">Clear Workout</button>
+      </div>
     </div>`;
 
     this._initDragDrop();
     requestAnimationFrame(()=>this._initSwipeToDelete());
+  },
+
+  _toggleParticipant(profileId,checked){
+    const build=DB.get('buildWorkout')||{};
+    let parts=build.participants||[this.state.profileId];
+    if(checked){if(!parts.includes(profileId))parts.push(profileId);}
+    else{parts=parts.filter(p=>p!==profileId);}
+    if(!parts.length)parts=[this.state.profileId]; // always at least one
+    build.participants=parts;
+    DB.set('buildWorkout',build);
   },
 
   buildExRow(e,i,all){
@@ -644,11 +762,14 @@ const App = {
     const isSuperBot=isSuper&&!isSuperTop;
     const favs=DB.get('favorites')||[];
     const isFav=favs.includes(ex.id);
+    // Superset wrapping: top card gets left border group style
+    const ssWrapOpen=isSuperTop?`<div class="ss-group-wrap" id="ssgrp-${i}"><div class="ss-group-label">SS</div><div style="margin-left:4px">`:'<div>';
+    const ssWrapClose=isSuperTop?'</div></div>':'</div>';
     const card=`
+    ${ssWrapOpen}
     <div class="swipeable" id="bex-wrap-${i}" draggable="true" ondragstart="App._onDragStart(event,${i})" ondragover="App._onDragOver(event,${i})" ondrop="App._onDrop(event,${i})">
       <div class="swipe-del-bg"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></div>
-      <div class="swipe-inner" id="bex-${i}">
-        ${isSuperBot?`<div style="display:flex;align-items:center;gap:7px;padding:5px 14px 0"><div style="width:2px;height:14px;background:var(--amber);border-radius:1px;margin-left:8px;flex-shrink:0"></div><span style="font-size:10px;font-weight:700;color:var(--amber);letter-spacing:.4px">SUPERSET</span></div>`:''}
+      <div class="swipe-inner" id="bex-${i}" style="${isSuper?'border-color:rgba(251,191,36,.35);':''}">
         <div style="padding:12px 14px">
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:${rec?'6px':'10px'}">
             <div class="drag-h" style="padding:4px 2px">
@@ -656,7 +777,10 @@ const App = {
             </div>
             <div style="width:36px;height:36px;border-radius:9px;background:${(MUSCLE_META[ex.muscle]?.color||'#7c6dff')}22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${muscleEmoji(ex.muscle)}</div>
             <div style="flex:1;min-width:0">
-              <div style="font-size:14px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ex.name}</div>
+              <div style="font-size:14px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:6px">
+                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ex.name}</span>
+                ${isSuper?'<span class="ss-tag">SS</span>':''}
+              </div>
               <div style="font-size:11px;color:var(--t3)">${ex.muscle}${ex.target?' · '+ex.target:''} · ${ex.equipment||'Bodyweight'}</div>
             </div>
             <button class="fav-btn ${isFav?'on':''}" onclick="event.stopPropagation();App.toggleFav(${ex.id})">${isFav?'⭐':'☆'}</button>
@@ -670,9 +794,10 @@ const App = {
           </div>
         </div>
       </div>
-    </div>`;
-    const bridge=isSuperTop?`<div class="ss-bridge"><div class="ss-bridge-line"></div><div class="ss-bridge-lbl">↕ PAIRED WITH NEXT</div></div>`:'';
-    return card+bridge;
+    </div>
+    ${isSuperTop?`<div style="display:flex;align-items:center;gap:6px;padding:3px 8px 3px 16px;background:rgba(251,191,36,.04)"><div style="width:2px;height:20px;background:var(--amber);border-radius:1px;margin-left:4px;flex-shrink:0"></div><span style="font-size:10px;font-weight:700;color:var(--amber)">perform together ↓</span></div>`:''}
+    ${ssWrapClose}`;
+    return card;
   },
 
   getSmartSuggestions(existing){
@@ -696,21 +821,18 @@ const App = {
   },
 
   _refreshBuild(){
-    // Re-render just the build list and muscle buttons without losing scroll position
     const build=DB.get('buildWorkout')||{exercises:[]};
     const exData=(build.exercises||[]).map(e=>({...e,info:getExercise(e.exId)}));
     const listEl=document.getElementById('buildList');
-    if(listEl){
-      listEl.innerHTML=exData.length?exData.map((e,i)=>this.buildExRow(e,i,exData)).join(''):`
-        <div class="empty" style="padding:32px">
-          <span class="empty-ico">🏋️</span>
-          <div class="empty-t">No exercises yet</div>
-          <div class="empty-s">Add exercises to build your workout plan</div>
-        </div>`;
-      requestAnimationFrame(()=>this._initSwipeToDelete());
-    } else {
-      this.render();
-    }
+    if(!listEl){this.render();return;}
+    // Re-render exercise list in-place
+    listEl.innerHTML=exData.length?exData.map((e,i)=>this.buildExRow(e,i,exData)).join(''):`
+      <div class="empty" style="padding:32px">
+        <span class="empty-ico">🏋️</span>
+        <div class="empty-t">No exercises yet</div>
+        <div class="empty-s">Add exercises to build your workout plan</div>
+      </div>`;
+    requestAnimationFrame(()=>this._initSwipeToDelete());
     // Update muscle dot indicators
     document.querySelectorAll('[data-muscle-btn]').forEach(btn=>{
       const mu=btn.getAttribute('data-muscle-btn');
@@ -718,6 +840,30 @@ const App = {
       const hasEx=(build.exercises||[]).some(e=>{const ex=getExercise(e.exId);return ex&&ex.muscle===mu;});
       if(dot)dot.style.display=hasEx?'block':'none';
     });
+    // Refresh smart suggestions and clear/start button
+    const sugEl=document.getElementById('buildSuggestions');
+    if(sugEl){
+      const exList=build.exercises||[];
+      if(exList.length){
+        const sugs=this.getSmartSuggestions(exList).slice(0,3);
+        sugEl.innerHTML=sugs.map(e=>`
+          <div class="ex-card" onclick="App.addExerciseToBuild(${e.id})">
+            <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22">${muscleEmoji(e.muscle)}</div>
+            <div class="ex-info">
+              <div class="ex-name">${e.name}</div>
+              <div class="ex-meta">${e.muscle} · ${e.equipment||'Bodyweight'}</div>
+            </div>
+            <div>${levelPill(e.level)}</div>
+          </div>`).join('');
+      } else { sugEl.innerHTML=''; }
+    }
+    // Show/hide clear button
+    const clearEl=document.getElementById('buildClearBtn');
+    if(clearEl)clearEl.style.display=(build.exercises||[]).length?'block':'none';
+    // Update start button count
+    const startBtn=document.querySelector('[onclick="App.startWorkoutNow()"]');
+    const cnt=(build.exercises||[]).length;
+    if(startBtn)startBtn.textContent=cnt?`Start (${cnt})`:'Start';
   },
 
   updateBuildName(v){
@@ -862,11 +1008,13 @@ const App = {
     const workout={
       id:uuid(),
       profileId:this.state.profileId,
+      participants:buildData.participants||[this.state.profileId],
       name:buildData.name||"Today's Workout",
       date:new Date().toISOString().split('T')[0],
       startTime:new Date().toISOString(),
       exercises:(buildData.exercises||[]).map(e=>({...e,sets:(e.sets||[{},{},{}]).map(s=>({...s,completed:false}))})),
     };
+    this.state.liveActivePid=workout.participants[0];
     this.state.activeWorkout=workout;
     DB.set('activeWorkout',workout);
     this._startTimer();
@@ -887,9 +1035,18 @@ const App = {
   renderWorkoutLive(m,hT,hB){
     const wk=this.state.activeWorkout;
     if(!wk){this.nav('home');return;}
+
+    // ── Must declare these BEFORE the template literal that references them ──
+    const allProfiles=DB.get('profiles')||[];
+    const participantIds=wk.participants||[wk.profileId||this.state.profileId];
+    const participants=participantIds.map(pid=>allProfiles.find(p=>p.id===pid)).filter(Boolean);
+    const activePid=this.state.liveActivePid||wk.profileId||this.state.profileId;
+    const activeProf=participants.find(p=>p.id===activePid)||participants[0]||null;
+
     hT.innerHTML=`<span class="elapsed" id="wkElapsed">${fmtElapsed(this.state.workoutElapsed)}</span>`;
     hB.innerHTML=`
       <button class="btn btn-sm btn-d" onclick="App.cancelWorkout()">Cancel</button>
+      <button class="btn btn-sm btn-s" onclick="App.saveAsTemplate()" style="padding:8px 10px" title="Save template">💾</button>
       <button class="btn btn-sm btn-p" onclick="App.finishWorkout()">Finish</button>`;
 
     const exData=wk.exercises.map(e=>({...e,info:getExercise(e.exId)})).filter(e=>e.info);
@@ -897,21 +1054,33 @@ const App = {
     const doneSets=exData.reduce((s,e)=>s+(e.sets||[]).filter(s=>s.completed).length,0);
     const pct=totalSets?Math.round(doneSets/totalSets*100):0;
 
+    // Build profile UI as strings first (avoids nested template literal issues)
+    const mpBarHtml=participants.length>1
+      ?`<div class="mp-bar"><span style="font-size:11px;font-weight:600;color:var(--t3);white-space:nowrap;flex-shrink:0">Logging for:</span>`
+        +participants.map(p=>`<div class="mp-prof ${p.id===activePid?'active':''}" onclick="App._setLiveProfile('${p.id}')"><div class="mp-prof-avatar" style="background:${p.color}22;border:1.5px solid ${p.color}">${p.emoji}</div><span class="mp-prof-name">${p.name}</span></div>`).join('')
+        +`</div>`
+      :'';
+    const profBannerHtml=activeProf
+      ?`<div style="padding:6px 16px;display:flex;align-items:center;gap:8px;background:${activeProf.color}11;border-bottom:.5px solid ${activeProf.color}33"><div style="width:20px;height:20px;border-radius:50%;background:${activeProf.color}33;border:1.5px solid ${activeProf.color};display:flex;align-items:center;justify-content:center;font-size:11px">${activeProf.emoji}</div><span style="font-size:12px;font-weight:600;color:${activeProf.color}">Logging for ${activeProf.name}</span></div>`
+      :'';
+    const exercisesHtml=exData.map((e,ei)=>this.liveExCard(e,ei,wk,activePid)).join('');
+
     m.innerHTML=`
     <div>
       <!-- Progress bar -->
       <div style="padding:12px 16px 0;background:var(--surface);border-bottom:.5px solid var(--border)">
         <div style="display:flex;justify-content:space-between;margin-bottom:4px">
           <span style="font-size:12px;color:var(--t2)">${wk.name}</span>
-          <span style="font-size:12px;font-weight:700;color:var(--accent2)">${doneSets}/${totalSets} sets</span>
+          <span style="font-size:12px;font-weight:700;color:var(--accent2)" id="setsCounter">${doneSets}/${totalSets} sets</span>
         </div>
-        <div class="prog-line"><div class="prog-fill" style="width:${pct}%"></div></div>
-        <div style="font-size:10px;color:var(--t3);text-align:right;padding-bottom:10px">${pct}% complete</div>
+        <div class="prog-line"><div class="prog-fill" id="progressBar" style="width:${pct}%"></div></div>
+        <div style="font-size:10px;color:var(--t3);text-align:right;padding-bottom:10px" id="pctLabel">${pct}% complete</div>
       </div>
-
+      ${mpBarHtml}
+      ${profBannerHtml}
       <!-- Exercises -->
       <div style="padding:12px 16px">
-        ${exData.map((e,ei)=>this.liveExCard(e,ei,wk)).join('')}
+        ${exercisesHtml}
 
         <!-- Rest timer -->
         <div class="card" style="margin-top:12px;text-align:center;padding:18px 16px" id="restTimerCard">
@@ -952,7 +1121,8 @@ const App = {
     document.getElementById('nav').style.display='flex';
   },
 
-  liveExCard(e,ei,wk){
+  liveExCard(e,ei,wk,activePid){
+    activePid=activePid||wk.profileId;
     const ex=e.info;
     const rec=recommendWeight(ex.id);
     const last=getLastPerformance(ex.id);
@@ -979,49 +1149,72 @@ const App = {
         <div class="sc"><div class="s-lbl">REPS</div></div>
         <div style="width:34px"></div>
       </div>
-      ${(e.sets||[]).map((s,si)=>this.liveSetRow(ei,si,s)).join('')}
+      ${this._getSetsForProfile(e,activePid).map((s,si)=>this.liveSetRow(ei,si,s,activePid)).join('')}
       <button onclick="App.addSet(${ei})" class="btn-g" style="width:100%;margin-top:8px;font-size:12px">+ Add Set</button>
     </div>`;
   },
 
-  liveSetRow(ei,si,s){
+  _getSetsForProfile(e,pid){
+    // sets stored as e.sets (default profile) or e.profileSets[pid]
+    if(!pid||pid===((this.state.activeWorkout||{}).profileId))return e.sets||[];
+    if(!e.profileSets)e.profileSets={};
+    if(!e.profileSets[pid])e.profileSets[pid]=[...( e.sets||[]).map(s=>({weight:'',reps:'',completed:false,note:''}))];
+    return e.profileSets[pid];
+  },
+
+  _setLiveProfile(pid){
+    this.state.liveActivePid=pid;
+    this.renderWorkoutLive(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
+  },
+
+  liveSetRow(ei,si,s,activePid){
     return`
-    <div class="sr" id="setrow-${ei}-${si}">
-      <div class="sr-num">${si+1}</div>
-      <div class="sc">
-        <input type="number" class="si ${s.completed?'done':''}" id="w-${ei}-${si}" value="${s.weight||''}" placeholder="0" onchange="App.setVal(${ei},${si},'weight',this.value)" inputmode="decimal" style="font-variant-numeric:tabular-nums">
+    <div id="setrow-${ei}-${si}">
+      <div class="sr">
+        <div class="sr-num">${si+1}</div>
+        <div class="sc">
+          <input type="number" class="si ${s.completed?'done':''}" id="w-${ei}-${si}" value="${s.weight||''}" placeholder="0" onchange="App.setVal(${ei},${si},'weight',this.value)" inputmode="decimal" style="font-variant-numeric:tabular-nums">
+        </div>
+        <div class="sc">
+          <input type="number" class="si ${s.completed?'done':''}" id="r-${ei}-${si}" value="${s.reps||''}" placeholder="0" onchange="App.setVal(${ei},${si},'reps',this.value)" inputmode="numeric" style="font-variant-numeric:tabular-nums">
+        </div>
+        <button class="sc-btn ${s.completed?'done':''}" onclick="App.toggleSet(${ei},${si})">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
       </div>
-      <div class="sc">
-        <input type="number" class="si ${s.completed?'done':''}" id="r-${ei}-${si}" value="${s.reps||''}" placeholder="0" onchange="App.setVal(${ei},${si},'reps',this.value)" inputmode="numeric" style="font-variant-numeric:tabular-nums">
+      <div style="padding:2px 30px 6px">
+        <input type="text" class="set-note-input" id="sn-${ei}-${si}" value="${s.note||''}" placeholder="Note (optional)…" onchange="App.setVal(${ei},${si},'note',this.value)">
       </div>
-      <button class="sc-btn ${s.completed?'done':''}" onclick="App.toggleSet(${ei},${si})">
-        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-      </button>
     </div>`;
   },
 
   setVal(ei,si,field,val){
     const wk=this.state.activeWorkout;
     if(!wk)return;
-    wk.exercises[ei].sets[si][field]=field==='weight'?parseFloat(val)||'':parseInt(val)||'';
+    const pid=this.state.liveActivePid||(wk.profileId);
+    const sets=this._getSetsForProfile(wk.exercises[ei],pid);
+    if(!sets[si])return;
+    if(field==='note'){sets[si].note=val;}
+    else if(field==='weight'){sets[si].weight=parseFloat(val)||'';}
+    else if(field==='reps'){sets[si].reps=parseInt(val)||'';}
     DB.set('activeWorkout',wk);
   },
 
   toggleSet(ei,si){
     const wk=this.state.activeWorkout;
     if(!wk)return;
-    // Read current input values
+    const pid=this.state.liveActivePid||(wk.profileId);
+    const sets=this._getSetsForProfile(wk.exercises[ei],pid);
     const wEl=document.getElementById(`w-${ei}-${si}`);
     const rEl=document.getElementById(`r-${ei}-${si}`);
-    if(wEl)wk.exercises[ei].sets[si].weight=parseFloat(wEl.value)||'';
-    if(rEl)wk.exercises[ei].sets[si].reps=parseInt(rEl.value)||'';
-    const s=wk.exercises[ei].sets[si];
+    if(wEl)sets[si].weight=parseFloat(wEl.value)||'';
+    if(rEl)sets[si].reps=parseInt(rEl.value)||'';
+    const s=sets[si];
     s.completed=!s.completed;
     DB.set('activeWorkout',wk);
     this.state.activeWorkout=wk;
-    // Auto-start rest timer when a set is marked done
     const settings=DB.get('settings')||{};
-    const autoRest=settings.autoRest!==false; // default on
+    const autoRest=settings.autoRest!==false;
     if(s.completed&&autoRest){
       const restSecs=settings.defaultRest||90;
       this.startRestTimer(restSecs,true);
@@ -1127,9 +1320,23 @@ const App = {
     if(notesEl)wk.notes=notesEl.value;
     wk.endTime=new Date().toISOString();
     wk.duration=this.state.workoutElapsed;
-    // Save to history
+    // Save per-profile history (multi-profile support)
     const history=DB.get('workoutHistory')||[];
-    history.push(wk);
+    const allProfiles=DB.get('profiles')||[];
+    const participants=wk.participants||[wk.profileId||this.state.profileId];
+    if(participants.length===1){
+      // single profile — save as before
+      history.push({...wk,profileId:participants[0]});
+    } else {
+      // multi-profile — save one entry per participant with their own sets
+      for(const pid of participants){
+        const profExercises=(wk.exercises||[]).map(e=>{
+          const sets=pid===wk.profileId?(e.sets||[]):(e.profileSets?.[pid]||e.sets||[]);
+          return{...e,sets};
+        });
+        history.push({...wk,id:uuid(),profileId:pid,exercises:profExercises});
+      }
+    }
     DB.set('workoutHistory',history);
     // Clear active
     DB.del('activeWorkout');
@@ -1196,7 +1403,7 @@ const App = {
       <!-- Filters: Difficulty -->
       <div class="fsec"><div class="fsec-lbl">Difficulty</div><div class="fsec-line"></div>${filters.level?`<button class="btn-g" style="padding:2px 8px;font-size:11px" onclick="App._exFilter('level','')">✕ ${filters.level}</button>`:''}</div>
       <div class="fc">
-        ${['Beginner','Intermediate','Advanced'].map(l=>`<div class="fc-chip ${filters.level===l?'on':''}" onclick="App._exFilter('level','${l}')">${l==='Beginner'?'🟢':l==='Intermediate'?'🟡':'🔴'} ${l}</div>`).join('')}
+        ${['Beginner','Intermediate','Advanced'].map(l=>`<div class="fc-chip ${filters.level===l?'on':''}" onclick="App._exFilter('level','${l}')">${l}</div>`).join('')}
       </div>
       <!-- Filters: Favorites -->
       <div class="fsec"><div class="fsec-lbl">Show</div><div class="fsec-line"></div></div>
@@ -1387,6 +1594,7 @@ const App = {
         </div>`).join('')||'<div class="empty" style="padding:24px"><div class="empty-t">No matches</div></div>';
     };
 
+    const favs=DB.get('favorites')||[];
     const overlay=document.createElement('div');
     overlay.className='overlay';
     overlay.id='pickerOverlay';
@@ -1394,18 +1602,27 @@ const App = {
     overlay.innerHTML=`
     <div class="sheet" style="max-height:95vh">
       <div class="sh-bar"></div>
-      <div style="padding:14px 20px 0;display:flex;align-items:center;gap:10px">
+      <div style="padding:14px 20px 8px;display:flex;align-items:center;gap:10px">
         <div style="font-size:22px">${meta?.emoji||'💪'}</div>
         <div style="font-size:18px;font-weight:700;flex:1">${muscle}</div>
         <button onclick="this.closest('.overlay').remove()" class="btn-g">Done</button>
       </div>
-      <!-- Target filters -->
-      <div class="fc" style="margin-top:10px">
+      <!-- Target (muscle sub-area) filters -->
+      <div class="fsec"><div class="fsec-lbl">Target Area</div><div class="fsec-line"></div></div>
+      <div class="fc">
         ${targets.map(t=>`<div class="fc-chip" onclick="App._pickerFilter('target','${t}')">${t}</div>`).join('')}
       </div>
-      <div class="fc" style="margin-top:-4px">
+      <!-- Equipment filters -->
+      <div class="fsec"><div class="fsec-lbl">Equipment</div><div class="fsec-line"></div></div>
+      <div class="fc">
         ${[...new Set(all.map(e=>e.equipment).filter(Boolean))].map(eq=>`<div class="fc-chip" onclick="App._pickerFilter('equipment','${eq}')">${eq}</div>`).join('')}
+      </div>
+      <!-- Level + fav filters -->
+      <div class="fsec"><div class="fsec-lbl">Difficulty</div><div class="fsec-line"></div></div>
+      <div class="fc" style="margin-bottom:4px">
         ${['Beginner','Intermediate','Advanced'].map(l=>`<div class="fc-chip" onclick="App._pickerFilter('level','${l}')">${l}</div>`).join('')}
+        <div class="fc-chip" onclick="App._pickerFilter('favOnly','toggle')">⭐ Favs Only</div>
+        <div class="fc-chip" onclick="App._pickerFilter('newOnly','toggle')">✨ Never Tried</div>
       </div>
       <!-- List -->
       <div id="pickerList" style="padding:0 16px;padding-bottom:20px">
@@ -1416,38 +1633,53 @@ const App = {
     this._pickerFilterTarget=filterTarget;
     this._pickerFilterEquip=filterEquip;
     this._pickerFilterLevel=filterLevel;
+    this._pickerFavOnly=false;
+    this._pickerNewOnly=false;
     this._pickerMuscle=muscle;
     this._pickerAll=all;
     this._pickerUsage=usageMap;
   },
 
   _pickerFilter(type,val){
-    const chips=document.querySelectorAll('#pickerOverlay .fc-chip');
-    // toggle
     if(type==='target')this._pickerFilterTarget=this._pickerFilterTarget===val?'':val;
-    if(type==='equipment')this._pickerFilterEquip=this._pickerFilterEquip===val?'':val;
-    if(type==='level')this._pickerFilterLevel=this._pickerFilterLevel===val?'':val;
+    else if(type==='equipment')this._pickerFilterEquip=this._pickerFilterEquip===val?'':val;
+    else if(type==='level')this._pickerFilterLevel=this._pickerFilterLevel===val?'':val;
+    else if(type==='favOnly')this._pickerFavOnly=!this._pickerFavOnly;
+    else if(type==='newOnly')this._pickerNewOnly=!this._pickerNewOnly;
     // Update chip styles
-    chips.forEach(c=>{
-      const txt=c.textContent;
-      c.classList.toggle('on',txt===this._pickerFilterTarget||txt===this._pickerFilterEquip||txt===this._pickerFilterLevel);
+    document.querySelectorAll('#pickerOverlay .fc-chip').forEach(chip=>{
+      const t=chip.textContent.trim();
+      const on=t===this._pickerFilterTarget||t===this._pickerFilterEquip||
+        t===this._pickerFilterLevel||
+        (t.includes('Favs')&&this._pickerFavOnly)||
+        (t.includes('Never')&&this._pickerNewOnly);
+      chip.classList.toggle('on',on);
     });
+    this._pickerRenderList();
+  },
+  _pickerRenderList(){
+    const build=DB.get('buildWorkout')||{exercises:[]};
+    const inBuild=new Set((build.exercises||[]).map(e=>e.exId));
+    const favs=DB.get('favorites')||[];
+    const usedIds=new Set((DB.get('workoutHistory')||[]).filter(w=>w.profileId===this.state.profileId).flatMap(w=>(w.exercises||[]).map(e=>e.exId)));
+    const meta=MUSCLE_META[this._pickerMuscle];
     let shown=this._pickerAll;
     if(this._pickerFilterTarget)shown=shown.filter(e=>e.target===this._pickerFilterTarget);
     if(this._pickerFilterEquip)shown=shown.filter(e=>e.equipment===this._pickerFilterEquip);
     if(this._pickerFilterLevel)shown=shown.filter(e=>e.level===this._pickerFilterLevel);
+    if(this._pickerFavOnly)shown=shown.filter(e=>favs.includes(e.id));
+    if(this._pickerNewOnly)shown=shown.filter(e=>!usedIds.has(e.id));
     shown=[...shown].sort((a,b)=>(this._pickerUsage[a.id]||0)-(this._pickerUsage[b.id]||0));
-    const build=DB.get('buildWorkout')||{exercises:[]};
-    const inBuild=new Set((build.exercises||[]).map(e=>e.exId));
-    const meta=MUSCLE_META[this._pickerMuscle];
-    document.getElementById('pickerList').innerHTML=shown.map(e=>`
+    const el=document.getElementById('pickerList');
+    if(!el)return;
+    el.innerHTML=shown.map(e=>`
       <div class="ex-card ${inBuild.has(e.id)?'sel':''}" onclick="App._togglePickerEx(${e.id},'${this._pickerMuscle}')">
         <div class="ex-ico" style="background:${(meta?.color||'#7c6dff')}22">${meta?.emoji||'💪'}</div>
         <div class="ex-info">
-          <div class="ex-name">${e.name}</div>
+          <div class="ex-name">${e.name}${favs.includes(e.id)?' ⭐':''}</div>
           <div class="ex-meta">${e.target||''} · ${e.equipment||'Bodyweight'} · Used ${this._pickerUsage[e.id]||0}x</div>
         </div>
-        <div style="text-align:right">${levelPill(e.level)}${inBuild.has(e.id)?'<div style="font-size:11px;color:var(--accent2);margin-top:2px">In workout</div>':''}</div>
+        <div style="text-align:right;flex-shrink:0">${levelPill(e.level)}${inBuild.has(e.id)?'<div style="font-size:11px;color:var(--accent2);margin-top:2px">✓ Added</div>':''}</div>
       </div>`).join('')||'<div class="empty" style="padding:24px"><div class="empty-t">No matches</div></div>';
   },
 
@@ -1456,30 +1688,24 @@ const App = {
     const idx=(build.exercises||[]).findIndex(e=>e.exId===exId);
     if(idx>=0){
       build.exercises.splice(idx,1);
-      this.toast('Removed from workout');
+      this.toast('Removed ✓');
     } else {
       build.exercises=[...(build.exercises||[]),{exId,sets:[{weight:'',reps:'',completed:false},{weight:'',reps:'',completed:false},{weight:'',reps:'',completed:false}]}];
-      this.toast(`Added ✓`);
+      this.toast('Added to workout ✓');
     }
     DB.set('buildWorkout',build);
-    // Update card style in overlay
-    const inBuild=new Set((build.exercises||[]).map(e=>e.exId));
-    document.querySelectorAll('#pickerOverlay .ex-card').forEach(card=>{
-      const onclick=card.getAttribute('onclick');
-      if(onclick&&onclick.includes(`(${exId},`)){
-        card.classList.toggle('sel',inBuild.has(exId));
-        const badge=card.querySelector('[style*="In workout"]');
-        if(inBuild.has(exId)&&!badge){
-          const div=card.querySelector('[style*="text-align:right"]');
-          if(div){const d=document.createElement('div');d.style.cssText='font-size:11px;color:var(--accent2);margin-top:2px';d.textContent='In workout';div.appendChild(d);}
-        } else if(!inBuild.has(exId)&&badge)badge.remove();
-      }
-    });
+    // Re-render picker list (fixes duplicate "In workout" badge bug)
+    this._pickerRenderList();
+    // Re-render build list behind the sheet so it's ready when sheet closes
+    this._refreshBuild();
   },
 
   // ==================== HISTORY ====================
   renderHistory(m,hT,hB){
     hT.textContent='History';
+    hB.innerHTML=`
+      <button onclick="App.nav('calendar')" class="icon-btn" title="Calendar"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button>
+      <button onclick="App.nav('charts')" class="icon-btn" title="Charts" style="margin-left:4px"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>`;
     const history=(DB.get('workoutHistory')||[]).filter(w=>w.profileId===this.state.profileId).sort((a,b)=>b.date.localeCompare(a.date));
 
     m.innerHTML=`
@@ -1599,11 +1825,27 @@ const App = {
       <!-- Settings -->
       <div class="section-lbl">Settings</div>
       <div class="card">
+        <div class="ri" style="flex-direction:column;align-items:stretch;gap:8px">
+          <div style="font-size:12px;font-weight:600;color:var(--t2)">APPEARANCE</div>
+          <div class="theme-seg">
+            <button class="theme-btn ${(DB.get('theme')||'auto')==='dark'?'on':''}" data-theme="dark" onclick="App.setTheme('dark')">🌑 Dark</button>
+            <button class="theme-btn ${(DB.get('theme')||'auto')==='auto'?'on':''}" data-theme="auto" onclick="App.setTheme('auto')">Auto</button>
+            <button class="theme-btn ${(DB.get('theme')||'auto')==='light'?'on':''}" data-theme="light" onclick="App.setTheme('light')">☀️ Light</button>
+          </div>
+        </div>
         <div class="ri" onclick="App.openRestSettings()">
           <div class="ri-ico" style="background:var(--surface3)">⏱</div>
           <div class="ri-c">
             <div class="ri-t">Auto Rest Timer</div>
             <div class="ri-s" id="restSettingLbl">${(()=>{const s=DB.get('settings')||{};return s.autoRest===false?'Off':`Auto-starts at ${s.defaultRest||90}s`})()}</div>
+          </div>
+          <div class="ri-r">›</div>
+        </div>
+        <div class="ri" onclick="App.openVersionHistory()">
+          <div class="ri-ico" style="background:var(--surface3)">📋</div>
+          <div class="ri-c">
+            <div class="ri-t">Version History</div>
+            <div class="ri-s">v${CURRENT_VERSION}${App.state?.updateAvailable?' · Update available!':''}</div>
           </div>
           <div class="ri-r">›</div>
         </div>
@@ -1639,22 +1881,7 @@ const App = {
         <button class="btn btn-d btn-full btn-sm" onclick="App.clearProfileData()">Clear All Workout History</button>
       </div>
 
-      <div class="section-lbl">Recommended Next Features</div>
-      <div class="card" style="margin-bottom:16px">
-        ${[
-          ['📈','Volume Charts','Graph total volume/weight over time per exercise'],
-          ['🤝','Workout Templates','Save today\u2019s workout as a reusable template'],
-          ['⚖️','Plate Calculator','Enter target weight → see exact plate math'],
-          ['📅','Training Calendar','Heatmap calendar showing workout frequency'],
-          ['🔔','Rest Timer Notifications','Background notification when rest ends'],
-          ['💬','Set Notes','Quick per-set notes (e.g. "felt heavy", "easy")'],
-          ['🏅','Milestone Badges','Celebrate PRs, streaks, first 100 sets etc.'],
-        ].map(([ico,title,sub])=>`
-        <div class="ri">
-          <div class="ri-ico" style="background:var(--surface3)">${ico}</div>
-          <div class="ri-c"><div class="ri-t">${title}</div><div class="ri-s">${sub}</div></div>
-        </div>`).join('')}
-      </div>
+      
       <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--t3)">LiftLab v${CURRENT_VERSION} · 274 exercises · GitHub-synced</div>
     </div>`;
   },
@@ -1784,40 +2011,113 @@ const App = {
     URL.revokeObjectURL(url);
   },
 
-  // ==================== GITHUB SETUP ====================
-  openGHSetup(){
-    const creds=GH.creds();
+  // ==================== VERSION HISTORY ====================
+  openVersionHistory(){
+    const releases=DB.get('releases')||[{version:CURRENT_VERSION,date:new Date().toISOString().split('T')[0],notes:['Current version']}];
     const overlay=document.createElement('div');
     overlay.className='overlay';
     overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
     overlay.innerHTML=`
     <div class="sheet">
       <div class="sh-bar"></div>
-      <div class="sh-title">GitHub Sync</div>
-      <div class="sh-body">
-        <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:16px">
-          Sync your workout data to a private GitHub Gist. Free, no account needed beyond GitHub.
-          Your data stays private and portable.
+      <div class="sh-title">Version History</div>
+      <div class="sh-body" style="padding-bottom:24px">
+        ${this.state.updateAvailable?`
+        <div style="background:var(--green-dim);border:.5px solid rgba(52,211,153,.3);border-radius:10px;padding:12px;margin-bottom:14px">
+          <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:4px">🆕 Update Available — v${this.state.updateAvailable.version}</div>
+          <div style="font-size:12px;color:var(--t2);margin-bottom:8px">You are on v${CURRENT_VERSION}. A new version is available on GitHub.</div>
+          <a href="https://github.com/isaac-einstein36/liftlab" target="_blank" style="display:inline-block;background:var(--green);color:#000;font-size:12px;font-weight:700;padding:6px 14px;border-radius:8px;text-decoration:none">Go to GitHub →</a>
+        </div>`:''}
+        ${releases.map((r,i)=>`
+        <div style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <div style="font-size:14px;font-weight:700">v${r.version}</div>
+            ${i===0&&r.version===CURRENT_VERSION?'<span class="pill p-g">Current</span>':i===0?'<span class="pill p-a">Latest</span>':''}
+            <div style="font-size:12px;color:var(--t3);margin-left:auto">${r.date||''}</div>
+          </div>
+          <ul style="padding-left:16px;margin:0">
+            ${(r.notes||[]).map(n=>`<li style="font-size:13px;color:var(--t2);margin-bottom:3px;line-height:1.5">${n}</li>`).join('')}
+          </ul>
+        </div>`).join('')}
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+  },
+
+  // ==================== GITHUB SETUP ====================
+  openGHSetup(){
+    const creds=GH.creds();
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    const wizardHtml=!creds?`
+      <!-- WIZARD: Step-by-step for new users -->
+      <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:12px">LiftLab stores your workout data in a <strong>private GitHub Gist</strong> — free, invisible to others, and accessible from any device.</div>
+      <div class="wizard-step-row">
+        <div class="wizard-num">1</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:2px">Create a GitHub account</div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:6px">Free at github.com — you may already have one.</div>
+          <a href="https://github.com/signup" target="_blank" class="btn btn-s btn-sm" style="text-decoration:none">Open GitHub →</a>
         </div>
-        <div class="fgrp">
-          <label class="f-lbl">GitHub Token (gist scope)</label>
-          <input type="password" class="gh-f" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxx" value="${creds?.token||''}">
-          <div style="font-size:11px;color:var(--t3);margin-top:4px">Create at github.com/settings/tokens → select "gist" scope only</div>
+      </div>
+      <div class="wizard-step-row">
+        <div class="wizard-num">2</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:2px">Create a Personal Access Token</div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:6px">Go to Settings → Developer settings → Personal access tokens → Tokens (classic). Create a token with only the <strong>gist</strong> scope checked.</div>
+          <a href="https://github.com/settings/tokens/new?description=LiftLab&scopes=gist" target="_blank" class="btn btn-s btn-sm" style="text-decoration:none">Create Token →</a>
         </div>
-        <div class="fgrp">
-          <label class="f-lbl">Gist ID (leave blank to auto-create)</label>
-          <input type="text" class="gh-f" id="ghGist" placeholder="Auto-created on connect" value="${creds?.gistId||''}">
+      </div>
+      <div class="wizard-step-row">
+        <div class="wizard-num">3</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;margin-bottom:6px">Paste your token below</div>
+          <div class="fgrp">
+            <input type="password" class="gh-f" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxx">
+          </div>
+          <div style="font-size:11px;color:var(--t3);margin-bottom:10px">LiftLab will auto-create a private gist to store your data — or paste an existing Gist ID below to link it instead.</div>
+          <div class="fgrp">
+            <label class="f-lbl" style="display:flex;align-items:center;justify-content:space-between">
+              <span>Existing Gist ID <span style="color:var(--t3);font-weight:400">(optional)</span></span>
+              <a href="https://gist.github.com" target="_blank" style="font-size:11px;color:var(--accent2);text-decoration:none">Find my Gists →</a>
+            </label>
+            <input type="text" class="gh-f" id="ghGist" placeholder="Leave blank to auto-create">
+          </div>
+          <button class="btn btn-p btn-full" id="ghConnectBtn" onclick="App.ghConnect(this)">Connect</button>
         </div>
-        <button class="btn btn-p btn-full" id="ghConnectBtn" onclick="App.ghConnect(this)">
-          ${creds?'Update Connection':'Connect'}
-        </button>
-        ${creds?`
-        <div class="divider"></div>
-        <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:10px">Last synced: ${GH.lastSync()}</div>
-        <button class="btn btn-s btn-full btn-sm" onclick="GH.sync().then(()=>{App.toast('Synced!');App.refreshSync()})">Sync Now</button>
-        <div style="height:6px"></div>
-        <button class="btn btn-d btn-full btn-sm" onclick="App.ghDisconnect(this.closest('.overlay'))">Disconnect</button>`:''}
-        <div style="height:8px"></div>
+      </div>
+    `:`
+      <!-- Already connected -->
+      <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--green-dim);border:.5px solid rgba(52,211,153,.2);border-radius:10px;margin-bottom:14px">
+        <span style="font-size:22px">✅</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--green)">Connected to GitHub</div>
+          <div style="font-size:11px;color:var(--t2)">Last synced: ${GH.lastSync()}</div>
+        </div>
+      </div>
+      <div class="fgrp">
+        <label class="f-lbl">Token</label>
+        <input type="password" class="gh-f" id="ghToken" value="${creds?.token||''}">
+      </div>
+      <div class="fgrp">
+        <label class="f-lbl" style="display:flex;align-items:center;justify-content:space-between">
+          <span>Gist ID</span>
+          <a href="https://gist.github.com/${creds?.gistId||''}" target="_blank" style="font-size:11px;color:var(--accent2);text-decoration:none">View Gist →</a>
+        </label>
+        <input type="text" class="gh-f" id="ghGist" value="${creds?.gistId||''}" placeholder="Gist ID">
+        <div style="font-size:11px;color:var(--t3);margin-top:4px">Edit to link a different existing Gist, or clear to auto-create a new one.</div>
+      </div>
+      <button class="btn btn-p btn-full" style="margin-bottom:8px" id="ghConnectBtn" onclick="App.ghConnect(this)">Update Connection</button>
+      <button class="btn btn-s btn-full btn-sm" style="margin-bottom:6px" onclick="GH.sync().then(()=>{App.toast('Synced! ✓');App.refreshSync()})">🔄 Sync Now</button>
+      <button class="btn btn-d btn-full btn-sm" onclick="App.ghDisconnect(this.closest('.overlay'))">Disconnect</button>
+    `;
+    overlay.innerHTML=`
+    <div class="sheet">
+      <div class="sh-bar"></div>
+      <div class="sh-title">☁️ GitHub Sync</div>
+      <div class="sh-body" style="padding-bottom:24px">
+        ${wizardHtml}
       </div>
     </div>`;
     document.body.appendChild(overlay);
@@ -2012,6 +2312,412 @@ const App = {
         this.toast(`${muscles.join(', ')} muscles selected — pick exercises below`);
       }
     },200);
+  },
+
+  // ==================== FEATURE: SAVE AS TEMPLATE ====================
+  saveAsTemplate(){
+    const wk=this.state.activeWorkout;
+    if(!wk)return;
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    overlay.innerHTML=`
+    <div class="sheet">
+      <div class="sh-bar"></div>
+      <div class="sh-title">Save as Template</div>
+      <div class="sh-body" style="padding-bottom:24px">
+        <div class="fgrp">
+          <label class="f-lbl">Template Name</label>
+          <input type="text" id="tmplName" value="${wk.name}" placeholder="e.g. My Push Day">
+        </div>
+        <button class="btn btn-p btn-full" onclick="App._doSaveTemplate(this.closest('.overlay'))">Save Template</button>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+  },
+  _doSaveTemplate(overlay){
+    const wk=this.state.activeWorkout;
+    if(!wk)return;
+    const name=document.getElementById('tmplName')?.value?.trim()||wk.name;
+    const tmpl={
+      id:uuid(),name,
+      exercises:(wk.exercises||[]).map(e=>({exId:e.exId,supersetWith:e.supersetWith||null,sets:Array.from({length:e.sets.length},()=>({weight:'',reps:'',completed:false,note:''}))})),
+      muscles:[...new Set((wk.exercises||[]).map(e=>{const ex=getExercise(e.exId);return ex?.muscle}).filter(Boolean))],
+      savedAt:new Date().toISOString()
+    };
+    const templates=DB.get('templates')||[];
+    templates.push(tmpl);
+    DB.set('templates',templates);
+    schedSync();
+    overlay.remove();
+    this.toast('Template saved ✓');
+  },
+  loadTemplate(idx){
+    const templates=DB.get('templates')||[];
+    const t=templates[idx];
+    if(!t)return;
+    if(!confirm(`Load template "${t.name}" and start workout?`))return;
+    this.beginWorkout({...t});
+  },
+  deleteTemplate(idx){
+    if(!confirm('Delete this template?'))return;
+    const templates=DB.get('templates')||[];
+    templates.splice(idx,1);
+    DB.set('templates',templates);
+    schedSync();
+    this.renderTools(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
+  },
+
+  // ==================== FEATURE: PLATE CALCULATOR + TOOLS ====================
+  renderTools(m,hT,hB){
+    hT.textContent='Tools';
+    hB.innerHTML='';
+    const templates=DB.get('templates')||[];
+    const PLATES=[{w:45,c:'#ef4444'},{w:35,c:'#3b82f6'},{w:25,c:'#f59e0b'},{w:10,c:'#22c55e'},{w:5,c:'#a78bfa'},{w:2.5,c:'#ec4899'},{w:1.25,c:'#94a3b8'}];
+
+    m.innerHTML=`
+    <div style="padding:16px">
+      <!-- PLATE CALCULATOR -->
+      <div class="section-lbl" style="padding-top:0">⚖️ Plate Calculator</div>
+      <div class="card" style="margin-bottom:20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div class="fgrp" style="margin:0">
+            <label class="f-lbl">Target Weight (lbs)</label>
+            <input type="number" id="plateTarget" value="135" inputmode="numeric" oninput="App._calcPlates()">
+          </div>
+          <div class="fgrp" style="margin:0">
+            <label class="f-lbl">Bar Weight</label>
+            <select id="plateBar" onchange="App._calcPlates()">
+              <option value="45">45 lb — Olympic</option>
+              <option value="35">35 lb — Women's</option>
+              <option value="33">33 lb — Trap bar</option>
+              <option value="15">15 lb — EZ bar</option>
+              <option value="0">0 — Dumbbells</option>
+            </select>
+          </div>
+        </div>
+        <div id="plateResult"></div>
+      </div>
+
+      <!-- lbs ↔ kg -->
+      <div class="section-lbl" style="padding-top:0">🔄 lbs ↔ kg</div>
+      <div class="card" style="margin-bottom:20px">
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end">
+          <div class="fgrp" style="margin:0">
+            <label class="f-lbl">lbs</label>
+            <input type="number" id="lbsIn" inputmode="decimal" placeholder="135" oninput="const v=parseFloat(this.value);document.getElementById('kgOut').value=v?(v/2.2046).toFixed(2):''">
+          </div>
+          <div style="padding-bottom:11px;color:var(--t3);font-size:18px">=</div>
+          <div class="fgrp" style="margin:0">
+            <label class="f-lbl">kg</label>
+            <input type="number" id="kgOut" inputmode="decimal" placeholder="61.2" oninput="const v=parseFloat(this.value);document.getElementById('lbsIn').value=v?(v*2.2046).toFixed(1):''">
+          </div>
+        </div>
+      </div>
+
+      <!-- TEMPLATES -->
+      <div class="section-lbl" style="padding-top:0">🤝 Workout Templates</div>
+      <div style="font-size:12px;color:var(--t3);padding:0 0 10px;line-height:1.6">Save any workout as a reusable template. Tap 💾 during a live workout to save.</div>
+      ${templates.length?`
+      <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px">
+        ${templates.map((t,ti)=>`
+        <div class="tmpl-card" onclick="App.loadTemplate(${ti})">
+          <div style="font-size:20px;margin-bottom:6px">📋</div>
+          <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">${t.name}</div>
+          <div style="font-size:11px;color:var(--t3);margin-bottom:8px">${(t.exercises||[]).length} exercises</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
+            ${(t.muscles||[]).slice(0,3).map(mu=>`<span class="pill p-a" style="font-size:9px">${mu}</span>`).join('')}
+          </div>
+          <button onclick="event.stopPropagation();App.deleteTemplate(${ti})" style="font-size:10px;color:var(--red);background:none;border:none;cursor:pointer;padding:0;font-family:inherit">Delete</button>
+        </div>`).join('')}
+      </div>`:`
+      <div class="card" style="text-align:center;padding:28px;color:var(--t3)">
+        No templates yet — tap 💾 during a workout to save one.
+      </div>`}
+    </div>`;
+    requestAnimationFrame(()=>this._calcPlates());
+  },
+
+  _calcPlates(){
+    const target=parseFloat(document.getElementById('plateTarget')?.value)||0;
+    const bar=parseFloat(document.getElementById('plateBar')?.value)||45;
+    const el=document.getElementById('plateResult');
+    if(!el)return;
+    const PLATES=[{w:45,c:'#ef4444'},{w:35,c:'#3b82f6'},{w:25,c:'#f59e0b'},{w:10,c:'#22c55e'},{w:5,c:'#a78bfa'},{w:2.5,c:'#ec4899'},{w:1.25,c:'#94a3b8'}];
+    if(target<bar){el.innerHTML=`<div style="color:var(--red);font-size:13px">Target must be ≥ bar weight (${bar} lb)</div>`;return;}
+    let rem=(target-bar)/2,used=[];
+    for(const p of PLATES)while(rem>=p.w-.001){used.push(p);rem=Math.round((rem-p.w)*1000)/1000;}
+    if(rem>.1){el.innerHTML=`<div style="color:var(--amber);font-size:13px">Cannot make ${target} lb exactly. Closest: ${(target-rem*2).toFixed(1)} lb</div>`;return;}
+    const pViz=used.map(p=>{
+      const h=Math.max(18,Math.min(52,p.w*.9+14));
+      return`<div class="plate" style="height:${h}px;width:14px;background:${p.c};margin:0 1px">${p.w}</div>`;
+    }).join('');
+    el.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:center;gap:0;margin:8px 0 12px;overflow-x:auto;padding:4px 0">
+        <div style="width:28px;height:7px;background:var(--surface3);border-radius:2px"></div>
+        <div style="display:flex;flex-direction:row-reverse;align-items:center">${pViz}</div>
+        <div style="width:8px;height:22px;background:var(--surface3);border-radius:3px 0 0 3px"></div>
+        <div style="width:8px;height:22px;background:var(--surface3);border-radius:0 3px 3px 0"></div>
+        <div style="display:flex;align-items:center">${pViz}</div>
+        <div style="width:28px;height:7px;background:var(--surface3);border-radius:2px"></div>
+      </div>
+      <div style="font-size:12px;color:var(--t2);text-align:center">Each side: ${used.map(p=>p.w+'lb').join(' + ')||'none'}</div>
+      <div style="font-size:11px;color:var(--t3);text-align:center;margin-top:2px">Bar: ${bar} lb · Total: ${target} lb</div>`;
+  },
+
+  // ==================== FEATURE: MILESTONES ====================
+  computeBadges(){
+    const history=(DB.get('workoutHistory')||[]).filter(w=>w.profileId===this.state.profileId);
+    const totalW=history.length;
+    const totalSets=history.reduce((s,w)=>s+(w.exercises||[]).reduce((ss,e)=>ss+(e.sets||[]).filter(s=>s.completed).length,0),0);
+    const streak=getWorkoutStreak();
+    const exUsed=new Set(history.flatMap(w=>(w.exercises||[]).map(e=>e.exId))).size;
+    const pbMap={};
+    for(const w of history)for(const e of(w.exercises||[]))for(const s of(e.sets||[]))if(s.completed&&s.weight){const v=s.weight*(s.reps||1);if(!pbMap[e.exId]||v>pbMap[e.exId])pbMap[e.exId]=v;}
+    const pbs=Object.keys(pbMap).length;
+    const heaviest=Math.max(0,...history.flatMap(w=>(w.exercises||[]).flatMap(e=>(e.sets||[]).filter(s=>s.completed&&s.weight).map(s=>s.weight))));
+    return[
+      {ico:'🎯',name:'First Workout',sub:'Complete 1 workout',unlocked:totalW>=1},
+      {ico:'💪',name:'Getting Going',sub:'Complete 5 workouts',unlocked:totalW>=5},
+      {ico:'🔥',name:'On Fire',sub:'Complete 25 workouts',unlocked:totalW>=25},
+      {ico:'⚡',name:'Dedicated',sub:'Complete 50 workouts',unlocked:totalW>=50},
+      {ico:'🏆',name:'Century',sub:'Complete 100 workouts',unlocked:totalW>=100},
+      {ico:'📅',name:'3-Day Streak',sub:'Work out 3 days in a row',unlocked:streak>=3},
+      {ico:'🌟',name:'Week Warrior',sub:'7-day streak',unlocked:streak>=7},
+      {ico:'👑',name:'Month Master',sub:'30-day streak',unlocked:streak>=30},
+      {ico:'💥',name:'Centurion',sub:'Log 100 total sets',unlocked:totalSets>=100},
+      {ico:'🦾',name:'Iron Giant',sub:'Log 500 total sets',unlocked:totalSets>=500},
+      {ico:'🐉',name:'Beast Mode',sub:'Log 1000 total sets',unlocked:totalSets>=1000},
+      {ico:'🗺️',name:'Explorer',sub:'Try 10 exercises',unlocked:exUsed>=10},
+      {ico:'🧭',name:'Adventurer',sub:'Try 25 exercises',unlocked:exUsed>=25},
+      {ico:'🌍',name:'Conqueror',sub:'Try 50 exercises',unlocked:exUsed>=50},
+      {ico:'📊',name:'Data Driven',sub:'Set 10 personal bests',unlocked:pbs>=10},
+      {ico:'🏋️',name:'Two Plates',sub:'Lift 225 lbs',unlocked:heaviest>=225},
+      {ico:'💎',name:'Three Plates',sub:'Lift 315 lbs',unlocked:heaviest>=315},
+      {ico:'🌙',name:'Four Plates',sub:'Lift 405 lbs',unlocked:heaviest>=405},
+    ];
+  },
+
+  renderBadges(m,hT,hB){
+    hT.textContent='Milestones';
+    hB.innerHTML='';
+    const badges=this.computeBadges();
+    const earned=badges.filter(b=>b.unlocked).length;
+    const pct=Math.round(earned/badges.length*100);
+    m.innerHTML=`
+    <div style="padding:16px">
+      <div style="text-align:center;padding:8px 0 24px">
+        <div style="font-size:48px;margin-bottom:8px">🏅</div>
+        <div style="font-size:28px;font-weight:700;letter-spacing:-.5px">${earned}<span style="font-size:18px;color:var(--t3);font-weight:400"> / ${badges.length}</span></div>
+        <div style="font-size:12px;color:var(--t3);margin:4px 0 12px">Badges earned</div>
+        <div style="margin:0 24px">
+          <div class="prog-line"><div class="prog-fill" style="width:${pct}%"></div></div>
+          <div style="font-size:11px;color:var(--t3);text-align:right;margin-top:2px">${pct}%</div>
+        </div>
+      </div>
+      ${earned?`
+      <div class="section-lbl" style="padding-top:0">Earned 🎉</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+        ${badges.filter(b=>b.unlocked).map(b=>`
+        <div class="badge-card unlocked" style="animation:slideIn .3s ease">
+          <div class="badge-ico">${b.ico}</div>
+          <div class="badge-name">${b.name}</div>
+          <div class="badge-sub">${b.sub}</div>
+        </div>`).join('')}
+      </div>`:''}
+      <div class="section-lbl" style="padding-top:0">Locked 🔒</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        ${badges.filter(b=>!b.unlocked).map(b=>`
+        <div class="badge-card locked">
+          <div class="badge-ico">${b.ico}</div>
+          <div class="badge-name">${b.name}</div>
+          <div class="badge-sub">${b.sub}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  },
+
+  // ==================== FEATURE: TRAINING CALENDAR ====================
+  renderCalendar(m,hT,hB){
+    hT.textContent='Calendar';
+    hB.innerHTML=`<button onclick="App.nav('history')" class="btn-g">History</button>`;
+    const history=(DB.get('workoutHistory')||[]).filter(w=>w.profileId===this.state.profileId);
+    const dateCounts={};
+    for(const w of history)dateCounts[w.date]=(dateCounts[w.date]||0)+1;
+    const now=new Date();
+    const months=[];
+    for(let mi=5;mi>=0;mi--){
+      const d=new Date(now.getFullYear(),now.getMonth()-mi,1);
+      months.push({year:d.getFullYear(),month:d.getMonth()});
+    }
+    const DOW=['S','M','T','W','T','F','S'];
+    const MNAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const todayStr=now.toISOString().split('T')[0];
+    const totalW=history.length;
+    const streak=getWorkoutStreak();
+    const activeDays=Object.keys(dateCounts).length;
+    const best=Math.max(0,...Object.values(dateCounts));
+    m.innerHTML=`
+    <div style="padding:16px">
+      <div class="stat-grid" style="margin-bottom:20px">
+        <div class="stat-card"><div class="stat-val">${totalW}</div><div class="stat-lbl">Total Workouts</div></div>
+        <div class="stat-card"><div class="stat-val">${streak}</div><div class="stat-lbl">Current Streak</div></div>
+        <div class="stat-card"><div class="stat-val">${activeDays}</div><div class="stat-lbl">Active Days</div></div>
+        <div class="stat-card"><div class="stat-val">${best}</div><div class="stat-lbl">Most in a Day</div></div>
+      </div>
+      ${months.map(({year,month})=>{
+        const firstDay=new Date(year,month,1).getDay();
+        const daysInMonth=new Date(year,month+1,0).getDate();
+        const cells=[];
+        for(let i=0;i<firstDay;i++)cells.push({empty:true});
+        for(let d=1;d<=daysInMonth;d++){
+          const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+          const cnt=dateCounts[ds]||0;
+          const cls=cnt===0?'rest':cnt===1?'w1':cnt===2?'w2':cnt===3?'w3':'w4';
+          cells.push({d,ds,cnt,cls,today:ds===todayStr});
+        }
+        return`
+        <div style="margin-bottom:24px">
+          <div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:8px">${MNAMES[month]} ${year}</div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
+            ${DOW.map(d=>`<div style="text-align:center;font-size:9px;font-weight:600;color:var(--t3);padding:2px 0">${d}</div>`).join('')}
+          </div>
+          <div class="cal-grid" style="gap:3px">
+            ${cells.map(cell=>cell.empty?`<div class="cal-day empty"></div>`:
+              `<div class="cal-day ${cell.cls}${cell.today?' today':''}" onclick="App._calDayClick('${cell.ds}')" title="${cell.cnt} workout${cell.cnt!==1?'s':''}">${cell.d}</div>`
+            ).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px;padding-bottom:8px">
+        <span style="font-size:11px;color:var(--t3)">Less</span>
+        ${['rest','w1','w2','w3','w4'].map(cls=>`<div style="width:16px;height:16px;border-radius:3px" class="cal-day ${cls}"></div>`).join('')}
+        <span style="font-size:11px;color:var(--t3)">More</span>
+      </div>
+    </div>`;
+  },
+
+  _calDayClick(dateStr){
+    const history=(DB.get('workoutHistory')||[]).filter(w=>w.date===dateStr&&w.profileId===this.state.profileId);
+    if(!history.length)return;
+    if(history.length===1){this.viewWorkout(history[0].id);return;}
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    overlay.innerHTML=`<div class="sheet"><div class="sh-bar"></div><div class="sh-title">${fmtDate(dateStr)}</div><div class="sh-body" style="padding-bottom:20px">
+      ${history.map(w=>`<div class="ri" style="cursor:pointer" onclick="App.viewWorkout('${w.id}');this.closest('.overlay').remove()">
+        <div class="ri-c"><div class="ri-t">${w.name||'Workout'}</div><div class="ri-s">${(w.exercises||[]).length} exercises</div></div><div class="ri-r">›</div></div>`).join('')}
+    </div></div>`;
+    document.body.appendChild(overlay);
+  },
+
+  // ==================== FEATURE: VOLUME CHARTS ====================
+  renderCharts(m,hT,hB){
+    hT.textContent='Progress Charts';
+    hB.innerHTML='';
+    const history=(DB.get('workoutHistory')||[]).filter(w=>w.profileId===this.state.profileId);
+    const exMap={};
+    for(const w of [...history].sort((a,b)=>a.date.localeCompare(b.date))){
+      for(const e of(w.exercises||[])){
+        const doneSets=(e.sets||[]).filter(s=>s.completed&&s.weight);
+        if(!doneSets.length)continue;
+        if(!exMap[e.exId])exMap[e.exId]=[];
+        exMap[e.exId].push({
+          date:w.date,
+          maxW:Math.max(...doneSets.map(s=>s.weight)),
+          totalVol:doneSets.reduce((a,s)=>a+s.weight*(s.reps||1),0),
+          sets:doneSets.length
+        });
+      }
+    }
+    const exIds=Object.keys(exMap).sort((a,b)=>exMap[b].length-exMap[a].length).slice(0,30);
+    if(!exIds.length){
+      m.innerHTML=`<div class="empty" style="margin-top:60px"><span class="empty-ico">📈</span><div class="empty-t">No data yet</div><div class="empty-s">Complete workouts to see progress charts</div></div>`;
+      return;
+    }
+    this._chartState={exId:parseInt(exIds[0]),metric:'maxW'};
+    this._chartExMap=exMap;
+
+    m.innerHTML=`
+    <div style="padding:16px">
+      <div class="fgrp">
+        <label class="f-lbl">Exercise</label>
+        <select id="chartExSel" onchange="App._chartSelEx(this.value)">
+          ${exIds.map(id=>{const ex=getExercise(parseInt(id));return ex?`<option value="${id}">${ex.name}</option>`:''}).join('')}
+        </select>
+      </div>
+      <div class="seg" style="margin-bottom:16px">
+        <button class="seg-b on" id="cm-maxW" onclick="App._chartMetric('maxW',this)">Max Weight</button>
+        <button class="seg-b" id="cm-totalVol" onclick="App._chartMetric('totalVol',this)">Volume</button>
+        <button class="seg-b" id="cm-sets" onclick="App._chartMetric('sets',this)">Sets Done</button>
+      </div>
+      <div class="card" style="padding:16px;min-height:180px" id="chartArea"></div>
+      <div class="section-lbl" style="padding-top:16px">Session Log</div>
+      <div id="chartHistTable"></div>
+    </div>`;
+    requestAnimationFrame(()=>{this._renderChart();this._renderChartHistTable();});
+  },
+
+  _renderChart(){
+    const el=document.getElementById('chartArea');
+    if(!el||!this._chartState)return;
+    const data=(this._chartExMap[this._chartState.exId]||[]);
+    if(!data.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--t3)">No data</div>';return;}
+    const metric=this._chartState.metric;
+    const vals=data.map(d=>d[metric]);
+    const maxV=Math.max(...vals)||1;
+    const minV=Math.min(...vals);
+    const recent=data[data.length-1];
+    const prev=data.length>1?data[data.length-2]:null;
+    const trendUp=prev?recent[metric]>=prev[metric]:null;
+    const trendColor=trendUp===null?'var(--t3)':trendUp?'var(--green)':'var(--red)';
+    const unit=metric==='maxW'?'lbs':metric==='sets'?'sets':'vol';
+    const W=300,H=100,n=data.length;
+    const bW=Math.max(4,Math.min(20,Math.floor((W-n*2)/n)));
+    const gap=Math.max(2,(W-n*bW)/(n+1));
+    const pts=data.map((d,i)=>({x:gap+i*(bW+gap)+bW/2,y:H-Math.round(((d[metric]-minV)/(maxV-minV||1))*80+10)}));
+    el.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+        <div>
+          <span style="font-size:26px;font-weight:700;letter-spacing:-1px">${typeof recent[metric]==='number'?recent[metric].toFixed(metric==='sets'?0:1):'-'}</span>
+          <span style="font-size:13px;color:var(--t3);margin-left:4px">${unit}</span>
+        </div>
+        ${trendUp!==null?`<div style="font-size:14px;font-weight:700;color:${trendColor}">${trendUp?'↑ Up':'↓ Down'}</div>`:''}
+      </div>
+      <svg width="100%" viewBox="0 0 ${W} ${H}" class="vchart-svg" style="overflow:visible">
+        ${data.map((d,i)=>{
+          const x=gap+i*(bW+gap);
+          const bh=Math.max(3,Math.round(((d[metric]-minV)/(maxV-minV||1))*80+10));
+          const isLast=i===n-1;
+          return`<rect x="${x}" y="${H-bh}" width="${bW}" height="${bh}" rx="2"
+            fill="${isLast?'var(--accent)':'var(--accent-dim)'}" opacity="${isLast?1:.75}"/>
+            ${isLast?`<text x="${x+bW/2}" y="${H-bh-4}" text-anchor="middle" font-size="8" fill="var(--accent2)">${d[metric].toFixed(0)}</text>`:''}`;
+        }).join('')}
+        ${pts.length>1?`<polyline points="${pts.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="var(--teal)" stroke-width="1.5" stroke-dasharray="3,2" opacity=".65"/>`:''}
+      </svg>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t3);margin-top:4px">
+        <span>${fmtDate(data[0].date)}</span>
+        <span>${n} sessions</span>
+        <span>${fmtDate(data[n-1].date)}</span>
+      </div>`;
+  },
+  _chartSelEx(val){if(this._chartState){this._chartState.exId=parseInt(val);this._renderChart();this._renderChartHistTable();}},
+  _chartMetric(metric,btn){
+    if(!this._chartState)return;
+    this._chartState.metric=metric;
+    document.querySelectorAll('[id^="cm-"]').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    this._renderChart();
+  },
+  _renderChartHistTable(){
+    const el=document.getElementById('chartHistTable');
+    if(!el||!this._chartState)return;
+    const data=(this._chartExMap[this._chartState.exId]||[]).slice().reverse().slice(0,10);
+    el.innerHTML=data.map(d=>`
+      <div class="hist-e">
+        <div class="hist-d">${fmtDate(d.date)}</div>
+        <div class="hist-v">${d.maxW} lbs max · ${Math.round(d.totalVol)} vol · ${d.sets} sets</div>
+      </div>`).join('')||'<div style="padding:12px;color:var(--t3);font-size:13px">No data</div>';
   },
 
   // ==================== DRAG & DROP + SWIPE TO DELETE ====================
