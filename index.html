@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="LiftLab">
 <title>LiftLab</title>
 <style>
-:root{--bg:#08080f;--surface:#111118;--surface2:#1a1a24;--surface3:#22222e;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--accent:#7c6dff;--accent2:#a594ff;--accent-dim:rgba(124,109,255,0.14);--green:#34d399;--green-dim:rgba(52,211,153,0.14);--red:#f87171;--red-dim:rgba(248,113,113,0.14);--amber:#fbbf24;--amber-dim:rgba(251,191,36,0.13);--teal:#22d3ee;--teal-dim:rgba(34,211,238,0.11);--t1:#eeeeff;--t2:#8888aa;--t3:#50505f;--nav-h:68px;--hdr-h:54px;--safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);--glass-hdr:rgba(8,8,15,0.92);--glass-nav:rgba(8,8,15,0.95)}
+:root{--bg:#08080f;--surface:#111118;--surface2:#1a1a24;--surface3:#22222e;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--accent:#7c6dff;--accent2:#a594ff;--accent-dim:rgba(124,109,255,0.14);--green:#34d399;--green-dim:rgba(52,211,153,0.14);--red:#f87171;--red-dim:rgba(248,113,113,0.14);--amber:#fbbf24;--amber-dim:rgba(251,191,36,0.13);--teal:#22d3ee;--teal-dim:rgba(34,211,238,0.11);--t1:#eeeeff;--t2:#8888aa;--t3:#50505f;--nav-h:58px;--hdr-h:54px;--safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);--glass-hdr:rgba(8,8,15,0.92);--glass-nav:rgba(8,8,15,0.95)}
 [data-theme="light"]{--bg:#f0f0f8;--surface:#ffffff;--surface2:#eeeef8;--surface3:#e2e2f0;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--t1:#0d0d1a;--t2:#55557a;--t3:#9090b0;--accent:#6355ee;--accent2:#4f44cc;--accent-dim:rgba(99,85,238,0.12);--glass-hdr:rgba(240,240,248,0.92);--glass-nav:rgba(240,240,248,0.97)}
 @media(prefers-color-scheme:light){[data-theme="auto"]{--bg:#f0f0f8;--surface:#ffffff;--surface2:#eeeef8;--surface3:#e2e2f0;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--t1:#0d0d1a;--t2:#55557a;--t3:#9090b0;--accent:#6355ee;--accent2:#4f44cc;--accent-dim:rgba(99,85,238,0.12);--glass-hdr:rgba(240,240,248,0.92);--glass-nav:rgba(240,240,248,0.97)}}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -19,7 +19,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 .hdr-title{font-size:20px;font-weight:700;letter-spacing:-.4px;flex:1}
 .hdr-btns{display:flex;gap:6px;align-items:center}
 #nav{position:fixed;bottom:0;left:0;right:0;z-index:100;height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:var(--glass-nav);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:.5px solid var(--border);display:flex}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:500;color:var(--t3);background:none;border:none;cursor:pointer;padding:6px 4px;letter-spacing:.2px;transition:color .15s}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:500;color:var(--t3);background:none;border:none;cursor:pointer;padding:4px 4px 2px;letter-spacing:.2px;transition:color .15s}
 .nb.on{color:var(--accent2)}
 .nb svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
 .nb.on svg{transform:scale(1.08)}
@@ -64,7 +64,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .ex-card.sel{border-color:var(--accent);background:var(--accent-dim)}
 .ex-ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:19px}
 .ex-info{flex:1;min-width:0}
-.ex-name{font-size:14px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ex-name{font-size:14px;font-weight:600;color:var(--t1);white-space:normal;line-height:1.3}
 .ex-meta{font-size:11px;color:var(--t3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ex-freq{font-size:11px;color:var(--t2);text-align:right;flex-shrink:0}
 .sr{display:flex;align-items:center;gap:7px;padding:7px 0;border-bottom:.5px solid var(--border)}
@@ -252,7 +252,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.2.7';
+const CURRENT_VERSION = '1.3.0';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -583,11 +583,25 @@ const App = {
         `).join('')}
       </div>
 
+      <!-- My saved plans -->
+      ${(()=>{const saved=DB.get('savedPlans')||[];return saved.length?`
+      <div class="section-lbl">My Plans</div>
+      <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px">
+        ${saved.map((plan,pi)=>`
+          <div style="flex-shrink:0;width:150px;background:var(--surface);border:.5px solid var(--accent-dim);border-radius:14px;padding:14px;cursor:pointer;position:relative" onclick="App.loadSavedPlan(${pi})">
+            <div style="font-size:22px;margin-bottom:6px">${plan.emoji||'💪'}</div>
+            <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:3px">${plan.name}</div>
+            <div style="font-size:11px;color:var(--t3)">${(plan.exercises||[]).length} exercises</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">${(plan.muscles||[]).slice(0,2).map(mu=>`<span class="pill p-a" style="font-size:9px">${mu}</span>`).join('')}</div>
+            <button onclick="event.stopPropagation();App.deleteSavedPlan(${pi})" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--t3);font-size:14px;cursor:pointer;padding:2px">✕</button>
+          </div>`).join('')}
+      </div>`:'';})()}
+
       <!-- Suggested workouts -->
       <div class="section-lbl">Suggested Plans</div>
       <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px">
         ${this.getSuggestedPlans().map(plan=>`
-          <div onclick="App.startPlan('${plan.id}')" style="flex-shrink:0;width:160px;background:var(--surface);border:.5px solid var(--border);border-radius:14px;padding:14px;cursor:pointer">
+          <div onclick="App.startPlan('${plan.id}')" style="flex-shrink:0;width:150px;background:var(--surface);border:.5px solid var(--border);border-radius:14px;padding:14px;cursor:pointer">
             <div style="font-size:22px;margin-bottom:6px">${plan.emoji}</div>
             <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:3px">${plan.name}</div>
             <div style="font-size:11px;color:var(--t3)">${plan.desc}</div>
@@ -631,7 +645,16 @@ const App = {
   startPlan(planId){
     const exercises=this.getPlanExercises(planId);
     const plan=this.getSuggestedPlans().find(p=>p.id===planId);
-    this.beginWorkout({name:plan.name,exercises});
+    // Load into build view so user can edit exercises and set participants
+    const build={
+      name:plan.name,
+      exercises,
+      date:new Date().toISOString().split('T')[0],
+      participants:[this.state.profileId],
+    };
+    DB.set('buildWorkout',build);
+    this.nav('build');
+    this.toast(`${plan.emoji} ${plan.name} loaded — edit then tap Start`);
   },
 
   getPlanExercises(planId){
@@ -653,6 +676,29 @@ const App = {
     }
   },
 
+  loadSavedPlan(idx){
+    const plans=DB.get('savedPlans')||[];
+    const plan=plans[idx];
+    if(!plan)return;
+    const build={
+      name:plan.name,
+      exercises:(plan.exercises||[]).map(e=>({...e,sets:Array.from({length:(e.sets||[{},{},{}]).length},()=>({weight:'',reps:'',completed:false,note:''}))})),
+      date:new Date().toISOString().split('T')[0],
+      participants:[this.state.profileId],
+    };
+    DB.set('buildWorkout',build);
+    this.nav('build');
+    this.toast(`${plan.emoji||'💪'} ${plan.name} loaded`);
+  },
+  deleteSavedPlan(idx){
+    if(!confirm('Delete this plan?'))return;
+    const plans=DB.get('savedPlans')||[];
+    plans.splice(idx,1);
+    DB.set('savedPlans',plans);
+    schedSync();
+    this.render();
+  },
+
   quickMuscle(muscle){
     const build=DB.get('buildWorkout')||{name:'Today\'s Workout',exercises:[],date:new Date().toISOString().split('T')[0]};
     // Open build view pre-filtered to muscle
@@ -669,8 +715,10 @@ const App = {
       build.participants=[this.state.profileId];
       DB.set('buildWorkout',build);
     }
+    const startCnt=(build.exercises||[]).length;
     hB.innerHTML=`
-      <button class="btn btn-sm btn-p" onclick="App.startWorkoutNow()">Start</button>`;
+      <button onclick="App.saveBuildAsTemplate()" class="icon-btn" title="Save as template" style="margin-right:2px"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
+      <button class="btn btn-sm btn-p" onclick="App.startWorkoutNow()">${startCnt?'Start ('+startCnt+')':'Start'}</button>`;
 
     const exList=build.exercises||[];
     const exData=exList.map(e=>({...e,info:getExercise(e.exId)}));
@@ -785,16 +833,19 @@ const App = {
     const ex=e.info;
     if(!ex)return'';
     const rec=recommendWeight(ex.id);
-    const isSuper=e.supersetWith!=null;
+    const isSuper=!!(e.ssGroup||e.supersetWith);
     const nextEx=all[i+1];
-    // isSuperTop = this exercise is the first of the pair (partner is the next card)
-    const isSuperTop=isSuper&&nextEx&&nextEx.exId===e.supersetWith;
+    const prevEx=all[i-1];
+    // Is this the top of a superset group (nothing above in same group)
+    const isSuperTop=isSuper&&(!prevEx||(prevEx.ssGroup||null)!==(e.ssGroup||null));
     const isSuperBot=isSuper&&!isSuperTop;
+    const isSuperMid=isSuper&&!isSuperTop&&!!(nextEx&&(nextEx.ssGroup||null)===(e.ssGroup||null));
+    const isSuperEnd=isSuper&&isSuperBot&&!(nextEx&&(nextEx.ssGroup||null)===(e.ssGroup||null));
     const favs=DB.get('favorites')||[];
     const isFav=favs.includes(ex.id);
-    // Superset wrapping: top card gets left border group style
+    // Superset wrapping: top card opens the group div, end card closes it
     const ssWrapOpen=isSuperTop?`<div class="ss-group-wrap" id="ssgrp-${i}"><div class="ss-group-label">SS</div><div style="margin-left:4px">`:'<div>';
-    const ssWrapClose=isSuperTop?'</div></div>':'</div>';
+    const ssWrapClose=(isSuperEnd||(!isSuper))?'</div></div>':'</div>';
     const card=`
     ${ssWrapOpen}
     <div class="swipeable" id="bex-wrap-${i}" draggable="true" ondragstart="App._onDragStart(event,${i})" ondragover="App._onDragOver(event,${i})" ondrop="App._onDrop(event,${i})">
@@ -807,8 +858,8 @@ const App = {
             </div>
             <div style="width:36px;height:36px;border-radius:9px;background:${(MUSCLE_META[ex.muscle]?.color||'#7c6dff')}22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${muscleEmoji(ex.muscle)}</div>
             <div style="flex:1;min-width:0">
-              <div style="font-size:14px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:6px">
-                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ex.name}</span>
+              <div style="font-size:14px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                <span style="line-height:1.3">${ex.name}</span>
                 ${isSuper?'<span class="ss-tag">SS</span>':''}
               </div>
               <div style="font-size:11px;color:var(--t3)">${ex.muscle}${ex.target?' · '+ex.target:''} · ${ex.equipment||'Bodyweight'}</div>
@@ -820,12 +871,12 @@ const App = {
           <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
             <span style="font-size:12px;color:var(--t3);flex-shrink:0">Sets:</span>
             ${[2,3,4,5].map(n=>`<button onclick="App.setSets(${i},${n})" class="chip ${(e.sets||[]).length===n?'on':''}" style="padding:4px 10px;font-size:12px">${n}</button>`).join('')}
-            ${!isSuper&&nextEx?`<button onclick="App.toggleSuperset(${i});App._refreshBuild()" style="margin-left:auto;font-size:10px;font-weight:700;color:var(--amber);background:var(--amber-dim);border:.5px solid rgba(251,191,36,.3);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:inherit">+ Superset ↓</button>`:isSuper?`<button onclick="App.toggleSuperset(${i});App._refreshBuild()" style="margin-left:auto;font-size:10px;font-weight:700;color:var(--t3);background:var(--surface3);border:none;border-radius:6px;padding:3px 9px;cursor:pointer;font-family:inherit">✕ Remove SS</button>`:''}
+            ${nextEx&&!(nextEx.ssGroup&&nextEx.ssGroup===e.ssGroup)?`<button onclick="App.toggleSuperset(${i});App._refreshBuild()" style="margin-left:auto;font-size:10px;font-weight:700;color:${isSuper?'var(--t2)':'var(--amber)'};background:${isSuper?'var(--surface3)':'var(--amber-dim)'};border:.5px solid ${isSuper?'transparent':'rgba(251,191,36,.3)'};border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:inherit">${isSuper?'+ Add ↓ to SS':'+ Superset ↓'}</button>`:isSuper?`<button onclick="App.toggleSuperset(${i});App._refreshBuild()" style="margin-left:auto;font-size:10px;font-weight:700;color:var(--t3);background:var(--surface3);border:none;border-radius:6px;padding:3px 9px;cursor:pointer;font-family:inherit">✕ Remove SS</button>`:''}
           </div>
         </div>
       </div>
     </div>
-    ${isSuperTop?`<div style="display:flex;align-items:center;gap:6px;padding:3px 8px 3px 16px;background:rgba(251,191,36,.04)"><div style="width:2px;height:20px;background:var(--amber);border-radius:1px;margin-left:4px;flex-shrink:0"></div><span style="font-size:10px;font-weight:700;color:var(--amber)">perform together ↓</span></div>`:''}
+    ${isSuper&&nextEx&&(nextEx.ssGroup||null)===(e.ssGroup||null)?`<div style="display:flex;align-items:center;gap:6px;padding:3px 8px 3px 16px;background:rgba(251,191,36,.04)"><div style="width:2px;height:20px;background:var(--amber);border-radius:1px;margin-left:4px;flex-shrink:0"></div><span style="font-size:10px;font-weight:700;color:var(--amber)">↕ perform together</span></div>`:''}
     ${ssWrapClose}`;
     return card;
   },
@@ -1014,18 +1065,27 @@ const App = {
 
   toggleSuperset(i){
     const build=DB.get('buildWorkout')||{exercises:[]};
-    const ex=build.exercises[i];
-    const next=build.exercises[i+1];
+    const exArr=build.exercises;
+    const ex=exArr[i];
+    const next=exArr[i+1];
     if(!ex||!next)return;
-    if(ex.supersetWith){
-      ex.supersetWith=null;
-      next.supersetWith=null;
+    // If already in a group, remove this exercise from it
+    if(ex.ssGroup){
+      const grp=ex.ssGroup;
+      ex.ssGroup=null;
+      // Clean up group if only 1 member left
+      const remaining=exArr.filter(e=>e.ssGroup===grp);
+      if(remaining.length===1)remaining[0].ssGroup=null;
     } else {
-      ex.supersetWith=next.exId;
-      next.supersetWith=ex.exId;
+      // Join or create a group with next exercise
+      const grp=next.ssGroup||uuid().slice(0,8);
+      ex.ssGroup=grp;
+      next.ssGroup=grp;
     }
+    // Keep backward compat
+    ex.supersetWith=null;next.supersetWith=null;
     DB.set('buildWorkout',build);
-    this.render();
+    this._refreshBuild();
   },
 
   startWorkoutNow(){
@@ -2057,6 +2117,7 @@ const App = {
   // ==================== VERSION HISTORY ====================
   openVersionHistory(){
     const releases=DB.get('releases')||[{version:CURRENT_VERSION,date:new Date().toISOString().split('T')[0],notes:['Current version']}];
+    const upd=this.state.updateAvailable;
     const overlay=document.createElement('div');
     overlay.className='overlay';
     overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
@@ -2068,11 +2129,11 @@ const App = {
         <button onclick="this.closest('.overlay').remove()" style="background:var(--surface2);border:.5px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--t2);cursor:pointer;flex-shrink:0;line-height:1">✕</button>
       </div>
       <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 20px 24px;flex:1">
-        ${this.state.updateAvailable?`
+        ${upd?`
         <div style="background:var(--green-dim);border:.5px solid rgba(52,211,153,.3);border-radius:10px;padding:12px;margin-bottom:14px">
-          <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:4px">🆕 Update Available — v${this.state.updateAvailable.version}</div>
-          <div style="font-size:12px;color:var(--t2);margin-bottom:8px">You are on v${CURRENT_VERSION}. A new version is available on GitHub.</div>
-          <a href="https://github.com/isaac-einstein36/liftlab" target="_blank" style="display:inline-block;background:var(--green);color:#000;font-size:12px;font-weight:700;padding:6px 14px;border-radius:8px;text-decoration:none">Go to GitHub →</a>
+          <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:4px">🆕 Update Available — v${upd.version}</div>
+          <div style="font-size:12px;color:var(--t2);margin-bottom:10px">You are on v${CURRENT_VERSION}. Your workout data is saved locally and will not be affected.</div>
+          <button id="installUpdateBtn" onclick="App._installUpdate('${upd.url||''}')" style="background:var(--green);color:#000;font-size:13px;font-weight:700;padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;width:100%">Install Update Now</button>
         </div>`:''}
         ${releases.map((r,i)=>`
         <div style="margin-bottom:16px">
@@ -2088,6 +2149,35 @@ const App = {
       </div>
     </div>`;
     document.body.appendChild(overlay);
+  },
+
+  async _installUpdate(url){
+    const btn=document.getElementById('installUpdateBtn');
+    if(btn){btn.textContent='Downloading…';btn.disabled=true;}
+    try{
+      if(!url)throw new Error('No URL');
+      const res=await fetch(url+'?_='+Date.now());
+      if(!res.ok)throw new Error('Fetch failed: '+res.status);
+      const html=await res.text();
+      if(html.length<10000)throw new Error('File too small, may be invalid');
+      // Write to a blob URL and navigate, preserving localStorage data
+      const blob=new Blob([html],{type:'text/html'});
+      const blobUrl=URL.createObjectURL(blob);
+      // Open in same window — localStorage persists across same-origin blobs
+      if(btn){btn.textContent='Installing…';}
+      setTimeout(()=>{window.location.href=blobUrl;},200);
+    }catch(e){
+      if(btn){btn.textContent='Install Update Now';btn.disabled=false;}
+      // Fallback: direct download so user can replace the file manually
+      this.toast('Auto-install failed — downloading file instead');
+      const latest=this.state.updateAvailable;
+      if(latest?.url){
+        const a=document.createElement('a');
+        a.href=latest.url+'?_='+Date.now();
+        a.download='liftlab.html';
+        a.click();
+      }
+    }
   },
 
   // ==================== GITHUB SETUP ====================
@@ -2361,6 +2451,47 @@ const App = {
   },
 
   // ==================== FEATURE: SAVE AS TEMPLATE ====================
+  saveBuildAsTemplate(){
+    const build=DB.get('buildWorkout')||{};
+    if(!(build.exercises||[]).length){this.toast('Add exercises first');return;}
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    overlay.innerHTML=`
+    <div class="sheet"><div class="sh-bar"></div>
+    <div class="sh-title">Save as Plan</div>
+    <div class="sh-body" style="padding-bottom:24px">
+      <div class="fgrp"><label class="f-lbl">Plan Name</label>
+        <input type="text" id="planName" value="${build.name||'My Plan'}" placeholder="e.g. My Push Day">
+      </div>
+      <div class="fgrp"><label class="f-lbl">Emoji</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${'💪🔥⚡🏋️🦾🥊🎯🌟'.split('').map(e=>`<button onclick="this.closest('[id]');document.getElementById('planEmoji').value='${e}';this.parentElement.querySelectorAll('button').forEach(b=>b.style.opacity='.4');this.style.opacity='1'" style="font-size:22px;background:none;border:none;cursor:pointer;opacity:.4;padding:4px">${e}</button>`).join('')}
+        </div>
+        <input type="hidden" id="planEmoji" value="💪">
+      </div>
+      <button class="btn btn-p btn-full" onclick="App._doSavePlan(this.closest('.overlay'))">Save Plan</button>
+    </div></div>`;
+    document.body.appendChild(overlay);
+  },
+  _doSavePlan(overlay){
+    const build=DB.get('buildWorkout')||{};
+    const name=document.getElementById('planName')?.value?.trim()||build.name||'My Plan';
+    const emoji=document.getElementById('planEmoji')?.value||'💪';
+    const plan={
+      id:uuid(),name,emoji,
+      exercises:(build.exercises||[]).map(e=>({exId:e.exId,supersetWith:e.supersetWith||null,sets:Array.from({length:(e.sets||[{},{},{}]).length},()=>({weight:'',reps:'',completed:false,note:''}))})),
+      muscles:[...new Set((build.exercises||[]).map(e=>{const ex=getExercise(e.exId);return ex?.muscle}).filter(Boolean))],
+      savedAt:new Date().toISOString(),custom:true,
+    };
+    const plans=DB.get('savedPlans')||[];
+    plans.push(plan);
+    DB.set('savedPlans',plans);
+    schedSync();
+    overlay.remove();
+    this.toast('Plan saved! ✓');
+  },
+
   saveAsTemplate(){
     const wk=this.state.activeWorkout;
     if(!wk)return;
