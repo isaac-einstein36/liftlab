@@ -1,6 +1,6 @@
 [
   {
-  "version": "1.2.6",
+  "version": "1.2.6.1",
   "date": "2026-05-13",
   "notes": [
     "Fixed: Participant checkboxes in Build now toggle correctly — tapping a row reliably adds or removes that profile",
