@@ -8,17 +8,17 @@
 <meta name="apple-mobile-web-app-title" content="LiftLab">
 <title>LiftLab</title>
 <style>
-:root{--bg:#08080f;--surface:#111118;--surface2:#1a1a24;--surface3:#22222e;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--accent:#7c6dff;--accent2:#a594ff;--accent-dim:rgba(124,109,255,0.14);--green:#34d399;--green-dim:rgba(52,211,153,0.14);--red:#f87171;--red-dim:rgba(248,113,113,0.14);--amber:#fbbf24;--amber-dim:rgba(251,191,36,0.13);--teal:#22d3ee;--teal-dim:rgba(34,211,238,0.11);--t1:#eeeeff;--t2:#8888aa;--t3:#50505f;--nav-h:68px;--hdr-h:54px;--safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px)}
-[data-theme="light"]{--bg:#f0f0f8;--surface:#ffffff;--surface2:#eeeef8;--surface3:#e2e2f0;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--t1:#0d0d1a;--t2:#55557a;--t3:#9090b0;--accent:#6355ee;--accent2:#4f44cc;--accent-dim:rgba(99,85,238,0.12)}
-@media(prefers-color-scheme:light){[data-theme="auto"]{--bg:#f0f0f8;--surface:#ffffff;--surface2:#eeeef8;--surface3:#e2e2f0;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--t1:#0d0d1a;--t2:#55557a;--t3:#9090b0;--accent:#6355ee;--accent2:#4f44cc;--accent-dim:rgba(99,85,238,0.12)}}
+:root{--bg:#08080f;--surface:#111118;--surface2:#1a1a24;--surface3:#22222e;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--accent:#7c6dff;--accent2:#a594ff;--accent-dim:rgba(124,109,255,0.14);--green:#34d399;--green-dim:rgba(52,211,153,0.14);--red:#f87171;--red-dim:rgba(248,113,113,0.14);--amber:#fbbf24;--amber-dim:rgba(251,191,36,0.13);--teal:#22d3ee;--teal-dim:rgba(34,211,238,0.11);--t1:#eeeeff;--t2:#8888aa;--t3:#50505f;--nav-h:68px;--hdr-h:54px;--safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);--glass-hdr:rgba(8,8,15,0.92);--glass-nav:rgba(8,8,15,0.95)}
+[data-theme="light"]{--bg:#f0f0f8;--surface:#ffffff;--surface2:#eeeef8;--surface3:#e2e2f0;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--t1:#0d0d1a;--t2:#55557a;--t3:#9090b0;--accent:#6355ee;--accent2:#4f44cc;--accent-dim:rgba(99,85,238,0.12);--glass-hdr:rgba(240,240,248,0.92);--glass-nav:rgba(240,240,248,0.97)}
+@media(prefers-color-scheme:light){[data-theme="auto"]{--bg:#f0f0f8;--surface:#ffffff;--surface2:#eeeef8;--surface3:#e2e2f0;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--t1:#0d0d1a;--t2:#55557a;--t3:#9090b0;--accent:#6355ee;--accent2:#4f44cc;--accent-dim:rgba(99,85,238,0.12);--glass-hdr:rgba(240,240,248,0.92);--glass-nav:rgba(240,240,248,0.97)}}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
 #app{display:flex;flex-direction:column;height:100%;height:-webkit-fill-available}
 #main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-top:calc(var(--hdr-h) + var(--safe-t));padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 8px)}
-#hdr{position:fixed;top:0;left:0;right:0;z-index:100;height:calc(var(--hdr-h) + var(--safe-t));padding-top:var(--safe-t);background:rgba(8,8,15,0.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:.5px solid var(--border);display:flex;align-items:flex-end;padding-bottom:10px;padding-left:16px;padding-right:12px}
+#hdr{position:fixed;top:0;left:0;right:0;z-index:100;height:calc(var(--hdr-h) + var(--safe-t));padding-top:var(--safe-t);background:var(--glass-hdr);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:.5px solid var(--border);display:flex;align-items:flex-end;padding-bottom:10px;padding-left:16px;padding-right:12px}
 .hdr-title{font-size:20px;font-weight:700;letter-spacing:-.4px;flex:1}
 .hdr-btns{display:flex;gap:6px;align-items:center}
-#nav{position:fixed;bottom:0;left:0;right:0;z-index:100;height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:rgba(8,8,15,0.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:.5px solid var(--border);display:flex}
+#nav{position:fixed;bottom:0;left:0;right:0;z-index:100;height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:var(--glass-nav);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:.5px solid var(--border);display:flex}
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:500;color:var(--t3);background:none;border:none;cursor:pointer;padding:6px 4px;letter-spacing:.2px;transition:color .15s}
 .nb.on{color:var(--accent2)}
 .nb svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
@@ -252,7 +252,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.2.4';
+const CURRENT_VERSION = '1.2.7';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -664,6 +664,11 @@ const App = {
   renderBuild(m,hT,hB){
     hT.textContent='Build Workout';
     const build=DB.get('buildWorkout')||{name:'Today\'s Workout',exercises:[],date:new Date().toISOString().split('T')[0]};
+    // Ensure participants is always persisted (not just a runtime fallback)
+    if(!build.participants||!build.participants.length){
+      build.participants=[this.state.profileId];
+      DB.set('buildWorkout',build);
+    }
     hB.innerHTML=`
       <button class="btn btn-sm btn-p" onclick="App.startWorkoutNow()">Start</button>`;
 
@@ -722,14 +727,8 @@ const App = {
 
       <!-- Multi-profile toggle -->
       <div class="section-lbl" style="padding-top:4px">Participants</div>
-      <div style="margin-bottom:12px">
-        ${(DB.get('profiles')||[]).map(p=>`
-          <label style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;border-bottom:.5px solid var(--border)">
-            <input type="checkbox" ${(build.participants||[build.profileId||this.state.profileId]).includes(p.id)?'checked':''} onchange="App._toggleParticipant('${p.id}',this.checked)" style="width:18px;height:18px;accent-color:var(--accent);border-radius:4px;flex-shrink:0">
-            <div class="avatar" style="background:${p.color}22;border:1.5px solid ${p.color};width:30px;height:30px;font-size:14px">${p.emoji}</div>
-            <span style="font-size:14px;font-weight:600">${p.name}</span>
-          </label>`).join('')}
-      </div>
+      <div style="font-size:12px;color:var(--t3);padding:0 16px 10px">Who is lifting? All selected profiles will track their own sets.</div>
+      <div id="participantsList" style="margin-bottom:12px">${App._renderParticipantRows()}</div>
 
       <!-- Clear -->
       <div id="buildClearBtn" style="${exList.length?'':'display:none'}">
@@ -741,14 +740,45 @@ const App = {
     requestAnimationFrame(()=>this._initSwipeToDelete());
   },
 
-  _toggleParticipant(profileId,checked){
+  _toggleParticipant(profileId){
+    // Read build, ensure participants array is initialized
     const build=DB.get('buildWorkout')||{};
-    let parts=build.participants||[this.state.profileId];
-    if(checked){if(!parts.includes(profileId))parts.push(profileId);}
-    else{parts=parts.filter(p=>p!==profileId);}
-    if(!parts.length)parts=[this.state.profileId]; // always at least one
+    if(!build.participants||!build.participants.length){
+      build.participants=[this.state.profileId];
+    }
+    const parts=build.participants;
+    const idx=parts.indexOf(profileId);
+    if(idx>=0){
+      parts.splice(idx,1);
+    } else {
+      parts.push(profileId);
+    }
+    if(!parts.length)parts.push(this.state.profileId); // always keep at least one
     build.participants=parts;
     DB.set('buildWorkout',build);
+    // Re-render only the participants list in-place
+    const el=document.getElementById('participantsList');
+    if(el)el.innerHTML=App._renderParticipantRows();
+    else this._refreshBuild();
+  },
+
+  _renderParticipantRows(){
+    const build=DB.get('buildWorkout')||{};
+    // Use persisted participants; fall back to active profile only if truly unset
+    const parts=(build.participants&&build.participants.length)
+      ? build.participants
+      : [this.state.profileId];
+    return (DB.get('profiles')||[]).map(p=>{
+      const isOn=parts.includes(p.id);
+      return`<div onclick="App._toggleParticipant('${p.id}')" style="display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;border-bottom:.5px solid var(--border);background:${isOn?p.color+'0f':'transparent'};transition:background .15s">
+        <div style="width:28px;height:28px;border-radius:8px;border:2px solid ${isOn?p.color:'var(--border2)'};background:${isOn?p.color:'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s">
+          ${isOn?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':''}
+        </div>
+        <div class="avatar" style="background:${p.color}22;border:1.5px solid ${p.color};width:30px;height:30px;font-size:14px">${p.emoji}</div>
+        <span style="font-size:14px;font-weight:600;color:${isOn?'var(--t1)':'var(--t2)'}">${p.name}</span>
+        ${isOn?`<span style="margin-left:auto;font-size:11px;font-weight:600;color:${p.color}">✓ Included</span>`:'<span style="margin-left:auto;font-size:11px;color:var(--t3)">Tap to add</span>'}
+      </div>`;
+    }).join('');
   },
 
   buildExRow(e,i,all){
@@ -1062,6 +1092,7 @@ const App = {
       acc[pid]={total,done};return acc;
     },{});
 
+    // Multi-profile switcher chips — only when 2+ participants
     const mpBarHtml=participants.length>1
       ?`<div style="background:var(--surface);border-bottom:.5px solid var(--border);padding:8px 14px 0"><div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Tap to switch who you're logging for</div><div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px">`
         +participants.map(p=>{
@@ -1071,8 +1102,9 @@ const App = {
         }).join('')
         +`</div></div>`
       :'';
-    const profBannerHtml=activeProf&&participants.length>1
-      ?`<div style="padding:5px 16px;display:flex;align-items:center;gap:7px;background:${activeProf.color}0d"><div style="width:8px;height:8px;border-radius:50%;background:${activeProf.color};flex-shrink:0"></div><span style="font-size:11px;font-weight:600;color:${activeProf.color}">Logging sets for ${activeProf.name}</span></div>`
+    // Active profile banner — ALWAYS shown (single or multi-profile)
+    const profBannerHtml=activeProf
+      ?`<div style="padding:6px 16px;display:flex;align-items:center;gap:8px;background:${activeProf.color}12;border-bottom:.5px solid ${activeProf.color}30"><div style="width:22px;height:22px;border-radius:50%;background:${activeProf.color}28;border:1.5px solid ${activeProf.color};display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">${activeProf.emoji}</div><span style="font-size:12px;font-weight:600;color:${activeProf.color}">${activeProf.name}</span><span style="font-size:11px;color:var(--t3);margin-left:2px">· logging sets</span></div>`
       :'';
     const exercisesHtml=exData.map((e,ei)=>this.liveExCard(e,ei,wk,activePid)).join('');
 
