@@ -1,5 +1,15 @@
 [
   {
+  "version": "1.2.4",
+  "date": "2026-05-13",
+  "notes": [
+    "Fixed: Version history sheet no longer takes up the full screen on iPhone — capped at 60% height with internal scrolling",
+    "Fixed: Version history sheet now has a visible close button (✕) in addition to tapping the background",
+    "Improved: Multi-profile workout switcher is now clearly tappable — shows each participant's name, emoji, and live set progress (e.g. 3/9 sets)",
+    "Improved: Hint text 'Tap to switch who you're logging for' added above profile chips during a workout"
+    ]
+  },
+  {
   "version": "1.2.3",
   "date": "2026-05-13",
   "notes": [
