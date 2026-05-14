@@ -8,13 +8,13 @@
 <meta name="apple-mobile-web-app-title" content="LiftLab">
 <title>LiftLab</title>
 <style>
-:root{--bg:#08080f;--surface:#111118;--surface2:#1a1a24;--surface3:#22222e;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--accent:#7c6dff;--accent2:#a594ff;--accent-dim:rgba(124,109,255,0.14);--green:#34d399;--green-dim:rgba(52,211,153,0.14);--red:#f87171;--red-dim:rgba(248,113,113,0.14);--amber:#fbbf24;--amber-dim:rgba(251,191,36,0.13);--teal:#22d3ee;--teal-dim:rgba(34,211,238,0.11);--t1:#eeeeff;--t2:#8888aa;--t3:#50505f;--nav-h:58px;--hdr-h:54px;--safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);--glass-hdr:rgba(8,8,15,0.92);--glass-nav:rgba(8,8,15,0.95)}
+:root{--bg:#08080f;--surface:#111118;--surface2:#1a1a24;--surface3:#22222e;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--accent:#7c6dff;--accent2:#a594ff;--accent-dim:rgba(124,109,255,0.14);--green:#34d399;--green-dim:rgba(52,211,153,0.14);--red:#f87171;--red-dim:rgba(248,113,113,0.14);--amber:#fbbf24;--amber-dim:rgba(251,191,36,0.13);--teal:#22d3ee;--teal-dim:rgba(34,211,238,0.11);--t1:#eeeeff;--t2:#8888aa;--t3:#50505f;--nav-h:52px;--hdr-h:54px;--safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);--glass-hdr:rgba(8,8,15,0.92);--glass-nav:rgba(8,8,15,0.95)}
 [data-theme="light"]{--bg:#f0f0f8;--surface:#ffffff;--surface2:#eeeef8;--surface3:#e2e2f0;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--t1:#0d0d1a;--t2:#55557a;--t3:#9090b0;--accent:#6355ee;--accent2:#4f44cc;--accent-dim:rgba(99,85,238,0.12);--glass-hdr:rgba(240,240,248,0.92);--glass-nav:rgba(240,240,248,0.97)}
 @media(prefers-color-scheme:light){[data-theme="auto"]{--bg:#f0f0f8;--surface:#ffffff;--surface2:#eeeef8;--surface3:#e2e2f0;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--t1:#0d0d1a;--t2:#55557a;--t3:#9090b0;--accent:#6355ee;--accent2:#4f44cc;--accent-dim:rgba(99,85,238,0.12);--glass-hdr:rgba(240,240,248,0.92);--glass-nav:rgba(240,240,248,0.97)}}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
 #app{display:flex;flex-direction:column;height:100%;height:-webkit-fill-available}
-#main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-top:calc(var(--hdr-h) + var(--safe-t));padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 8px)}
+#main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-top:calc(var(--hdr-h) + var(--safe-t));padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 4px)}
 #hdr{position:fixed;top:0;left:0;right:0;z-index:100;height:calc(var(--hdr-h) + var(--safe-t));padding-top:var(--safe-t);background:var(--glass-hdr);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:.5px solid var(--border);display:flex;align-items:flex-end;padding-bottom:10px;padding-left:16px;padding-right:12px}
 .hdr-title{font-size:20px;font-weight:700;letter-spacing:-.4px;flex:1}
 .hdr-btns{display:flex;gap:6px;align-items:center}
@@ -220,6 +220,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .vchart-svg{overflow:visible}
 /* Plate calculator */
 .plate{display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;writing-mode:vertical-rl}
+.emo{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;font-style:normal}
 </style>
 </head>
 <body>
@@ -252,7 +253,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.3.0';
+const CURRENT_VERSION = '1.3.1';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -261,7 +262,7 @@ const EXERCISE_DB = [{"id":1001,"name":"Incline Hip Thrust","origName":"Incline 
 // ---- Muscle group metadata ----
 const MUSCLE_META = {
   Chest:      { emoji:'💪', color:'#f87171', targets:['Upper','Lower','Total','Outter','Inner'] },
-  Back:       { emoji:'🏋️', color:'#60a5fa', targets:['Middle/Upper','Lower','Traps'] },
+  Back:       { emoji:'🏋', color:'#60a5fa', targets:['Middle/Upper','Lower','Traps'] },
   Shoulders:  { emoji:'🦾', color:'#a78bfa', targets:['Front Delt','Lateral Delt','Rear Delt','Traps','Rotator Cuff'] },
   Biceps:     { emoji:'💪', color:'#34d399', targets:['Long Head','Short Head','Brachialis','Long/Short Head'] },
   Triceps:    { emoji:'💪', color:'#fb923c', targets:['Total'] },
@@ -577,7 +578,7 @@ const App = {
       <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-top:10px;padding-bottom:2px">
         ${Object.entries(MUSCLE_META).map(([mu,v])=>`
           <button onclick="App.quickMuscle('${mu}')" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--surface2);border:.5px solid var(--border);border-radius:12px;padding:10px 14px;cursor:pointer;border:none;min-width:64px">
-            <span style="font-size:20px">${v.emoji}</span>
+            <span style="font-size:20px" class="emo">${v.emoji}</span>
             <span style="font-size:10px;font-weight:600;color:var(--t2);letter-spacing:.2px">${mu}</span>
           </button>
         `).join('')}
@@ -589,7 +590,7 @@ const App = {
       <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px">
         ${saved.map((plan,pi)=>`
           <div style="flex-shrink:0;width:150px;background:var(--surface);border:.5px solid var(--accent-dim);border-radius:14px;padding:14px;cursor:pointer;position:relative" onclick="App.loadSavedPlan(${pi})">
-            <div style="font-size:22px;margin-bottom:6px">${plan.emoji||'💪'}</div>
+            <div style="font-size:22px;margin-bottom:6px"><span class="emo">${plan.emoji||'💪'}</span></div>
             <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:3px">${plan.name}</div>
             <div style="font-size:11px;color:var(--t3)">${(plan.exercises||[]).length} exercises</div>
             <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">${(plan.muscles||[]).slice(0,2).map(mu=>`<span class="pill p-a" style="font-size:9px">${mu}</span>`).join('')}</div>
@@ -602,7 +603,7 @@ const App = {
       <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px">
         ${this.getSuggestedPlans().map(plan=>`
           <div onclick="App.startPlan('${plan.id}')" style="flex-shrink:0;width:150px;background:var(--surface);border:.5px solid var(--border);border-radius:14px;padding:14px;cursor:pointer">
-            <div style="font-size:22px;margin-bottom:6px">${plan.emoji}</div>
+            <div style="font-size:22px;margin-bottom:6px"><span class="emo">${plan.emoji}</span></div>
             <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:3px">${plan.name}</div>
             <div style="font-size:11px;color:var(--t3)">${plan.desc}</div>
             <div style="margin-top:8px"><span class="pill ${plan.level==='Beginner'?'p-g':plan.level==='Advanced'?'p-r':'p-am'}">${plan.level}</span></div>
@@ -632,7 +633,7 @@ const App = {
   getSuggestedPlans(){
     return[
       {id:'push',emoji:'💥',name:'Push Day',desc:'Chest, Shoulders, Triceps',level:'Intermediate'},
-      {id:'pull',emoji:'🏋️',name:'Pull Day',desc:'Back, Biceps, Forearms',level:'Intermediate'},
+      {id:'pull',emoji:'🏋',name:'Pull Day',desc:'Back, Biceps, Forearms',level:'Intermediate'},
       {id:'legs',emoji:'🦵',name:'Leg Day',desc:'Quads, Hams, Glutes, Calves',level:'Intermediate'},
       {id:'upper',emoji:'💪',name:'Upper Body',desc:'Full upper body',level:'Beginner'},
       {id:'lower',emoji:'🍑',name:'Lower Body',desc:'Full lower body',level:'Beginner'},
@@ -749,7 +750,7 @@ const App = {
       <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:12px">
         ${Object.entries(MUSCLE_META).map(([mu,v])=>`
           <button data-muscle-btn="${mu}" onclick="App.openExercisePicker('${mu}')" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--surface2);border:.5px solid var(--border);border-radius:12px;padding:10px 14px;cursor:pointer;min-width:64px;position:relative">
-            <span style="font-size:20px">${v.emoji}</span>
+            <span style="font-size:20px" class="emo">${v.emoji}</span>
             <span style="font-size:10px;font-weight:600;color:var(--t2)">${mu}</span>
             <span class="muscle-dot" style="position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--accent);display:${exList.filter(e=>{const ex=getExercise(e.exId);return ex&&ex.muscle===mu;}).length?'block':'none'}"></span>
           </button>
@@ -763,7 +764,7 @@ const App = {
         <div id="buildSuggestions">
           ${exList.length?this.getSmartSuggestions(exList).slice(0,3).map(e=>`
             <div class="ex-card" onclick="App.addExerciseToBuild(${e.id})">
-              <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22">${muscleEmoji(e.muscle)}</div>
+              <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22"><span class="emo">${muscleEmoji(e.muscle)}</span></div>
               <div class="ex-info">
                 <div class="ex-name">${e.name}</div>
                 <div class="ex-meta">${e.muscle} · ${e.equipment||'Bodyweight'}</div>
@@ -848,12 +849,12 @@ const App = {
     const ssWrapClose=(isSuperEnd||(!isSuper))?'</div></div>':'</div>';
     const card=`
     ${ssWrapOpen}
-    <div class="swipeable" id="bex-wrap-${i}" draggable="true" ondragstart="App._onDragStart(event,${i})" ondragover="App._onDragOver(event,${i})" ondrop="App._onDrop(event,${i})">
+    <div class="swipeable" id="bex-wrap-${i}" data-drag-idx="${i}">
       <div class="swipe-del-bg"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></div>
       <div class="swipe-inner" id="bex-${i}" style="${isSuper?'border-color:rgba(251,191,36,.35);':''}">
         <div style="padding:12px 14px">
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:${rec?'6px':'10px'}">
-            <div class="drag-h" style="padding:4px 2px">
+            <div class="drag-h" style="padding:4px 2px;touch-action:none" ontouchstart="App._touchDragStart(event,${i})" title="Drag to reorder">
               <svg viewBox="0 0 24 24"><path d="M9 5h2M9 12h2M9 19h2M13 5h2M13 12h2M13 19h2"/></svg>
             </div>
             <div style="width:36px;height:36px;border-radius:9px;background:${(MUSCLE_META[ex.muscle]?.color||'#7c6dff')}22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${muscleEmoji(ex.muscle)}</div>
@@ -871,7 +872,8 @@ const App = {
           <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
             <span style="font-size:12px;color:var(--t3);flex-shrink:0">Sets:</span>
             ${[2,3,4,5].map(n=>`<button onclick="App.setSets(${i},${n})" class="chip ${(e.sets||[]).length===n?'on':''}" style="padding:4px 10px;font-size:12px">${n}</button>`).join('')}
-            ${nextEx&&!(nextEx.ssGroup&&nextEx.ssGroup===e.ssGroup)?`<button onclick="App.toggleSuperset(${i});App._refreshBuild()" style="margin-left:auto;font-size:10px;font-weight:700;color:${isSuper?'var(--t2)':'var(--amber)'};background:${isSuper?'var(--surface3)':'var(--amber-dim)'};border:.5px solid ${isSuper?'transparent':'rgba(251,191,36,.3)'};border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:inherit">${isSuper?'+ Add ↓ to SS':'+ Superset ↓'}</button>`:isSuper?`<button onclick="App.toggleSuperset(${i});App._refreshBuild()" style="margin-left:auto;font-size:10px;font-weight:700;color:var(--t3);background:var(--surface3);border:none;border-radius:6px;padding:3px 9px;cursor:pointer;font-family:inherit">✕ Remove SS</button>`:''}
+            ${nextEx&&!(nextEx.ssGroup&&nextEx.ssGroup===e.ssGroup)?`<button onclick="App.addToSuperset(${i})" style="margin-left:auto;font-size:10px;font-weight:700;color:var(--amber);background:var(--amber-dim);border:.5px solid rgba(251,191,36,.3);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:inherit">${isSuper?'+ Add next to SS':'+ Superset ↓'}</button>`:isSuper&&nextEx?`<button onclick="App.addToSuperset(${i})" style="margin-left:auto;font-size:10px;font-weight:700;color:var(--amber);background:var(--amber-dim);border:.5px solid rgba(251,191,36,.3);border-radius:6px;padding:3px 9px;cursor:pointer;font-family:inherit">+ Add next to SS</button>`:''}
+            ${isSuper?`<button onclick="App.toggleSuperset(${i})" style="font-size:10px;font-weight:700;color:var(--t3);background:var(--surface3);border:none;border-radius:6px;padding:3px 9px;cursor:pointer;font-family:inherit;margin-left:4px">✕ Remove SS</button>`:''}
           </div>
         </div>
       </div>
@@ -929,7 +931,7 @@ const App = {
         const sugs=this.getSmartSuggestions(exList).slice(0,3);
         sugEl.innerHTML=sugs.map(e=>`
           <div class="ex-card" onclick="App.addExerciseToBuild(${e.id})">
-            <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22">${muscleEmoji(e.muscle)}</div>
+            <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22"><span class="emo">${muscleEmoji(e.muscle)}</span></div>
             <div class="ex-info">
               <div class="ex-name">${e.name}</div>
               <div class="ex-meta">${e.muscle} · ${e.equipment||'Bodyweight'}</div>
@@ -1064,26 +1066,39 @@ const App = {
   },
 
   toggleSuperset(i){
+    // Remove this exercise from its superset group
+    const build=DB.get('buildWorkout')||{exercises:[]};
+    const exArr=build.exercises;
+    const ex=exArr[i];
+    if(!ex)return;
+    const grp=ex.ssGroup||ex.supersetWith;
+    ex.ssGroup=null;ex.supersetWith=null;
+    // If only 1 remains in the group, dissolve it
+    if(grp){
+      const remaining=exArr.filter(e=>e.ssGroup===grp);
+      if(remaining.length===1){remaining[0].ssGroup=null;}
+    }
+    DB.set('buildWorkout',build);
+    this._refreshBuild();
+  },
+  addToSuperset(i){
+    // Link exercise i into a superset with exercise i+1 (or i-1 if at end)
     const build=DB.get('buildWorkout')||{exercises:[]};
     const exArr=build.exercises;
     const ex=exArr[i];
     const next=exArr[i+1];
-    if(!ex||!next)return;
-    // If already in a group, remove this exercise from it
-    if(ex.ssGroup){
-      const grp=ex.ssGroup;
-      ex.ssGroup=null;
-      // Clean up group if only 1 member left
-      const remaining=exArr.filter(e=>e.ssGroup===grp);
-      if(remaining.length===1)remaining[0].ssGroup=null;
-    } else {
-      // Join or create a group with next exercise
-      const grp=next.ssGroup||uuid().slice(0,8);
-      ex.ssGroup=grp;
-      next.ssGroup=grp;
+    const prev=exArr[i-1];
+    if(!ex)return;
+    // Find an adjacent group to join, or create one
+    const neighborGroup=(next?.ssGroup)||(prev?.ssGroup)||null;
+    const grp=neighborGroup||uuid().slice(0,8);
+    ex.ssGroup=grp;
+    // If creating new group, also add the adjacent exercise
+    if(!neighborGroup){
+      if(next)next.ssGroup=grp;
+      else if(prev)prev.ssGroup=grp;
     }
-    // Keep backward compat
-    ex.supersetWith=null;next.supersetWith=null;
+    ex.supersetWith=null;
     DB.set('buildWorkout',build);
     this._refreshBuild();
   },
@@ -1522,7 +1537,7 @@ const App = {
           const pb=getPersonalBest(e.id);
           return`
           <div class="ex-card" onclick="App.showExerciseDetail(${e.id})">
-            <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22">${muscleEmoji(e.muscle)}</div>
+            <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22"><span class="emo">${muscleEmoji(e.muscle)}</span></div>
             <div class="ex-info">
               <div class="ex-name">${e.name}${favs.includes(e.id)?' ⭐':''}</div>
               <div class="ex-meta">${e.muscle} · ${e.target||'Total'} · ${e.equipment||'Bodyweight'}</div>
@@ -2466,7 +2481,7 @@ const App = {
       </div>
       <div class="fgrp"><label class="f-lbl">Emoji</label>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          ${'💪🔥⚡🏋️🦾🥊🎯🌟'.split('').map(e=>`<button onclick="this.closest('[id]');document.getElementById('planEmoji').value='${e}';this.parentElement.querySelectorAll('button').forEach(b=>b.style.opacity='.4');this.style.opacity='1'" style="font-size:22px;background:none;border:none;cursor:pointer;opacity:.4;padding:4px">${e}</button>`).join('')}
+          ${'💪🔥⚡🏋🦾🥊🎯🌟'.split('').map(e=>`<button onclick="this.closest('[id]');document.getElementById('planEmoji').value='${e}';this.parentElement.querySelectorAll('button').forEach(b=>b.style.opacity='.4');this.style.opacity='1'" style="font-size:22px;background:none;border:none;cursor:pointer;opacity:.4;padding:4px">${e}</button>`).join('')}
         </div>
         <input type="hidden" id="planEmoji" value="💪">
       </div>
@@ -2697,7 +2712,7 @@ const App = {
       <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
         ${badges.filter(b=>b.unlocked).map(b=>`
         <div class="badge-card unlocked" style="animation:slideIn .3s ease">
-          <div class="badge-ico">${b.ico}</div>
+          <div class="badge-ico"><span class="emo">${b.ico}</span></div>
           <div class="badge-name">${b.name}</div>
           <div class="badge-sub">${b.sub}</div>
         </div>`).join('')}
@@ -2706,7 +2721,7 @@ const App = {
       <div style="display:flex;flex-wrap:wrap;gap:10px">
         ${badges.filter(b=>!b.unlocked).map(b=>`
         <div class="badge-card locked">
-          <div class="badge-ico">${b.ico}</div>
+          <div class="badge-ico"><span class="emo">${b.ico}</span></div>
           <div class="badge-name">${b.name}</div>
           <div class="badge-sub">${b.sub}</div>
         </div>`).join('')}
@@ -2897,9 +2912,70 @@ const App = {
       </div>`).join('')||'<div style="padding:12px;color:var(--t3);font-size:13px">No data</div>';
   },
 
-  // ==================== DRAG & DROP + SWIPE TO DELETE ====================
+  // ==================== TOUCH DRAG TO REORDER + SWIPE TO DELETE ====================
   _initDragDrop(){
     this._initSwipeToDelete();
+  },
+  _touchDragStart(e,srcIdx){
+    e.stopPropagation();
+    const touch=e.touches[0];
+    // Find the card element
+    const card=document.getElementById(`bex-wrap-${srcIdx}`);
+    if(!card)return;
+    const rect=card.getBoundingClientRect();
+    // Create ghost
+    const ghost=card.cloneNode(true);
+    ghost.id='drag-ghost';
+    ghost.style.cssText=`position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;opacity:0.85;pointer-events:none;z-index:999;transform:scale(1.02);box-shadow:0 12px 40px rgba(0,0,0,.5);border-radius:14px;transition:none`;
+    document.body.appendChild(ghost);
+    card.style.opacity='0.3';
+    let currentIdx=srcIdx;
+    const onMove=ev=>{
+      const t=ev.touches[0];
+      ghost.style.top=(t.clientY-(rect.height/2))+'px';
+      ghost.style.left=rect.left+'px';
+      // Find which card we're over
+      document.querySelectorAll('[data-drag-idx]').forEach(el=>{
+        const r=el.getBoundingClientRect();
+        const mid=r.top+r.height/2;
+        const idx=parseInt(el.dataset.dragIdx);
+        el.style.borderTop=(t.clientY>mid&&idx===currentIdx+1)?'2px solid var(--accent)':'';
+        el.style.borderBottom=(t.clientY<mid&&idx===currentIdx-1)?'2px solid var(--accent)':'';
+        if(t.clientY>=r.top&&t.clientY<=r.top+r.height&&idx!==srcIdx){
+          currentIdx=idx;
+        }
+      });
+    };
+    const onEnd=()=>{
+      ghost.remove();
+      card.style.opacity='';
+      document.querySelectorAll('[data-drag-idx]').forEach(el=>{el.style.borderTop='';el.style.borderBottom='';});
+      document.removeEventListener('touchmove',onMove);
+      document.removeEventListener('touchend',onEnd);
+      if(currentIdx!==srcIdx){
+        const build=DB.get('buildWorkout')||{exercises:[]};
+        const arr=build.exercises;
+        const item=arr.splice(srcIdx,1)[0];
+        arr.splice(currentIdx,0,item);
+        DB.set('buildWorkout',build);
+        App._refreshBuild();
+      }
+    };
+    document.addEventListener('touchmove',onMove,{passive:true});
+    document.addEventListener('touchend',onEnd);
+  },
+  _onDragStart(e,i){this.state.dragSrc=i;e.dataTransfer&&(e.dataTransfer.effectAllowed='move');},
+  _onDragOver(e,i){e.preventDefault&&e.preventDefault();},
+  _onDrop(e,i){
+    e.preventDefault&&e.preventDefault();
+    if(this.state.dragSrc===null||this.state.dragSrc===i)return;
+    const build=DB.get('buildWorkout')||{exercises:[]};
+    const arr=build.exercises;
+    const item=arr.splice(this.state.dragSrc,1)[0];
+    arr.splice(i,0,item);
+    DB.set('buildWorkout',build);
+    this.state.dragSrc=null;
+    this._refreshBuild();
   },
   _initSwipeToDelete(){
     document.querySelectorAll('.swipeable').forEach(wrap=>{
