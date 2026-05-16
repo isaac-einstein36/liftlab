@@ -25,8 +25,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 .nb.on svg{transform:scale(1.08)}
 .nb.on.pulse svg{animation:navpop .3s cubic-bezier(.34,1.56,.64,1)}
 @keyframes navpop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1.08)}}
-.card{background:var(--surface);border:.5px solid var(--border);border-radius:16px;padding:16px}
-.section-lbl{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;padding:20px 16px 8px}
+.card{background:var(--surface);border:.5px solid var(--border);border-radius:16px;padding:16px 16px}
+.section-lbl{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;padding:16px 16px 6px;line-height:1}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 20px;border-radius:10px;font-size:15px;font-weight:600;border:none;cursor:pointer;transition:all .15s;letter-spacing:-.1px;font-family:inherit}
 .btn-p{background:var(--accent);color:#fff}
 .btn-p:active{opacity:.82;transform:scale(.97)}
@@ -39,10 +39,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 .btn-full{width:100%}
 .icon-btn{width:40px;height:40px;border-radius:50%;background:var(--surface2);border:.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 .icon-btn svg{width:17px;height:17px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-input,textarea,select{background:var(--surface2);border:.5px solid var(--border2);border-radius:10px;color:var(--t1);font-size:16px;padding:11px 13px;width:100%;outline:none;-webkit-appearance:none;font-family:inherit}
+input,textarea,select{background:var(--surface2);border:.5px solid var(--border2);border-radius:10px;color:var(--t1);font-size:16px;padding:13px 14px;width:100%;outline:none;-webkit-appearance:none;font-family:inherit;line-height:1.4}
 input:focus,textarea:focus,select:focus{border-color:var(--accent)}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%238888aa' d='M5 6L0 0h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
-.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.1px}
+.pill{display:inline-flex;align-items:center;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.1px;line-height:1}
 .p-a{background:var(--accent-dim);color:var(--accent2)}
 .p-g{background:var(--green-dim);color:var(--green)}
 .p-r{background:var(--red-dim);color:var(--red)}
@@ -54,18 +54,18 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:flex;flex-direction:column;justify-content:flex-end;backdrop-filter:blur(6px);animation:fi .18s ease}
 .sheet{background:var(--surface);border-radius:24px 24px 0 0;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(env(safe-area-inset-bottom,0px)+24px);animation:su .28s cubic-bezier(.34,1.1,.64,1)}
 .sh-bar{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 0}
-.sh-title{font-size:18px;font-weight:700;padding:14px 20px 4px}
+.sh-title{font-size:18px;font-weight:700;padding:16px 20px 6px;line-height:1.2}
 .sh-body{padding:0 20px}
 @keyframes fi{from{opacity:0}to{opacity:1}}
 @keyframes su{from{transform:translateY(60%)}to{transform:translateY(0)}}
 @keyframes slideIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.ex-card{background:var(--surface);border:.5px solid var(--border);border-radius:14px;padding:13px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:11px;margin-bottom:8px}
+.ex-card{background:var(--surface);border:.5px solid var(--border);border-radius:14px;padding:14px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px;margin-bottom:9px}
 .ex-card:active,.ex-card:hover{background:var(--surface2)}
 .ex-card.sel{border-color:var(--accent);background:var(--accent-dim)}
 .ex-ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:19px}
 .ex-info{flex:1;min-width:0}
-.ex-name{font-size:14px;font-weight:600;color:var(--t1);white-space:normal;line-height:1.3}
-.ex-meta{font-size:11px;color:var(--t3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ex-name{font-size:14px;font-weight:600;color:var(--t1);white-space:normal;line-height:1.4}
+.ex-meta{font-size:12px;color:var(--t3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 .ex-freq{font-size:11px;color:var(--t2);text-align:right;flex-shrink:0}
 .sr{display:flex;align-items:center;gap:7px;padding:7px 0;border-bottom:.5px solid var(--border)}
 .sr-num{width:26px;font-size:12px;color:var(--t3);font-weight:700;text-align:center;flex-shrink:0}
@@ -80,15 +80,15 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .pb{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-top:3px}
 .pbf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--teal));transition:width .4s ease}
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat-card{background:var(--surface2);border-radius:10px;padding:14px;border:.5px solid var(--border)}
-.stat-val{font-size:24px;font-weight:700;color:var(--t1);letter-spacing:-.5px}
-.stat-lbl{font-size:10px;color:var(--t3);margin-top:2px;font-weight:500;letter-spacing:.3px;text-transform:uppercase}
-.ri{display:flex;align-items:center;padding:13px 0;gap:12px;border-bottom:.5px solid var(--border)}
+.stat-card{background:var(--surface2);border-radius:12px;padding:16px 14px;border:.5px solid var(--border)}
+.stat-val{font-size:26px;font-weight:700;color:var(--t1);letter-spacing:-.8px;line-height:1.1}
+.stat-lbl{font-size:10px;color:var(--t3);margin-top:4px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;line-height:1}
+.ri{display:flex;align-items:center;padding:14px 0;gap:12px;border-bottom:.5px solid var(--border);min-height:48px}
 .ri:last-child{border-bottom:none}
-.ri-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ri-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .ri-c{flex:1;min-width:0}
-.ri-t{font-size:14px;font-weight:600;color:var(--t1)}
-.ri-s{font-size:11px;color:var(--t3);margin-top:1px}
+.ri-t{font-size:14px;font-weight:600;color:var(--t1);line-height:1.3}
+.ri-s{font-size:12px;color:var(--t3);margin-top:2px;line-height:1.4}
 .ri-r{color:var(--t3);flex-shrink:0;font-size:13px}
 .empty{text-align:center;padding:48px 24px;animation:slideIn .3s ease}
 .empty-ico{font-size:52px;margin-bottom:12px;display:block}
@@ -108,9 +108,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .toast{position:fixed;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 10px);left:50%;transform:translateX(-50%);background:var(--surface2);border:.5px solid var(--border2);border-radius:100px;padding:9px 18px;font-size:13px;font-weight:500;color:var(--t1);z-index:500;white-space:nowrap;animation:ti .25s ease,to .25s ease 2.4s forwards;box-shadow:0 8px 32px rgba(0,0,0,.45)}
 @keyframes ti{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 @keyframes to{to{opacity:0;transform:translateX(-50%) translateY(8px)}}
-.hist-e{border-left:2px solid var(--accent-dim);padding:6px 0 6px 12px;margin-bottom:7px}
+.hist-e{border-left:2px solid var(--accent-dim);padding:8px 0 8px 14px;margin-bottom:8px}
 .hist-d{font-size:10px;color:var(--t3);font-weight:500}
-.hist-v{font-size:15px;font-weight:700;color:var(--t1);margin-top:2px}
+.hist-v{font-size:15px;font-weight:700;color:var(--t1);margin-top:3px;line-height:1.3}
 .hist-s{font-size:12px;color:var(--t2)}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--t3);display:inline-block;margin-left:4px;vertical-align:middle;transition:all .3s}
 .sync-dot.ok{background:var(--green);box-shadow:0 0 6px rgba(52,211,153,.5)}
@@ -125,8 +125,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .drag-h{cursor:grab;padding:6px;color:var(--t3);flex-shrink:0}
 .drag-h:active{cursor:grabbing}
 .drag-h svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.fgrp{margin-bottom:12px}
-.f-lbl{font-size:12px;font-weight:600;color:var(--t2);margin-bottom:5px;display:block;letter-spacing:.1px}
+.fgrp{margin-bottom:16px}
+.f-lbl{font-size:12px;font-weight:600;color:var(--t2);margin-bottom:7px;display:block;letter-spacing:.1px;line-height:1}
 .divider{height:.5px;background:var(--border);margin:14px 0}
 .note-in{background:var(--surface2);border:.5px solid var(--border);border-radius:10px;padding:10px 13px;font-size:14px;color:var(--t1);width:100%;min-height:56px;resize:none;outline:none;font-family:inherit}
 .note-in:focus{border-color:var(--accent)}
@@ -403,8 +403,8 @@ function getLastPerformance(exId,profileId){
   return null;
 }
 
-function recommendWeight(exId){
-  const last=getLastPerformance(exId);
+function recommendWeight(exId,profileId){
+  const last=getLastPerformance(exId,profileId||App.state.profileId);
   if(!last)return null;
   const doneSets=last.sets.filter(s=>s.completed&&s.weight);
   if(!doneSets.length)return null;
@@ -1501,15 +1501,48 @@ const App = {
     </div>`;
   },
 
+  _getProfileGoal(profileId){
+    const pid=profileId||this.state.profileId;
+    const profiles=DB.get('profiles')||[];
+    const prof=profiles.find(p=>p.id===pid);
+    // Check profile-level goal first, then fall back to settings
+    return prof?.goal||(DB.get('settings')||{}).goal||'strength';
+  },
+  _setGoal(goalId,el,profileId){
+    const pid=profileId||this.state.profileId;
+    // Save on profile object
+    const profiles=DB.get('profiles')||[];
+    const idx=profiles.findIndex(p=>p.id===pid);
+    if(idx>=0){profiles[idx].goal=goalId;DB.set('profiles',profiles);}
+    // Also update settings as fallback
+    const settings=DB.get('settings')||{};
+    settings.goal=goalId;
+    const restMap={strength:180,hypertrophy:90,toning:45,power:180,weight_loss:30};
+    settings.defaultRest=restMap[goalId]||90;
+    DB.set('settings',settings);
+    schedSync();
+    // Update UI
+    el.closest('[style*="flex-direction:column"]').querySelectorAll('[data-goal]').forEach(d=>{
+      const isThis=d.dataset.goal===goalId;
+      d.style.borderColor=isThis?'var(--accent)':'var(--border)';
+      d.style.background=isThis?'var(--accent-dim)':'var(--surface2)';
+    });
+    const labels={strength:'Strength & Size',hypertrophy:'Muscle Growth',toning:'Toning & Endurance',power:'Power & Performance',weight_loss:'Weight Loss'};
+    const lbl=document.getElementById('goalSettingLbl');
+    if(lbl)lbl.textContent=labels[goalId]||goalId;
+    this.toast('Goal updated ✓');
+  },
+
   _getSmartRec(exId){
-    const last=getLastPerformance(exId);
+    const activePid=this.state.liveActivePid||this.state.profileId;
+    const last=getLastPerformance(exId,activePid);
     if(!last)return null;
     const doneSets=last.sets.filter(s=>s.completed&&s.weight);
     if(!doneSets.length)return null;
     const avgW=doneSets.reduce((s,x)=>s+x.weight,0)/doneSets.length;
     const avgR=doneSets.reduce((s,x)=>s+(x.reps||0),0)/doneSets.length;
     // Goal-based target rep ranges
-    const goal=(DB.get('settings')||{}).goal||'strength';
+    const goal=this._getProfileGoal(this.state.liveActivePid||this.state.profileId);
     const goalRanges={strength:[3,6],hypertrophy:[8,12],toning:[12,20],power:[2,5],weight_loss:[15,20]};
     const [minR,maxR]=goalRanges[goal]||[8,12];
     const targetR=Math.round((minR+maxR)/2);
@@ -2427,6 +2460,7 @@ const App = {
           <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px;border-radius:12px;background:${p.id===this.state.profileId?'var(--accent-dim)':'none'};border:.5px solid ${p.id===this.state.profileId?'var(--accent)':'transparent'};min-width:70px;transition:all .2s;position:relative;cursor:pointer" onclick="App.switchProfile('${p.id}')">
             <div class="avatar" style="background:${p.color}22;border:2px solid ${p.id===this.state.profileId?p.color:'transparent'};font-size:20px;width:52px;height:52px">${p.emoji}</div>
             <span style="font-size:11px;font-weight:600;color:${p.id===this.state.profileId?'var(--accent2)':'var(--t2)'}">${p.name}</span>
+            <button onclick="event.stopPropagation();App.openEditProfile('${p.id}')" style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:var(--surface3);border:none;border-radius:6px;padding:1px 7px;font-size:9px;font-weight:600;color:var(--t3);cursor:pointer;font-family:inherit;white-space:nowrap">Edit</button>
             ${profiles.length>1?`<button onclick="event.stopPropagation();App.deleteProfile('${p.id}')" style="position:absolute;top:2px;right:2px;background:var(--red-dim);border:none;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;color:var(--red);line-height:1;font-family:inherit">✕</button>`:''}
           </div>
         `).join('')}
@@ -2463,7 +2497,7 @@ const App = {
           <div class="ri-ico" style="background:var(--green-dim)">🎯</div>
           <div class="ri-c">
             <div class="ri-t">Training Goal</div>
-            <div class="ri-s" id="goalSettingLbl">${(()=>{const g=(DB.get('settings')||{}).goal||'strength';return{strength:'Strength & Size',hypertrophy:'Muscle Growth',toning:'Toning & Endurance',power:'Power & Performance',weight_loss:'Weight Loss'}[g]||'Strength & Size';})()}</div>
+            <div class="ri-s" id="goalSettingLbl">${(()=>{const prof=(DB.get('profiles')||[]).find(p=>p.id===this.state.profileId);const g=prof?.goal||(DB.get('settings')||{}).goal||'strength';return{strength:'Strength & Size',hypertrophy:'Muscle Growth',toning:'Toning & Endurance',power:'Power & Performance',weight_loss:'Weight Loss'}[g]||'Strength & Size';})()}</div>
           </div>
           <div class="ri-r">›</div>
         </div>
@@ -2537,6 +2571,60 @@ const App = {
 
       <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--t3)">LiftLab v${CURRENT_VERSION} · 274 exercises · GitHub-synced</div>
     </div>`;
+  },
+
+  openEditProfile(id){
+    const profiles=DB.get('profiles')||[];
+    const prof=profiles.find(p=>p.id===id);
+    if(!prof)return;
+    const emojis=['💪','🔥','⚡','🏃','🦾','🥊','🎯','🌟','🏆','💎','🌙','👑','🐉','🦁'];
+    const colors=['#7c6dff','#f87171','#34d399','#fbbf24','#60a5fa','#f472b6','#2dd4bf','#fb923c'];
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    overlay.innerHTML=`
+    <div class="sheet">
+      <div class="sh-bar"></div>
+      <div style="display:flex;align-items:center;padding:14px 20px 10px">
+        <div style="font-size:17px;font-weight:700;flex:1">Edit Profile</div>
+        <button onclick="this.closest('.overlay').remove()" style="background:var(--surface2);border:.5px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--t2);cursor:pointer">✕</button>
+      </div>
+      <div class="sh-body" style="padding-bottom:24px">
+        <div class="fgrp">
+          <label class="f-lbl">Name</label>
+          <input type="text" id="editPName" value="${prof.name}" placeholder="Name">
+        </div>
+        <div class="fgrp">
+          <label class="f-lbl">Emoji</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${emojis.map(e=>`<div onclick="App._selEmoji(this,'${e}')" style="width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;background:var(--surface2);border:2px solid ${e===prof.emoji?'var(--accent)':'transparent'};transition:border .15s">${e}</div>`).join('')}
+          </div>
+        </div>
+        <div class="fgrp">
+          <label class="f-lbl">Color</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${colors.map(clr=>`<div onclick="App._selColor(this,'${clr}')" style="width:32px;height:32px;border-radius:50%;background:${clr};cursor:pointer;border:2px solid ${clr===prof.color?'#fff':'transparent'};transition:border .15s"></div>`).join('')}
+          </div>
+        </div>
+        <button class="btn btn-p btn-full" onclick="App._saveEditProfile('${id}',this.closest('.overlay'))">Save Changes</button>
+      </div>
+    </div>`;
+    this._newProfileEmoji=prof.emoji;
+    this._newProfileColor=prof.color;
+    document.body.appendChild(overlay);
+  },
+  _saveEditProfile(id,overlay){
+    const name=document.getElementById('editPName')?.value?.trim();
+    if(!name){this.toast('Enter a name');return;}
+    const profiles=DB.get('profiles')||[];
+    const idx=profiles.findIndex(p=>p.id===id);
+    if(idx<0)return;
+    profiles[idx]={...profiles[idx],name,emoji:this._newProfileEmoji||profiles[idx].emoji,color:this._newProfileColor||profiles[idx].color};
+    DB.set('profiles',profiles);
+    schedSync();
+    overlay.remove();
+    this.toast('Profile updated ✓');
+    this.render();
   },
 
   deleteProfile(id){
@@ -2629,7 +2717,8 @@ const App = {
 
   openGoalSettings(){
     const settings=DB.get('settings')||{};
-    const currentGoal=settings.goal||'strength';
+    const prof=(DB.get('profiles')||[]).find(p=>p.id===this.state.profileId);
+    const currentGoal=prof?.goal||settings.goal||'strength';
     const goals=[
       {id:'strength',    label:'Strength & Size',    desc:'3–6 reps, heavier weight. Optimal for maximal strength gains.',        rest:'3–5 min'},
       {id:'hypertrophy', label:'Muscle Growth',      desc:'8–12 reps, moderate weight. Best for building muscle mass.',           rest:'60–90s'},
@@ -2651,7 +2740,7 @@ const App = {
         <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.5">Your goal shapes the Smart Reps recommendations — rep ranges, weight suggestions, and rest timer defaults will all adjust accordingly.</div>
         <div style="display:flex;flex-direction:column;gap:8px">
           ${goals.map(g=>`
-          <div onclick="App._setGoal('${g.id}',this)" style="padding:12px 14px;border-radius:12px;border:2px solid ${g.id===currentGoal?'var(--accent)':'var(--border)'};background:${g.id===currentGoal?'var(--accent-dim)':'var(--surface2)'};cursor:pointer;transition:all .15s" data-goal="${g.id}">
+          <div onclick="App._setGoal('${g.id}',this,'${this.state.profileId}')" style="padding:12px 14px;border-radius:12px;border:2px solid ${g.id===currentGoal?'var(--accent)':'var(--border)'};background:${g.id===currentGoal?'var(--accent-dim)':'var(--surface2)'};cursor:pointer;transition:all .15s" data-goal="${g.id}">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
               <div style="font-size:14px;font-weight:700;color:${g.id===currentGoal?'var(--accent2)':'var(--t1)'};flex:1">${g.label}</div>
               ${g.id===currentGoal?'<span class="pill p-a" style="font-size:10px">Active</span>':''}
@@ -2664,25 +2753,7 @@ const App = {
     </div>`;
     document.body.appendChild(overlay);
   },
-  _setGoal(goalId,el){
-    const settings=DB.get('settings')||{};
-    settings.goal=goalId;
-    // Auto-adjust default rest time based on goal
-    const restMap={strength:180,hypertrophy:90,toning:45,power:180,weight_loss:30};
-    settings.defaultRest=restMap[goalId]||90;
-    DB.set('settings',settings);
-    schedSync();
-    // Update UI
-    el.closest('[style*="flex-direction:column"]').querySelectorAll('[data-goal]').forEach(d=>{
-      const isThis=d.dataset.goal===goalId;
-      d.style.borderColor=isThis?'var(--accent)':'var(--border)';
-      d.style.background=isThis?'var(--accent-dim)':'var(--surface2)';
-    });
-    const lbl=document.getElementById('goalSettingLbl');
-    const labels={strength:'Strength & Size',hypertrophy:'Muscle Growth',toning:'Toning & Endurance',power:'Power & Performance',weight_loss:'Weight Loss'};
-    if(lbl)lbl.textContent=labels[goalId]||goalId;
-    this.toast('Goal updated — Smart Recs will adjust ✓');
-  },
+
 
   openRestSettings(){
     const settings=DB.get('settings')||{};
