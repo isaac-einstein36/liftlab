@@ -1,5 +1,18 @@
 [
   {
+  "version": "1.4.1",
+  "date": "2026-05-14",
+  "notes": [
+    "Fixed: Exercise tab filters now update instantly including chip highlights and Target Area sub-muscle row",
+    "Fixed: Selecting a muscle group now shows Target Area chips (Long Head, Short Head, etc.) immediately",
+    "Fixed: Superset 'Add next to SS' no longer absorbs an unrelated exercise group above it",
+    "Fixed: Emoji now render as color glyphs on iPhone — font stack applied globally to body",
+    "Fixed: Folder input now appears in Save Plan sheet (was wired but missing from UI)",
+    "Improved: Inline Smart Recs on every live workout exercise — suggested weight and reps with Too Easy / Just Right / Too Heavy feedback buttons that adjust future recommendations",
+    "Improved: Smart Reps AI page now explains no Claude account is needed and there are no free-tier limits"
+    ]
+  },
+  {
   "version": "1.4.0",
   "date": "2026-05-14",
   "notes": [
