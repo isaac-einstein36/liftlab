@@ -225,6 +225,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .ai-msg.user{background:var(--accent);color:#fff;margin-left:auto;border-radius:14px 14px 4px 14px}
 .ai-msg.ai{background:var(--surface2);color:var(--t1);border-radius:4px 14px 14px 14px}
 .ai-msg.thinking{color:var(--t3);font-style:italic}
+.fsec{padding:4px 16px 6px;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px}
+.fsec-lbl{font-size:10px;font-weight:700;color:var(--t2);letter-spacing:.7px;text-transform:uppercase;white-space:nowrap}
+.fsec-line{width:28px;height:.5px;background:var(--border)}
 </style>
 </head>
 <body>
@@ -257,7 +260,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.4.1';
+const CURRENT_VERSION = '1.4.2';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -521,6 +524,7 @@ const App = {
       case'tools':this.renderTools(m,hT,hB);break;
       case'badges':this.renderBadges(m,hT,hB);break;
       case'smart':this.renderSmartReps(m,hT,hB);break;
+      case'plans':this.renderSavedPlans(m,hT,hB);break;
 
       default:this.renderHome(m,hT,hB);
     }
@@ -713,6 +717,114 @@ const App = {
     }
   },
 
+  renderSavedPlans(m,hT,hB){
+    hT.textContent='My Plans';
+    hB.innerHTML=`<button onclick="App.saveBuildAsTemplate()" class="btn btn-sm btn-p">+ Save Plan</button>`;
+    const saved=DB.get('savedPlans')||[];
+
+    if(!saved.length){
+      m.innerHTML=`<div class="empty" style="margin-top:60px">
+        <span class="empty-ico">📋</span>
+        <div class="empty-t">No saved plans yet</div>
+        <div class="empty-s">Build a workout and tap the save icon to create your first plan.</div>
+        <button class="btn btn-p" style="margin-top:16px" onclick="App.nav('build')">Build a Workout</button>
+      </div>`;
+      return;
+    }
+
+    // Group by folders (a plan can appear in multiple folders via .folders array)
+    const allFolders=[...new Set(saved.flatMap(p=>p.folders?.length?p.folders:[p.folder||'Uncategorized']))].sort();
+    const expandedFolders=this.state.expandedFolders||new Set(allFolders);
+    this.state.expandedFolders=expandedFolders;
+
+    m.innerHTML=`<div style="padding:16px">
+      ${allFolders.map(folder=>{
+        const plans=saved.filter(p=>(p.folders?.length?p.folders:[p.folder||'Uncategorized']).includes(folder));
+        const isOpen=expandedFolders.has(folder);
+        return`<div style="margin-bottom:12px">
+          <!-- Folder header -->
+          <div onclick="App._toggleFolder('${folder.replace(/'/g,"\\'")}',this)" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:.5px solid var(--border);border-radius:${isOpen?'14px 14px 0 0':'14px'};cursor:pointer;transition:border-radius .2s">
+            <span style="font-size:16px">📁</span>
+            <span style="font-size:14px;font-weight:700;flex:1">${folder}</span>
+            <span style="font-size:12px;color:var(--t3)">${plans.length} plan${plans.length!==1?'s':''}</span>
+            <span style="font-size:14px;color:var(--t3);transition:transform .2s;display:inline-block;transform:rotate(${isOpen?'90':'0'}deg)">›</span>
+          </div>
+          <!-- Plans in folder -->
+          <div id="folder-${folder.replace(/[^a-z0-9]/gi,'_')}" style="display:${isOpen?'block':'none'};background:var(--surface2);border:.5px solid var(--border);border-top:none;border-radius:0 0 14px 14px;overflow:hidden">
+            ${plans.map((plan)=>{
+              const pi=saved.indexOf(plan);
+              return`<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:.5px solid var(--border);cursor:pointer" onclick="App.loadSavedPlan(${pi})">
+                <div style="font-size:24px;line-height:1;font-family:'Apple Color Emoji','Segoe UI Emoji',sans-serif">${plan.emoji||'💪'}</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:14px;font-weight:700;color:var(--t1)">${plan.name}</div>
+                  <div style="font-size:11px;color:var(--t3);margin-top:2px">${(plan.exercises||[]).length} exercises · ${(plan.muscles||[]).join(', ')||'Mixed'}</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-shrink:0">
+                  <button onclick="event.stopPropagation();App.loadSavedPlanEdit(${pi})" style="background:var(--surface3);border:none;border-radius:7px;padding:5px 10px;font-size:11px;color:var(--t2);cursor:pointer;font-family:inherit">Edit</button>
+                  <button onclick="event.stopPropagation();App.deleteSavedPlan(${pi})" style="background:var(--red-dim);border:none;border-radius:7px;padding:5px 10px;font-size:11px;color:var(--red);cursor:pointer;font-family:inherit">Delete</button>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  },
+
+  _toggleFolder(folder,headerEl){
+    if(!this.state.expandedFolders)this.state.expandedFolders=new Set();
+    const safeId=folder.replace(/[^a-z0-9]/gi,'_');
+    const el=document.getElementById('folder-'+safeId);
+    const arrow=headerEl.querySelector('span:last-child');
+    const isOpen=el?.style.display!=='none';
+    if(el)el.style.display=isOpen?'none':'block';
+    if(arrow)arrow.style.transform=isOpen?'rotate(0deg)':'rotate(90deg)';
+    const header=headerEl;
+    header.style.borderRadius=isOpen?'14px':'14px 14px 0 0';
+    if(isOpen)this.state.expandedFolders.delete(folder);
+    else this.state.expandedFolders.add(folder);
+  },
+
+  loadSavedPlanEdit(idx){
+    // Load into build for editing without starting
+    const plans=DB.get('savedPlans')||[];
+    const plan=plans[idx];
+    if(!plan)return;
+    const build={
+      name:plan.name,
+      exercises:(plan.exercises||[]).map(e=>({...e,sets:Array.from({length:(e.sets||[{},{},{}]).length},()=>({weight:'',reps:'',completed:false,note:''}))})),
+      date:new Date().toISOString().split('T')[0],
+      participants:[this.state.profileId],
+    };
+    DB.set('buildWorkout',build);
+    this.nav('build');
+    this.toast('Plan loaded for editing');
+  },
+
+  _togglePlanTag(tag,el){
+    const isOn=el.style.background.includes('accent-dim')||el.dataset.on==='1';
+    el.style.background=isOn?'var(--surface2)':'var(--accent-dim)';
+    el.style.borderColor=isOn?'var(--border2)':'var(--accent)';
+    el.style.color=isOn?'var(--t2)':'var(--accent2)';
+    el.dataset.on=isOn?'0':'1';
+  },
+  _addPlanTag(){
+    const input=document.getElementById('planFolderNew');
+    const val=input?.value?.trim();
+    if(!val)return;
+    const wrap=document.getElementById('folderTagsWrap');
+    if(!wrap)return;
+    // Don't add duplicates
+    if(wrap.querySelector('[data-tag="'+val+'"]')){input.value='';return;}
+    const el=document.createElement('div');
+    el.setAttribute('data-tag',val);
+    el.setAttribute('data-on','1');
+    el.style.cssText='padding:5px 12px;border-radius:100px;border:1.5px solid var(--accent);background:var(--accent-dim);color:var(--accent2);font-size:13px;cursor:pointer;transition:all .15s';
+    el.textContent=val;
+    el.onclick=()=>App._togglePlanTag(val,el);
+    wrap.appendChild(el);
+    input.value='';
+  },
   loadSavedPlan(idx){
     const plans=DB.get('savedPlans')||[];
     const plan=plans[idx];
@@ -1367,7 +1479,7 @@ const App = {
         if(!smartRec)return'';
         return`<div style="background:var(--accent-dim);border-radius:10px;padding:8px 12px;margin-bottom:10px">
           <div style="font-size:11px;color:var(--accent2);font-weight:700;margin-bottom:4px">💡 Smart Rec</div>
-          <div style="font-size:16px;font-weight:700;color:var(--t1)">${smartRec.weight} lbs × ${smartRec.reps} reps</div>
+          <div style="font-size:16px;font-weight:700;color:var(--t1)">${smartRec.weight} lbs × ${smartRec.reps} reps <span style="font-size:11px;color:var(--t3);font-weight:400">(${smartRec.repRange} range)</span></div>
           <div style="font-size:10px;color:var(--t3);margin-top:2px">${smartRec.reason}</div>
           <div style="display:flex;gap:6px;margin-top:8px">
             <button onclick="App._recFeedback(${ex.id},'easy')" style="flex:1;background:var(--green-dim);border:.5px solid rgba(52,211,153,.3);color:var(--green);border-radius:7px;padding:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Too Easy</button>
@@ -1390,23 +1502,32 @@ const App = {
   },
 
   _getSmartRec(exId){
-    // Progressive overload: suggest weight based on last session + feedback adjustments
     const last=getLastPerformance(exId);
     if(!last)return null;
     const doneSets=last.sets.filter(s=>s.completed&&s.weight);
     if(!doneSets.length)return null;
     const avgW=doneSets.reduce((s,x)=>s+x.weight,0)/doneSets.length;
     const avgR=doneSets.reduce((s,x)=>s+(x.reps||0),0)/doneSets.length;
-    // Apply feedback adjustments stored per exercise
-    const adj=(DB.get('recAdjust')||{})[exId]||0; // -1=too heavy, 0=good, +1=too easy
-    const adjPct=adj*0.05; // ±5% per feedback step
-    let sugW=Math.round((avgW*(1+adjPct))*2)/2; // round to nearest 0.5
-    let sugR=Math.round(avgR);
-    // If all reps hit goal (typically 12), suggest +5lbs next session
-    if(avgR>=12&&adj===0)sugW=Math.round((avgW+5)*2)/2;
-    const reasons=['Based on last session','Reduced — too heavy last time','Increased — felt easy last time'];
-    const reasonIdx=adj<0?1:adj>0?2:0;
-    return{weight:Math.max(sugW,5),reps:Math.max(sugR,1),reason:reasons[reasonIdx]};
+    // Goal-based target rep ranges
+    const goal=(DB.get('settings')||{}).goal||'strength';
+    const goalRanges={strength:[3,6],hypertrophy:[8,12],toning:[12,20],power:[2,5],weight_loss:[15,20]};
+    const [minR,maxR]=goalRanges[goal]||[8,12];
+    const targetR=Math.round((minR+maxR)/2);
+    // Feedback adjustment
+    const adj=(DB.get('recAdjust')||{})[exId]||0;
+    const adjPct=adj*0.05;
+    let sugW=Math.round((avgW*(1+adjPct))*2)/2;
+    let sugR=targetR;
+    // Progressive overload: if last reps hit top of range, bump weight
+    if(avgR>=maxR&&adj>=0)sugW=Math.round((avgW+2.5)*2)/2;
+    const goalLabels={strength:'Strength goal',hypertrophy:'Growth goal',toning:'Toning goal',power:'Power goal',weight_loss:'Fat loss goal'};
+    const adjNote=adj<0?' · reduced (feedback)':adj>0?' · increased (feedback)':'';
+    return{
+      weight:Math.max(sugW,5),
+      reps:sugR,
+      repRange:`${minR}–${maxR}`,
+      reason:(goalLabels[goal]||'Based on history')+adjNote
+    };
   },
   _recFeedback(exId,feedback){
     const adj=DB.get('recAdjust')||{};
@@ -2238,6 +2359,11 @@ const App = {
           </div>
         </div>`;
       }).join('')}
+      <!-- Bottom nav strip for easy thumb access on iPhone -->
+      <div style="display:flex;gap:8px;padding-top:8px;padding-bottom:4px;border-top:.5px solid var(--border);margin-top:4px">
+        <button onclick="App.nav('calendar')" class="btn btn-s btn-sm" style="flex:1">📅 Calendar</button>
+        <button onclick="App.nav('charts')" class="btn btn-s btn-sm" style="flex:1">📈 Charts</button>
+      </div>
     </div>`;
   },
 
@@ -2333,6 +2459,14 @@ const App = {
             <button class="theme-btn ${(DB.get('theme')||'auto')==='light'?'on':''}" data-theme="light" onclick="App.setTheme('light')">☀️ Light</button>
           </div>
         </div>
+        <div class="ri" onclick="App.openGoalSettings()">
+          <div class="ri-ico" style="background:var(--green-dim)">🎯</div>
+          <div class="ri-c">
+            <div class="ri-t">Training Goal</div>
+            <div class="ri-s" id="goalSettingLbl">${(()=>{const g=(DB.get('settings')||{}).goal||'strength';return{strength:'Strength & Size',hypertrophy:'Muscle Growth',toning:'Toning & Endurance',power:'Power & Performance',weight_loss:'Weight Loss'}[g]||'Strength & Size';})()}</div>
+          </div>
+          <div class="ri-r">›</div>
+        </div>
         <div class="ri" onclick="App.openRestSettings()">
           <div class="ri-ico" style="background:var(--surface3)">⏱</div>
           <div class="ri-c">
@@ -2377,32 +2511,22 @@ const App = {
 
       <!-- Tools & Progress -->
       <div class="section-lbl">Tools & Progress</div>
-      <div class="card" style="margin-bottom:16px">
-        <div class="ri" onclick="App.nav('calendar')" style="cursor:pointer">
-          <div class="ri-ico" style="background:var(--accent-dim)">📅</div>
-          <div class="ri-c"><div class="ri-t">Training Calendar</div><div class="ri-s">6-month workout heatmap</div></div>
-          <div class="ri-r">›</div>
-        </div>
-        <div class="ri" onclick="App.nav('charts')" style="cursor:pointer">
-          <div class="ri-ico" style="background:var(--teal-dim)">📈</div>
-          <div class="ri-c"><div class="ri-t">Volume Charts</div><div class="ri-s">Progress graphs per exercise</div></div>
-          <div class="ri-r">›</div>
-        </div>
-        <div class="ri" onclick="App.nav('badges')" style="cursor:pointer">
-          <div class="ri-ico" style="background:var(--amber-dim)">🏅</div>
-          <div class="ri-c"><div class="ri-t">Milestones & Badges</div><div class="ri-s">18 achievements to unlock</div></div>
-          <div class="ri-r">›</div>
-        </div>
-        <div class="ri" onclick="App.nav('tools')" style="cursor:pointer">
-          <div class="ri-ico" style="background:var(--green-dim)">⚖️</div>
-          <div class="ri-c"><div class="ri-t">Tools</div><div class="ri-s">Plate calculator · Converter · Templates</div></div>
-          <div class="ri-r">›</div>
-        </div>
-        <div class="ri" onclick="App.nav('smart')" style="cursor:pointer">
-          <div class="ri-ico" style="background:var(--teal-dim)">🧠</div>
-          <div class="ri-c"><div class="ri-t">Smart Reps AI</div><div class="ri-s">Personalized weight & rep recommendations</div></div>
-          <div class="ri-r">›</div>
-        </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        ${[
+          {ico:'📅',bg:'var(--accent-dim)',title:'Calendar',sub:'Workout heatmap',nav:'calendar'},
+          {ico:'📈',bg:'var(--teal-dim)',title:'Charts',sub:'Progress graphs',nav:'charts'},
+          {ico:'🏅',bg:'var(--amber-dim)',title:'Badges',sub:'18 achievements',nav:'badges'},
+          {ico:'⚖️',bg:'var(--green-dim)',title:'Tools',sub:'Plate calc · Templates',nav:'tools'},
+          {ico:'🧠',bg:'var(--teal-dim)',title:'Smart Reps AI',sub:'AI recommendations',nav:'smart'},
+          {ico:'📋',bg:'var(--surface3)',title:'Saved Plans',sub:'Your workout library',nav:'plans'},
+        ].map(t=>`
+          <button onclick="App.nav('${t.nav}')" style="background:var(--surface);border:.5px solid var(--border);border-radius:14px;padding:14px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px;font-family:inherit;transition:background .15s" onmouseenter="this.style.background='var(--surface2)'" onmouseleave="this.style.background='var(--surface)'">
+            <div style="width:36px;height:36px;border-radius:10px;background:${t.bg};display:flex;align-items:center;justify-content:center;font-size:18px">${t.ico}</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px">${t.title}</div>
+              <div style="font-size:11px;color:var(--t3);line-height:1.4">${t.sub}</div>
+            </div>
+          </button>`).join('')}
       </div>
 
       <!-- Danger zone -->
@@ -2501,6 +2625,63 @@ const App = {
     schedSync();
     this.toast('History cleared');
     this.render();
+  },
+
+  openGoalSettings(){
+    const settings=DB.get('settings')||{};
+    const currentGoal=settings.goal||'strength';
+    const goals=[
+      {id:'strength',    label:'Strength & Size',    desc:'3–6 reps, heavier weight. Optimal for maximal strength gains.',        rest:'3–5 min'},
+      {id:'hypertrophy', label:'Muscle Growth',      desc:'8–12 reps, moderate weight. Best for building muscle mass.',           rest:'60–90s'},
+      {id:'toning',      label:'Toning & Endurance', desc:'12–20 reps, lighter weight. Improves muscle definition and stamina.',  rest:'30–60s'},
+      {id:'power',       label:'Power & Performance',desc:'2–5 reps, explosive tempo. Builds fast-twitch muscle and athleticism.',rest:'3–5 min'},
+      {id:'weight_loss', label:'Weight Loss',        desc:'15–20 reps, minimal rest. Maximizes calorie burn.',                   rest:'30s'},
+    ];
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    overlay.innerHTML=`
+    <div class="sheet">
+      <div class="sh-bar"></div>
+      <div style="display:flex;align-items:center;padding:14px 20px 10px">
+        <div style="font-size:17px;font-weight:700;flex:1">Training Goal</div>
+        <button onclick="this.closest('.overlay').remove()" style="background:var(--surface2);border:.5px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--t2);cursor:pointer">✕</button>
+      </div>
+      <div style="padding:0 20px 24px">
+        <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.5">Your goal shapes the Smart Reps recommendations — rep ranges, weight suggestions, and rest timer defaults will all adjust accordingly.</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${goals.map(g=>`
+          <div onclick="App._setGoal('${g.id}',this)" style="padding:12px 14px;border-radius:12px;border:2px solid ${g.id===currentGoal?'var(--accent)':'var(--border)'};background:${g.id===currentGoal?'var(--accent-dim)':'var(--surface2)'};cursor:pointer;transition:all .15s" data-goal="${g.id}">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <div style="font-size:14px;font-weight:700;color:${g.id===currentGoal?'var(--accent2)':'var(--t1)'};flex:1">${g.label}</div>
+              ${g.id===currentGoal?'<span class="pill p-a" style="font-size:10px">Active</span>':''}
+            </div>
+            <div style="font-size:12px;color:var(--t3);line-height:1.5">${g.desc}</div>
+            <div style="font-size:11px;color:var(--t3);margin-top:4px">Rest: ${g.rest}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+  },
+  _setGoal(goalId,el){
+    const settings=DB.get('settings')||{};
+    settings.goal=goalId;
+    // Auto-adjust default rest time based on goal
+    const restMap={strength:180,hypertrophy:90,toning:45,power:180,weight_loss:30};
+    settings.defaultRest=restMap[goalId]||90;
+    DB.set('settings',settings);
+    schedSync();
+    // Update UI
+    el.closest('[style*="flex-direction:column"]').querySelectorAll('[data-goal]').forEach(d=>{
+      const isThis=d.dataset.goal===goalId;
+      d.style.borderColor=isThis?'var(--accent)':'var(--border)';
+      d.style.background=isThis?'var(--accent-dim)':'var(--surface2)';
+    });
+    const lbl=document.getElementById('goalSettingLbl');
+    const labels={strength:'Strength & Size',hypertrophy:'Muscle Growth',toning:'Toning & Endurance',power:'Power & Performance',weight_loss:'Weight Loss'};
+    if(lbl)lbl.textContent=labels[goalId]||goalId;
+    this.toast('Goal updated — Smart Recs will adjust ✓');
   },
 
   openRestSettings(){
@@ -2910,14 +3091,22 @@ const App = {
       </div>
       <div class="fgrp"><label class="f-lbl">Emoji</label>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          ${'💪🔥⚡🏋🦾🥊🎯🌟'.split('').map(e=>`<button onclick="this.closest('[id]');document.getElementById('planEmoji').value='${e}';this.parentElement.querySelectorAll('button').forEach(b=>b.style.opacity='.4');this.style.opacity='1'" style="font-size:22px;background:none;border:none;cursor:pointer;opacity:.4;padding:4px">${e}</button>`).join('')}
+          ${['💪','🔥','⚡','🥊','🎯','🌟','🏆','💎'].map(e=>`<button onclick="document.getElementById('planEmoji').value='${e}';this.parentElement.querySelectorAll('button').forEach(b=>b.style.outline='none');this.style.outline='2px solid var(--accent)'" style="font-size:28px;background:var(--surface2);border:none;cursor:pointer;padding:8px;border-radius:10px;line-height:1">${e}</button>`).join('')}
         </div>
         <input type="hidden" id="planEmoji" value="💪">
       </div>
       <div class="fgrp">
-        <label class="f-lbl">Folder <span style="color:var(--t3);font-weight:400">(optional)</span></label>
-        <input type="text" id="planFolder" placeholder="e.g. Push/Pull or leave blank">
-        <div style="font-size:11px;color:var(--t3);margin-top:3px">Plans in the same folder are grouped on the home screen.</div>
+        <label class="f-lbl">Tags / Folders <span style="color:var(--t3);font-weight:400">(optional — tap to toggle)</span></label>
+        <div id="folderTagsWrap" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+          ${[...new Set((DB.get('savedPlans')||[]).flatMap(p=>p.folders||[p.folder].filter(Boolean)))].map(f=>`
+            <div onclick="App._togglePlanTag('${f}',this)" style="padding:5px 12px;border-radius:100px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--t2);font-size:13px;cursor:pointer;transition:all .15s" data-tag="${f}">${f}</div>
+          `).join('')}
+        </div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="planFolderNew" placeholder="New folder name..." style="flex:1">
+          <button onclick="App._addPlanTag()" class="btn btn-s btn-sm">Add</button>
+        </div>
+        <div style="font-size:11px;color:var(--t3);margin-top:4px">Plans can belong to multiple folders. Tap existing tags or type a new one.</div>
       </div>
       <button class="btn btn-p btn-full" onclick="App._doSavePlan(this.closest('.overlay'))">Save Plan</button>
     </div></div>`;
@@ -2927,9 +3116,15 @@ const App = {
     const build=DB.get('buildWorkout')||{};
     const name=document.getElementById('planName')?.value?.trim()||build.name||'My Plan';
     const emoji=document.getElementById('planEmoji')?.value||'💪';
-    const folder=(document.getElementById('planFolder')?.value||'').trim();
+    // Collect selected folder tags
+    const selectedTags=[...document.querySelectorAll('#folderTagsWrap [data-tag]')]
+      .filter(el=>el.style.background.includes('accent')||el.classList.contains('on'))
+      .map(el=>el.dataset.tag);
+    const newTag=(document.getElementById('planFolderNew')?.value||'').trim();
+    if(newTag&&!selectedTags.includes(newTag))selectedTags.push(newTag);
+    const folder=selectedTags[0]||null; // backward compat
     const plan={
-      id:uuid(),name,emoji,folder:folder||null,
+      id:uuid(),name,emoji,folder:folder||null,folders:selectedTags.length?selectedTags:[folder].filter(Boolean),
       exercises:(build.exercises||[]).map(e=>({exId:e.exId,ssGroup:e.ssGroup||null,sets:Array.from({length:(e.sets||[{},{},{}]).length},()=>({weight:'',reps:'',completed:false,note:''}))})),
       muscles:[...new Set((build.exercises||[]).map(e=>{const ex=getExercise(e.exId);return ex?.muscle}).filter(Boolean))],
       savedAt:new Date().toISOString(),custom:true,
