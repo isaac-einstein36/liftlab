@@ -1,5 +1,26 @@
 [
   {
+  "version": "1.4.0",
+  "date": "2026-05-14",
+  "notes": [
+    "Smart Reps AI — Claude-powered chat coach with personalized weight and rep recommendations based on your history",
+    "Edit workout in session — add, remove, and reorder exercises while a workout is running",
+    "Workout folders — organize saved plans into named categories (Push/Pull, Strength, etc.)",
+    "Swap exercise — searchable sheet to replace an exercise while keeping your sets",
+    "Touch drag-to-reorder exercises in Build view — hold the grip icon and drag",
+    "Persistent workout timer banner — shows on all tabs while a workout is active",
+    "Rest timer notification — system notification fires when rest period ends",
+    "Sub-muscle filtering in Exercises tab (e.g. Long Head / Short Head for Biceps)",
+    "Delete profile — small X button on profile chips in Profile settings",
+    "Edit and import custom exercises — edit any custom exercise, or bulk-import from JSON",
+    "Overwrite saved plans — prompted when saving a plan with a duplicate name",
+    "GitHub sync now includes saved plans, templates, and custom exercises",
+    "Fixed: emoji rendering on iPhone (exercise icons, badge icons, plan cards)",
+    "Fixed: search input in Exercises tab no longer dismisses keyboard on each keystroke",
+    "Fixed: Swap Exercise button now works"
+    ]
+  },
+  {
   "version": "1.3.0",
   "date": "2026-05-14",
   "notes": [
