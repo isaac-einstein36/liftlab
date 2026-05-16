@@ -1,5 +1,21 @@
 [
   {
+  "version": "1.4.2",
+  "date": "2026-05-14",
+  "notes": [
+    "Training goal is now per-profile — each profile can have Strength, Growth, Toning, Power, or Weight Loss set independently",
+    "Smart Reps recommendations and history shown during a workout now reflect the active logging profile, not the session owner",
+    "Edit profile — small Edit button on each profile chip to change name, emoji, and color",
+    "Typography and spacing overhaul — stat numbers, row heights, input padding, label margins, and line-heights improved throughout",
+    "Tools & Progress in Profile is now a 2-column icon grid instead of a plain list",
+    "Saved Plans page with expandable folder sections (Profile → Saved Plans tile)",
+    "Save Plan now supports multiple folders — tap existing folder chips or type a new one",
+    "Save Plan emoji picker now shows large tappable emoji buttons that render correctly on iPhone",
+    "Filter section headers (Muscle, Equipment, etc.) are now centered",
+    "History tab has Calendar and Charts buttons at the bottom for easy iPhone thumb access"
+    ]
+  },
+  {
   "version": "1.4.1",
   "date": "2026-05-14",
   "notes": [
