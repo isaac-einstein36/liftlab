@@ -12,7 +12,7 @@
 [data-theme="light"]{--bg:#f0f0f8;--surface:#ffffff;--surface2:#eeeef8;--surface3:#e2e2f0;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--t1:#0d0d1a;--t2:#55557a;--t3:#9090b0;--accent:#6355ee;--accent2:#4f44cc;--accent-dim:rgba(99,85,238,0.12);--glass-hdr:rgba(240,240,248,0.92);--glass-nav:rgba(240,240,248,0.97)}
 @media(prefers-color-scheme:light){[data-theme="auto"]{--bg:#f0f0f8;--surface:#ffffff;--surface2:#eeeef8;--surface3:#e2e2f0;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--t1:#0d0d1a;--t2:#55557a;--t3:#9090b0;--accent:#6355ee;--accent2:#4f44cc;--accent-dim:rgba(99,85,238,0.12);--glass-hdr:rgba(240,240,248,0.92);--glass-nav:rgba(240,240,248,0.97)}}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
 #app{display:flex;flex-direction:column;height:100%;height:-webkit-fill-available}
 #main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-top:calc(var(--hdr-h) + var(--safe-t));padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 4px)}
 #hdr{position:fixed;top:0;left:0;right:0;z-index:100;height:calc(var(--hdr-h) + var(--safe-t));padding-top:var(--safe-t);background:var(--glass-hdr);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:.5px solid var(--border);display:flex;align-items:flex-end;padding-bottom:10px;padding-left:16px;padding-right:12px}
@@ -257,7 +257,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.4.0';
+const CURRENT_VERSION = '1.4.1';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -294,7 +294,7 @@ const GH = {
   creds(){const t=DB.get('gh_token');const g=DB.get('gh_gist_id');return(t&&g)?{token:t,gistId:g}:null},
   async push(){
     const c=this.creds();if(!c)return false;
-    const data={profiles:DB.get('profiles',[]),workoutHistory:DB.get('workoutHistory',[]),customExercises:DB.get('customExercises',[]),savedPlans:DB.get('savedPlans',[]),templates:DB.get('templates',[]),settings:DB.get('settings',{}),v:2};
+    const data={profiles:DB.get('profiles',[]),workoutHistory:DB.get('workoutHistory',[]),customExercises:DB.get('customExercises',[]),savedPlans:DB.get('savedPlans',[]),templates:DB.get('templates',[]),settings:DB.get('settings',{}),recAdjust:DB.get('recAdjust',{}),v:2};
     try{
       const r=await fetch(`https://api.github.com/gists/${c.gistId}`,{method:'PATCH',headers:{'Authorization':`token ${c.token}`,'Content-Type':'application/json'},body:JSON.stringify({files:{'liftlab-data.json':{content:JSON.stringify(data)}}})});
       if(r.ok){DB.set('lastGhSync',new Date().toISOString());return true;}
@@ -315,6 +315,7 @@ const GH = {
       if(data.customExercises)DB.set('customExercises',data.customExercises);
       if(data.savedPlans)DB.set('savedPlans',data.savedPlans);
       if(data.templates)DB.set('templates',data.templates);
+      if(data.recAdjust)DB.set('recAdjust',data.recAdjust);
       if(data.settings)DB.set('settings',data.settings);
       DB.set('lastGhSync',new Date().toISOString());
       return true;
@@ -1186,23 +1187,19 @@ const App = {
     this._refreshBuild();
   },
   addToSuperset(i){
-    // Link exercise i into a superset with exercise i+1 (or i-1 if at end)
+    // Link exercise i into a superset group with exercise i+1 ONLY
+    // Never look backward — that would absorb unrelated exercises above
     const build=DB.get('buildWorkout')||{exercises:[]};
     const exArr=build.exercises;
     const ex=exArr[i];
     const next=exArr[i+1];
-    const prev=exArr[i-1];
-    if(!ex)return;
-    // Find an adjacent group to join, or create one
-    const neighborGroup=(next?.ssGroup)||(prev?.ssGroup)||null;
-    const grp=neighborGroup||uuid().slice(0,8);
+    if(!ex||!next)return;
+    // If next already has a group, join it; otherwise create a new one
+    const grp=next.ssGroup||uuid().slice(0,8);
     ex.ssGroup=grp;
-    // If creating new group, also add the adjacent exercise
-    if(!neighborGroup){
-      if(next)next.ssGroup=grp;
-      else if(prev)prev.ssGroup=grp;
-    }
+    next.ssGroup=grp;
     ex.supersetWith=null;
+    next.supersetWith=null;
     DB.set('buildWorkout',build);
     this._refreshBuild();
   },
@@ -1365,7 +1362,20 @@ const App = {
         </div>
         ${allDone?`<span style="font-size:16px">✅</span>`:''}
       </div>
-      ${rec?`<div style="font-size:11px;color:var(--accent2);margin-bottom:8px;padding:5px 10px;background:var(--accent-dim);border-radius:7px">💡 Suggest: ${rec.weight}lbs × ${rec.reps} reps</div>`:''}
+      ${(()=>{
+        const smartRec=App._getSmartRec(ex.id);
+        if(!smartRec)return'';
+        return`<div style="background:var(--accent-dim);border-radius:10px;padding:8px 12px;margin-bottom:10px">
+          <div style="font-size:11px;color:var(--accent2);font-weight:700;margin-bottom:4px">💡 Smart Rec</div>
+          <div style="font-size:16px;font-weight:700;color:var(--t1)">${smartRec.weight} lbs × ${smartRec.reps} reps</div>
+          <div style="font-size:10px;color:var(--t3);margin-top:2px">${smartRec.reason}</div>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <button onclick="App._recFeedback(${ex.id},'easy')" style="flex:1;background:var(--green-dim);border:.5px solid rgba(52,211,153,.3);color:var(--green);border-radius:7px;padding:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Too Easy</button>
+            <button onclick="App._recFeedback(${ex.id},'good')" style="flex:1;background:var(--surface2);border:.5px solid var(--border2);color:var(--t2);border-radius:7px;padding:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Just Right</button>
+            <button onclick="App._recFeedback(${ex.id},'hard')" style="flex:1;background:var(--red-dim);border:.5px solid rgba(248,113,113,.3);color:var(--red);border-radius:7px;padding:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Too Heavy</button>
+          </div>
+        </div>`;
+      })()}
       ${last&&last.sets.some(s=>s.completed)?`<div style="font-size:11px;color:var(--t3);margin-bottom:8px">Last (${fmtDate(last.date)}): ${last.sets.filter(s=>s.completed).map(s=>`${s.weight}×${s.reps}`).join(', ')}</div>`:''}
       <!-- Set headers -->
       <div class="sr" style="border-bottom:.5px solid var(--border2)">
@@ -1377,6 +1387,37 @@ const App = {
       ${this._getSetsForProfile(e,activePid).map((s,si)=>this.liveSetRow(ei,si,s,activePid)).join('')}
       <button onclick="App.addSet(${ei})" class="btn-g" style="width:100%;margin-top:8px;font-size:12px">+ Add Set</button>
     </div>`;
+  },
+
+  _getSmartRec(exId){
+    // Progressive overload: suggest weight based on last session + feedback adjustments
+    const last=getLastPerformance(exId);
+    if(!last)return null;
+    const doneSets=last.sets.filter(s=>s.completed&&s.weight);
+    if(!doneSets.length)return null;
+    const avgW=doneSets.reduce((s,x)=>s+x.weight,0)/doneSets.length;
+    const avgR=doneSets.reduce((s,x)=>s+(x.reps||0),0)/doneSets.length;
+    // Apply feedback adjustments stored per exercise
+    const adj=(DB.get('recAdjust')||{})[exId]||0; // -1=too heavy, 0=good, +1=too easy
+    const adjPct=adj*0.05; // ±5% per feedback step
+    let sugW=Math.round((avgW*(1+adjPct))*2)/2; // round to nearest 0.5
+    let sugR=Math.round(avgR);
+    // If all reps hit goal (typically 12), suggest +5lbs next session
+    if(avgR>=12&&adj===0)sugW=Math.round((avgW+5)*2)/2;
+    const reasons=['Based on last session','Reduced — too heavy last time','Increased — felt easy last time'];
+    const reasonIdx=adj<0?1:adj>0?2:0;
+    return{weight:Math.max(sugW,5),reps:Math.max(sugR,1),reason:reasons[reasonIdx]};
+  },
+  _recFeedback(exId,feedback){
+    const adj=DB.get('recAdjust')||{};
+    const cur=adj[exId]||0;
+    if(feedback==='easy')adj[exId]=Math.min(cur+1,3);
+    else if(feedback==='hard')adj[exId]=Math.max(cur-1,-3);
+    else adj[exId]=0;
+    DB.set('recAdjust',adj);
+    this.toast(feedback==='easy'?'Got it — will suggest more weight next time':feedback==='hard'?'Got it — will suggest less weight next time':'Perfect — keeping this weight');
+    // Update the rec display in-place without full re-render
+    this.renderWorkoutLive(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
   },
 
   _getSetsForProfile(e,pid){
@@ -1793,10 +1834,16 @@ const App = {
   },
   _exFilter(type,val){
     const f=this.state.exFilters||{};
-    // boolean toggles
-    if(type==='favOnly'||type==='newOnly'){this.state.exFilters={...f,[type]:val===true||val==='true'?true:false};}
-    else {this.state.exFilters={...f,[type]:f[type]===val?'':val};}
-    this._reExList();
+    if(type==='favOnly'||type==='newOnly'){
+      this.state.exFilters={...f,[type]:val===true||val==='true'?true:false};
+    } else {
+      // Toggle off if same value clicked again
+      this.state.exFilters={...f,[type]:f[type]===val?'':val};
+      // Clearing muscle also clears target
+      if(type==='muscle')this.state.exFilters.target='';
+    }
+    // Full re-render so filter chips update and Target Area row appears/disappears
+    this._reEx();
   },
   _exClearFilters(){this.state.exFilters={muscle:'',equipment:'',level:'',search:'',favOnly:false,newOnly:false};this._reEx();},
   _reExList(){
@@ -2867,6 +2914,11 @@ const App = {
         </div>
         <input type="hidden" id="planEmoji" value="💪">
       </div>
+      <div class="fgrp">
+        <label class="f-lbl">Folder <span style="color:var(--t3);font-weight:400">(optional)</span></label>
+        <input type="text" id="planFolder" placeholder="e.g. Push/Pull or leave blank">
+        <div style="font-size:11px;color:var(--t3);margin-top:3px">Plans in the same folder are grouped on the home screen.</div>
+      </div>
       <button class="btn btn-p btn-full" onclick="App._doSavePlan(this.closest('.overlay'))">Save Plan</button>
     </div></div>`;
     document.body.appendChild(overlay);
@@ -3337,7 +3389,10 @@ const App = {
         <div style="text-align:center;padding:32px 16px">
           <div style="font-size:44px;margin-bottom:12px">🧠</div>
           <div style="font-size:17px;font-weight:700;margin-bottom:8px">Smart Reps</div>
-          <div style="font-size:13px;color:var(--t3);line-height:1.6;margin-bottom:20px">Ask anything about your workout — weights, reps, form, or what to do next. Recommendations are based on your actual lift history.</div>
+          <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:8px">Ask anything about weights, reps, form, or progression — personalized to your history.</div>
+          <div style="background:var(--surface2);border:.5px solid var(--border);border-radius:10px;padding:10px 12px;text-align:left;margin-bottom:16px;font-size:12px;color:var(--t2);line-height:1.6">
+            <strong>How it works:</strong> This calls the Claude AI API directly. No Claude account needed — no free-tier limits or login. Your workout history is sent to generate a personalized response. Anthropic does not store your data beyond the request.
+          </div>
           <div style="display:flex;flex-direction:column;gap:8px;text-align:left">
             ${['What weight should I use for bench press today?','How many reps should I do for muscle growth?','What back exercises should I do?','Am I progressing well on my lifts?'].map(q=>`
               <button onclick="App._aiSend('${q}')" style="background:var(--surface2);border:.5px solid var(--border2);border-radius:12px;padding:11px 14px;text-align:left;font-size:13px;color:var(--t1);cursor:pointer;font-family:inherit;transition:background .15s">${q}</button>
