@@ -37,7 +37,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 .btn-sm{padding:8px 14px;font-size:13px;border-radius:8px}
 .btn-xs{padding:5px 10px;font-size:12px;border-radius:6px}
 .btn-full{width:100%}
-.icon-btn{width:36px;height:36px;border-radius:50%;background:var(--surface2);border:.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.icon-btn{width:40px;height:40px;border-radius:50%;background:var(--surface2);border:.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 .icon-btn svg{width:17px;height:17px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 input,textarea,select{background:var(--surface2);border:.5px solid var(--border2);border-radius:10px;color:var(--t1);font-size:16px;padding:11px 13px;width:100%;outline:none;-webkit-appearance:none;font-family:inherit}
 input:focus,textarea:focus,select:focus{border-color:var(--accent)}
@@ -101,8 +101,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .sb svg{width:15px;height:15px;stroke:var(--t3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .sb input{flex:1;background:none;border:none;padding:10px 0;font-size:15px;color:var(--t1);outline:none}
 .sb input::placeholder{color:var(--t3)}
-.fc{display:flex;gap:7px;overflow-x:auto;padding:0 16px 10px;scrollbar-width:none}
-.fc::-webkit-scrollbar{display:none}
+.fc{display:flex;gap:7px;flex-wrap:wrap;padding:4px 16px 10px;justify-content:flex-start}
+
 .fc-chip{padding:5px 13px;border-radius:100px;font-size:12px;font-weight:500;border:1px solid var(--border2);background:var(--surface2);color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s}
 .fc-chip.on{background:var(--accent-dim);border-color:var(--accent);color:var(--accent2)}
 .toast{position:fixed;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 10px);left:50%;transform:translateX(-50%);background:var(--surface2);border:.5px solid var(--border2);border-radius:100px;padding:9px 18px;font-size:13px;font-weight:500;color:var(--t1);z-index:500;white-space:nowrap;animation:ti .25s ease,to .25s ease 2.4s forwards;box-shadow:0 8px 32px rgba(0,0,0,.45)}
@@ -221,6 +221,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 /* Plate calculator */
 .plate{display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;writing-mode:vertical-rl}
 .emo{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;font-style:normal}
+.ai-msg{padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.55;max-width:88%;margin-bottom:8px;word-break:break-word}
+.ai-msg.user{background:var(--accent);color:#fff;margin-left:auto;border-radius:14px 14px 4px 14px}
+.ai-msg.ai{background:var(--surface2);color:var(--t1);border-radius:4px 14px 14px 14px}
+.ai-msg.thinking{color:var(--t3);font-style:italic}
 </style>
 </head>
 <body>
@@ -253,7 +257,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.3.1';
+const CURRENT_VERSION = '1.4.0';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -290,7 +294,7 @@ const GH = {
   creds(){const t=DB.get('gh_token');const g=DB.get('gh_gist_id');return(t&&g)?{token:t,gistId:g}:null},
   async push(){
     const c=this.creds();if(!c)return false;
-    const data={profiles:DB.get('profiles',[]),workoutHistory:DB.get('workoutHistory',[]),customExercises:DB.get('customExercises',[]),settings:DB.get('settings',{}),v:2};
+    const data={profiles:DB.get('profiles',[]),workoutHistory:DB.get('workoutHistory',[]),customExercises:DB.get('customExercises',[]),savedPlans:DB.get('savedPlans',[]),templates:DB.get('templates',[]),settings:DB.get('settings',{}),v:2};
     try{
       const r=await fetch(`https://api.github.com/gists/${c.gistId}`,{method:'PATCH',headers:{'Authorization':`token ${c.token}`,'Content-Type':'application/json'},body:JSON.stringify({files:{'liftlab-data.json':{content:JSON.stringify(data)}}})});
       if(r.ok){DB.set('lastGhSync',new Date().toISOString());return true;}
@@ -309,6 +313,8 @@ const GH = {
       if(data.profiles)DB.set('profiles',data.profiles);
       if(data.workoutHistory)DB.set('workoutHistory',data.workoutHistory);
       if(data.customExercises)DB.set('customExercises',data.customExercises);
+      if(data.savedPlans)DB.set('savedPlans',data.savedPlans);
+      if(data.templates)DB.set('templates',data.templates);
       if(data.settings)DB.set('settings',data.settings);
       DB.set('lastGhSync',new Date().toISOString());
       return true;
@@ -480,6 +486,24 @@ const App = {
     const hT=document.getElementById('hT');
     const hB=document.getElementById('hB');
     hB.innerHTML='';
+    // Persistent workout indicator: show elapsed in header when workout active and not on live view
+    if(this.state.activeWorkout&&this.state.view!=='workout_live'){
+      const existing=document.getElementById('wkLiveBanner');
+      if(!existing){
+        const banner=document.createElement('div');
+        banner.id='wkLiveBanner';
+        banner.style.cssText='position:fixed;top:calc(var(--hdr-h) + var(--safe-t));left:0;right:0;z-index:99;background:var(--accent);padding:5px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;';
+        banner.innerHTML='<span style="font-size:12px;font-weight:600;color:#fff">Workout in progress</span><span class="wk-elapsed-badge" style="font-size:12px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums">'+fmtElapsed(this.state.workoutElapsed)+'</span>';
+        banner.onclick=()=>App.nav('workout_live');
+        document.body.appendChild(banner);
+        // Adjust main padding to account for banner
+        m.style.paddingTop='calc(var(--hdr-h) + var(--safe-t) + 32px)';
+      }
+    } else {
+      const existing=document.getElementById('wkLiveBanner');
+      if(existing)existing.remove();
+      m.style.paddingTop='';
+    }
     // If active workout, show workout view regardless
     if(this.state.activeWorkout&&this.state.view==='workout_live'){
       this.renderWorkoutLive(m,hT,hB);return;
@@ -495,6 +519,8 @@ const App = {
       case'charts':this.renderCharts(m,hT,hB);break;
       case'tools':this.renderTools(m,hT,hB);break;
       case'badges':this.renderBadges(m,hT,hB);break;
+      case'smart':this.renderSmartReps(m,hT,hB);break;
+
       default:this.renderHome(m,hT,hB);
     }
   },
@@ -585,18 +611,27 @@ const App = {
       </div>
 
       <!-- My saved plans -->
-      ${(()=>{const saved=DB.get('savedPlans')||[];return saved.length?`
-      <div class="section-lbl">My Plans</div>
-      <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px">
-        ${saved.map((plan,pi)=>`
-          <div style="flex-shrink:0;width:150px;background:var(--surface);border:.5px solid var(--accent-dim);border-radius:14px;padding:14px;cursor:pointer;position:relative" onclick="App.loadSavedPlan(${pi})">
-            <div style="font-size:22px;margin-bottom:6px"><span class="emo">${plan.emoji||'💪'}</span></div>
-            <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:3px">${plan.name}</div>
-            <div style="font-size:11px;color:var(--t3)">${(plan.exercises||[]).length} exercises</div>
-            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">${(plan.muscles||[]).slice(0,2).map(mu=>`<span class="pill p-a" style="font-size:9px">${mu}</span>`).join('')}</div>
-            <button onclick="event.stopPropagation();App.deleteSavedPlan(${pi})" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--t3);font-size:14px;cursor:pointer;padding:2px">✕</button>
-          </div>`).join('')}
-      </div>`:'';})()}
+      ${(()=>{
+        const saved=DB.get('savedPlans')||[];
+        if(!saved.length)return'';
+        const folders=[...new Set(saved.map(p=>p.folder||''))];
+        return folders.map(folder=>{
+          const folderPlans=saved.filter(p=>(p.folder||'')===(folder||''));
+          const label=folder?'📁 '+folder:'My Plans';
+          const cards=folderPlans.map((plan)=>{
+            const pi=saved.indexOf(plan);
+            return '<div style="flex-shrink:0;width:150px;background:var(--surface);border:.5px solid var(--accent-dim);border-radius:14px;padding:14px;cursor:pointer;position:relative" onclick="App.loadSavedPlan('+pi+')">'
+              +'<div style="font-size:22px;margin-bottom:6px"><span class="emo">'+(plan.emoji||'💪')+'</span></div>'
+              +'<div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:3px">'+plan.name+'</div>'
+              +(plan.folder?'<div style="font-size:10px;color:var(--accent2);margin-bottom:3px">📁 '+plan.folder+'</div>':'')
+              +'<div style="font-size:11px;color:var(--t3)">'+(plan.exercises||[]).length+' exercises</div>'
+              +'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">'+(plan.muscles||[]).slice(0,2).map(mu=>'<span class="pill p-a" style="font-size:9px">'+mu+'</span>').join('')+'</div>'
+              +'<button onclick="event.stopPropagation();App.deleteSavedPlan('+pi+')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--t3);font-size:14px;cursor:pointer;padding:2px">✕</button>'
+              +'</div>';
+          }).join('');
+          return '<div class="section-lbl">'+label+'</div><div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px">'+cards+'</div>';
+        }).join('');
+      })()}
 
       <!-- Suggested workouts -->
       <div class="section-lbl">Suggested Plans</div>
@@ -1049,6 +1084,75 @@ const App = {
     return descs[ex.muscle]||`Focus on proper form and controlled movement throughout the exercise.`;
   },
 
+  swapExercise(buildIdx){
+    // Show a muscle picker sheet; selecting an exercise replaces buildIdx
+    const build=DB.get('buildWorkout')||{exercises:[]};
+    const current=build.exercises[buildIdx];
+    const currentEx=current?getExercise(current.exId):null;
+    // Open a quick search sheet
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    const all=allExercises();
+    const renderSwapList=(search)=>{
+      let shown=all;
+      if(search)shown=shown.filter(e=>e.name.toLowerCase().includes(search.toLowerCase())||e.muscle.toLowerCase().includes(search.toLowerCase()));
+      if(currentEx)shown=shown.filter(e=>e.id!==currentEx.id);
+      shown=shown.slice(0,40);
+      return shown.map(e=>`
+        <div class="ex-card" onclick="App._doSwapExercise(${buildIdx},${e.id})">
+          <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22"><span class="emo">${muscleEmoji(e.muscle)}</span></div>
+          <div class="ex-info"><div class="ex-name">${e.name}</div><div class="ex-meta">${e.muscle} · ${e.equipment||'Bodyweight'}</div></div>
+          ${levelPill(e.level)}
+        </div>`).join('')||'<div style="padding:20px;color:var(--t3);text-align:center">No matches</div>';
+    };
+    overlay.innerHTML=`
+    <div class="sheet" style="max-height:90vh">
+      <div class="sh-bar"></div>
+      <div style="padding:14px 20px 8px;display:flex;align-items:center;gap:10px">
+        <div style="font-size:17px;font-weight:700;flex:1">Swap: ${currentEx?.name||'Exercise'}</div>
+        <button onclick="this.closest('.overlay').remove()" class="btn-g">Cancel</button>
+      </div>
+      <div class="sb"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search exercises..." oninput="document.getElementById('swapList').innerHTML=App._swapSearch(${buildIdx},this.value)" style="flex:1;background:none;border:none;font-size:15px;outline:none;color:var(--t1)">
+      </div>
+      <div id="swapList" style="padding:0 16px 20px;overflow-y:auto;max-height:60vh">${renderSwapList('')}</div>
+    </div>`;
+    document.body.appendChild(overlay);
+    this._swapBuildIdx=buildIdx;
+  },
+  _swapSearch(buildIdx,search){
+    const all=allExercises();
+    const build=DB.get('buildWorkout')||{exercises:[]};
+    const current=build.exercises[buildIdx];
+    const currentEx=current?getExercise(current.exId):null;
+    let shown=all;
+    if(search)shown=shown.filter(e=>e.name.toLowerCase().includes(search.toLowerCase())||e.muscle.toLowerCase().includes(search.toLowerCase()));
+    if(currentEx)shown=shown.filter(e=>e.id!==currentEx.id);
+    shown=shown.slice(0,40);
+    return shown.map(e=>`
+      <div class="ex-card" onclick="App._doSwapExercise(${buildIdx},${e.id})">
+        <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22"><span class="emo">${muscleEmoji(e.muscle)}</span></div>
+        <div class="ex-info"><div class="ex-name">${e.name}</div><div class="ex-meta">${e.muscle} · ${e.equipment||'Bodyweight'}</div></div>
+        ${levelPill(e.level)}
+      </div>`).join('')||'<div style="padding:20px;color:var(--t3);text-align:center">No matches</div>';
+  },
+  _doSwapExercise(buildIdx,newExId){
+    const build=DB.get('buildWorkout')||{exercises:[]};
+    if(build.exercises[buildIdx]){
+      const oldSets=build.exercises[buildIdx].sets||[];
+      build.exercises[buildIdx]={
+        ...build.exercises[buildIdx],
+        exId:newExId,
+        sets:oldSets.map(s=>({...s,weight:'',reps:'',completed:false}))
+      };
+      DB.set('buildWorkout',build);
+    }
+    document.querySelector('.overlay')?.remove();
+    this._refreshBuild();
+    this.toast('Exercise swapped ✓');
+  },
+
   toggleFav(exId){
     let favs=DB.get('favorites')||[];
     if(favs.includes(exId)){
@@ -1131,8 +1235,10 @@ const App = {
     const start=this.state.activeWorkout?.startTime?new Date(this.state.activeWorkout.startTime):new Date();
     this.state.workoutTimer=setInterval(()=>{
       this.state.workoutElapsed=Math.floor((new Date()-start)/1000);
-      const el=document.getElementById('wkElapsed');
-      if(el)el.textContent=fmtElapsed(this.state.workoutElapsed);
+      // Update elapsed display wherever it exists on screen
+      document.querySelectorAll('#wkElapsed,.wk-elapsed-badge').forEach(el=>{
+        el.textContent=fmtElapsed(this.state.workoutElapsed);
+      });
     },1000);
   },
 
@@ -1152,6 +1258,7 @@ const App = {
     hB.innerHTML=`
       <button class="btn btn-sm btn-d" onclick="App.cancelWorkout()">Cancel</button>
       <button class="btn btn-sm btn-s" onclick="App.saveAsTemplate()" style="padding:8px 10px" title="Save template">💾</button>
+      <button class="btn btn-sm btn-s" onclick="App.openLiveEdit()" style="padding:8px 10px" title="Edit workout">Edit</button>
       <button class="btn btn-sm btn-p" onclick="App.finishWorkout()">Finish</button>`;
 
     const exData=wk.exercises.map(e=>({...e,info:getExercise(e.exId)})).filter(e=>e.info);
@@ -1407,9 +1514,20 @@ const App = {
         if(stopBtn)stopBtn.style.display='none';
         if(skipBtn)skipBtn.style.display='none';
         if(navigator.vibrate)navigator.vibrate([100,50,100,50,200]);
+        this._sendRestNotification();
         setTimeout(()=>{if(disp)disp.textContent='—';if(ring)ring.style.strokeDashoffset=CIRC;},2000);
       }
     },1000);
+  },
+  _sendRestNotification(){
+    if(!('Notification' in window))return;
+    if(Notification.permission==='granted'){
+      try{new Notification('LiftLab — Rest Complete!',{body:'Time to hit your next set 💪',tag:'rest-timer'});}catch(e){}
+    } else if(Notification.permission!=='denied'){
+      Notification.requestPermission().then(perm=>{
+        if(perm==='granted')try{new Notification('LiftLab — Rest Complete!',{body:'Time to hit your next set 💪',tag:'rest-timer'});}catch(e){}
+      });
+    }
   },
   stopRestTimer(){
     clearInterval(this._restTimerInterval);
@@ -1467,6 +1585,113 @@ const App = {
     this.nav('home');
   },
 
+  openLiveEdit(){
+    const wk=this.state.activeWorkout;
+    if(!wk)return;
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    const exData=(wk.exercises||[]).map(e=>({...e,info:getExercise(e.exId)})).filter(e=>e.info);
+    overlay.innerHTML=`
+    <div class="sheet" style="max-height:90vh">
+      <div class="sh-bar"></div>
+      <div style="display:flex;align-items:center;padding:14px 20px 10px">
+        <div style="font-size:17px;font-weight:700;flex:1">Edit Workout</div>
+        <button onclick="this.closest('.overlay').remove()" class="btn-g">Done</button>
+      </div>
+      <div style="padding:0 16px 8px">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:10px">Drag to reorder · Tap ✕ to remove</div>
+        <div id="liveEditList">
+          ${exData.map((e,i)=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:6px;border:.5px solid var(--border)" data-live-idx="${i}">
+            <div class="drag-h" style="touch-action:none" ontouchstart="App._liveEditDragStart(event,${i})">
+              <svg viewBox="0 0 24 24"><path d="M9 5h2M9 12h2M9 19h2M13 5h2M13 12h2M13 19h2"/></svg>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;white-space:normal;line-height:1.3">${e.info.name}</div>
+              <div style="font-size:11px;color:var(--t3)">${e.info.muscle} · ${(e.sets||[]).length} sets</div>
+            </div>
+            <button onclick="App._liveRemoveExercise(${i})" style="background:var(--red-dim);border:none;color:var(--red);border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;font-family:inherit">✕</button>
+          </div>`).join('')}
+        </div>
+        <div style="margin-top:12px">
+          <div style="font-size:12px;font-weight:600;color:var(--t2);margin-bottom:8px">Add Exercise</div>
+          <div class="sb" style="margin:0 0 8px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" placeholder="Search to add..." style="flex:1;background:none;border:none;font-size:14px;outline:none;color:var(--t1)" oninput="document.getElementById('liveAddResults').innerHTML=App._liveSearchAdd(this.value)">
+          </div>
+          <div id="liveAddResults" style="max-height:200px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+  },
+  _liveRemoveExercise(idx){
+    const wk=this.state.activeWorkout;
+    if(!wk)return;
+    wk.exercises.splice(idx,1);
+    DB.set('activeWorkout',wk);
+    this.state.activeWorkout=wk;
+    document.querySelector('.overlay')?.remove();
+    this.openLiveEdit();
+    this.renderWorkoutLive(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
+  },
+  _liveSearchAdd(search){
+    if(!search?.trim())return'';
+    const wk=this.state.activeWorkout;
+    const inWk=new Set((wk?.exercises||[]).map(e=>e.exId));
+    let shown=allExercises().filter(e=>!inWk.has(e.id));
+    if(search)shown=shown.filter(e=>e.name.toLowerCase().includes(search.toLowerCase())||e.muscle.toLowerCase().includes(search.toLowerCase()));
+    return shown.slice(0,10).map(e=>`
+      <div class="ex-card" style="margin-bottom:6px" onclick="App._liveAddExercise(${e.id})">
+        <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22;width:34px;height:34px;border-radius:8px;font-size:15px"><span class="emo">${muscleEmoji(e.muscle)}</span></div>
+        <div class="ex-info"><div class="ex-name" style="font-size:13px">${e.name}</div><div class="ex-meta">${e.muscle}</div></div>
+      </div>`).join('');
+  },
+  _liveAddExercise(exId){
+    const wk=this.state.activeWorkout;
+    if(!wk)return;
+    wk.exercises.push({exId,sets:[{weight:'',reps:'',completed:false,note:''},{weight:'',reps:'',completed:false,note:''},{weight:'',reps:'',completed:false,note:''}]});
+    DB.set('activeWorkout',wk);
+    this.state.activeWorkout=wk;
+    document.querySelector('.overlay')?.remove();
+    this.openLiveEdit();
+    this.renderWorkoutLive(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
+    this.toast('Exercise added ✓');
+  },
+  _liveEditDragStart(e,srcIdx){
+    e.stopPropagation();
+    const touch=e.touches[0];
+    const card=e.currentTarget.closest('[data-live-idx]');
+    if(!card)return;
+    const rect=card.getBoundingClientRect();
+    let currentIdx=srcIdx;
+    const onMove=ev=>{
+      const t=ev.touches[0];
+      document.querySelectorAll('[data-live-idx]').forEach(el=>{
+        const r=el.getBoundingClientRect(),idx=parseInt(el.dataset.liveIdx);
+        el.style.opacity=t.clientY>=r.top&&t.clientY<=r.top+r.height&&idx!==srcIdx?'0.5':'1';
+        if(t.clientY>=r.top&&t.clientY<=r.top+r.height&&idx!==srcIdx)currentIdx=idx;
+      });
+    };
+    const onEnd=()=>{
+      document.querySelectorAll('[data-live-idx]').forEach(el=>el.style.opacity='');
+      document.removeEventListener('touchmove',onMove);
+      document.removeEventListener('touchend',onEnd);
+      if(currentIdx!==srcIdx){
+        const wk=this.state.activeWorkout;
+        const item=wk.exercises.splice(srcIdx,1)[0];
+        wk.exercises.splice(currentIdx,0,item);
+        DB.set('activeWorkout',wk);
+        this.state.activeWorkout=wk;
+        document.querySelector('.overlay')?.remove();
+        this.openLiveEdit();
+        this.renderWorkoutLive(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
+      }
+    };
+    document.addEventListener('touchmove',onMove,{passive:true});
+    document.addEventListener('touchend',onEnd);
+  },
+
   cancelWorkout(){
     if(!confirm('Cancel workout? Progress will be lost.'))return;
     DB.del('activeWorkout');
@@ -1480,12 +1705,13 @@ const App = {
   // ==================== EXERCISES BROWSER ====================
   renderExercises(m,hT,hB){
     hT.textContent='Exercises';
-    hB.innerHTML=`<button onclick="App.openAddCustomExercise()" class="icon-btn"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>`;
+    hB.innerHTML=`<button onclick="App.openImportExercises()" class="icon-btn" title="Import" style="margin-right:4px"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button><button onclick="App.openAddCustomExercise()" class="icon-btn" title="Add exercise"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>`;
     const all=allExercises();
     const filters=this.state.exFilters||{muscle:'',equipment:'',level:'',search:''};
     let shown=all;
     if(filters.search)shown=shown.filter(e=>e.name.toLowerCase().includes(filters.search.toLowerCase())||e.muscle.toLowerCase().includes(filters.search.toLowerCase()));
     if(filters.muscle)shown=shown.filter(e=>e.muscle===filters.muscle);
+    if(filters.target)shown=shown.filter(e=>e.target===filters.target);
     if(filters.equipment)shown=shown.filter(e=>e.equipment===filters.equipment);
     if(filters.level)shown=shown.filter(e=>e.level===filters.level);
     const favs=DB.get('favorites')||[];
@@ -1513,6 +1739,12 @@ const App = {
       <div class="fc">
         ${Object.keys(MUSCLE_META).map(mu=>`<div class="fc-chip ${filters.muscle===mu?'on':''}" onclick="App._exFilter('muscle','${mu}')">${MUSCLE_META[mu].emoji} ${mu}</div>`).join('')}
       </div>
+      <!-- Filters: Target area (sub-muscle) — shown when a muscle is selected -->
+      ${filters.muscle?(()=>{
+        const targets=[...new Set(allExercises().filter(e=>e.muscle===filters.muscle).map(e=>e.target).filter(Boolean))];
+        return targets.length>1?`<div class="fsec"><div class="fsec-lbl">Target Area</div><div class="fsec-line"></div>${filters.target?`<button class="btn-g" style="padding:2px 8px;font-size:11px" onclick="App._exFilter('target','')">✕ ${filters.target}</button>`:''}</div>
+        <div class="fc">${targets.map(t=>`<div class="fc-chip ${filters.target===t?'on':''}" onclick="App._exFilter('target','${t}')">${t}</div>`).join('')}</div>`:'';
+      })():''}
       <!-- Filters: Equipment -->
       <div class="fsec"><div class="fsec-lbl">Equipment</div><div class="fsec-line"></div>${filters.equipment?`<button class="btn-g" style="padding:2px 8px;font-size:11px" onclick="App._exFilter('equipment','')">✕ ${filters.equipment}</button>`:''}</div>
       <div class="fc">
@@ -1529,11 +1761,11 @@ const App = {
         <div class="fc-chip ${filters.favOnly?'on':''}" onclick="App._exFilter('favOnly',!${!!filters.favOnly})">⭐ Favorites Only</div>
         <div class="fc-chip ${filters.newOnly?'on':''}" onclick="App._exFilter('newOnly',!${!!filters.newOnly})">✨ Never Tried</div>
       </div>
-      <!-- Exercise list -->
-      <div style="padding:0 16px">
-        <div style="font-size:12px;color:var(--t3);margin-bottom:8px">${shown.length} exercises ${usageCounts?'· sorted by least used':''}</div>
+      <!-- Exercise list (separate div so search doesn't destroy input focus) -->
+      <div id="exList" style="padding:0 16px">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:8px">${shown.length} exercises</div>
         ${shown.map(e=>{
-          const {count,lastDate}=exUsage(e.id);
+          const {count}=exUsage(e.id);
           const pb=getPersonalBest(e.id);
           return`
           <div class="ex-card" onclick="App.showExerciseDetail(${e.id})">
@@ -1554,15 +1786,53 @@ const App = {
     </div>`;
   },
 
-  _exSearch(v){this.state.exFilters={...this.state.exFilters||{},search:v};this._reEx();},
+  _exSearch(v){
+    this.state.exFilters={...this.state.exFilters||{},search:v};
+    // Only re-render the list, not the search input, to preserve focus on iPhone
+    this._reExList();
+  },
   _exFilter(type,val){
     const f=this.state.exFilters||{};
     // boolean toggles
     if(type==='favOnly'||type==='newOnly'){this.state.exFilters={...f,[type]:val===true||val==='true'?true:false};}
     else {this.state.exFilters={...f,[type]:f[type]===val?'':val};}
-    this._reEx();
+    this._reExList();
   },
   _exClearFilters(){this.state.exFilters={muscle:'',equipment:'',level:'',search:'',favOnly:false,newOnly:false};this._reEx();},
+  _reExList(){
+    // Re-render only the exercise list without touching search input
+    const filters=this.state.exFilters||{};
+    const all=allExercises();
+    let shown=all;
+    if(filters.search)shown=shown.filter(e=>e.name.toLowerCase().includes(filters.search.toLowerCase())||e.muscle.toLowerCase().includes(filters.search.toLowerCase()));
+    if(filters.muscle)shown=shown.filter(e=>e.muscle===filters.muscle);
+    if(filters.target)shown=shown.filter(e=>e.target===filters.target);
+    if(filters.equipment)shown=shown.filter(e=>e.equipment===filters.equipment);
+    if(filters.level)shown=shown.filter(e=>e.level===filters.level);
+    const favs=DB.get('favorites')||[];
+    if(filters.favOnly)shown=shown.filter(e=>favs.includes(e.id));
+    const usedIds=new Set((DB.get('workoutHistory')||[]).filter(w=>w.profileId===this.state.profileId).flatMap(w=>(w.exercises||[]).map(ex=>ex.exId)));
+    if(filters.newOnly)shown=shown.filter(e=>!usedIds.has(e.id));
+    const history=(DB.get('workoutHistory')||[]).filter(w=>w.profileId===this.state.profileId);
+    const usageCounts={};
+    for(const w of history)for(const e of(w.exercises||[]))usageCounts[e.exId]=(usageCounts[e.exId]||0)+1;
+    shown=[...shown].sort((a,b)=>(usageCounts[a.id]||0)-(usageCounts[b.id]||0));
+    const el=document.getElementById('exList');
+    if(!el){this._reEx();return;}
+    el.innerHTML=`<div style="font-size:12px;color:var(--t3);margin-bottom:8px">${shown.length} exercises</div>`+shown.map(e=>{
+      const pb=getPersonalBest(e.id);
+      const cnt=(usageCounts[e.id]||0);
+      return`<div class="ex-card" onclick="App.showExerciseDetail(${e.id})">
+        <div class="ex-ico" style="background:${(MUSCLE_META[e.muscle]?.color||'#7c6dff')}22"><span class="emo">${muscleEmoji(e.muscle)}</span></div>
+        <div class="ex-info">
+          <div class="ex-name">${e.name}${favs.includes(e.id)?' ⭐':''}</div>
+          <div class="ex-meta">${e.muscle} · ${e.target||'Total'} · ${e.equipment||'Bodyweight'}</div>
+          ${pb?`<div style="font-size:10px;color:var(--green);margin-top:2px">🏆 PB: ${pb.weight}lbs × ${pb.reps}</div>`:''}
+        </div>
+        <div style="text-align:right;flex-shrink:0">${levelPill(e.level)}<div class="ex-freq" style="margin-top:3px">${cnt?cnt+'x':'New'}</div></div>
+      </div>`;
+    }).join('')+(!shown.length?`<div class="empty"><span class="empty-ico">🔍</span><div class="empty-t">No results</div><div class="empty-s">Try a different search or filter</div></div>`:'');
+  },
   _reEx(){this.renderExercises(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));},
 
   showExerciseDetail(exId){
@@ -1615,68 +1885,132 @@ const App = {
           </div>`).join('')}
         </div>`:`<div style="font-size:13px;color:var(--t3)">No workout history yet</div>`}
         <div style="height:14px"></div>
-        <button class="btn btn-p btn-full" onclick="App.addExerciseToBuild(${ex.id});this.closest('.overlay').remove()">Add to Workout</button>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button class="btn btn-p" style="flex:1" onclick="App.addExerciseToBuild(${ex.id});this.closest('.overlay').remove()">Add to Workout</button>
+          ${ex.custom?`<button class="btn btn-s" onclick="App.openAddCustomExercise(${ex.id});this.closest('.overlay').remove()">Edit</button>`:''}
+        </div>
         <div style="height:8px"></div>
       </div>
     </div>`;
     document.body.appendChild(overlay);
   },
 
-  openAddCustomExercise(){
+  openAddCustomExercise(editId){
+    const editing=editId?allExercises().find(e=>e.id===editId):null;
     const overlay=document.createElement('div');
     overlay.className='overlay';
     overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
     overlay.innerHTML=`
     <div class="sheet">
       <div class="sh-bar"></div>
-      <div class="sh-title">Add Custom Exercise</div>
+      <div class="sh-title">${editing?'Edit Exercise':'Add Exercise'}</div>
       <div class="sh-body">
-        <div class="fgrp"><label class="f-lbl">Name</label><input type="text" id="cxName" placeholder="Exercise name"></div>
+        <div class="fgrp"><label class="f-lbl">Name</label><input type="text" id="cxName" value="${editing?.name||''}" placeholder="Exercise name"></div>
         <div class="fgrp"><label class="f-lbl">Muscle Group</label>
           <select id="cxMuscle">
-            ${Object.keys(MUSCLE_META).map(m=>`<option value="${m}">${m}</option>`).join('')}
+            ${Object.keys(MUSCLE_META).map(mu=>`<option value="${mu}" ${editing?.muscle===mu?'selected':''}>${mu}</option>`).join('')}
           </select>
         </div>
         <div class="fgrp"><label class="f-lbl">Equipment</label>
           <select id="cxEquip">
-            ${EQUIPMENT_LIST.map(e=>`<option value="${e}">${e}</option>`).join('')}
+            ${EQUIPMENT_LIST.map(e=>`<option value="${e}" ${editing?.equipment===e?'selected':''}>${e}</option>`).join('')}
           </select>
         </div>
-        <div class="fgrp"><label class="f-lbl">Level</label>
-          <select id="cxLevel"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
+        <div class="fgrp"><label class="f-lbl">Difficulty</label>
+          <select id="cxLevel">
+            ${['Beginner','Intermediate','Advanced'].map(l=>`<option ${editing?.level===l?'selected':''}>${l}</option>`).join('')}
+          </select>
         </div>
-        <div class="fgrp"><label class="f-lbl">Notes (optional)</label>
-          <textarea class="note-in" id="cxNotes" placeholder="Form cues, tips..."></textarea>
+        <div class="fgrp"><label class="f-lbl">Notes / form cues</label>
+          <textarea class="note-in" id="cxNotes" placeholder="Cues, tips...">${editing?.notes||''}</textarea>
         </div>
-        <button class="btn btn-p btn-full" onclick="App.saveCustomExercise(this.closest('.overlay'))">Add Exercise</button>
+        <button class="btn btn-p btn-full" onclick="App.saveCustomExercise(this.closest('.overlay'),${editId||'null'})">${editing?'Save Changes':'Add Exercise'}</button>
         <div style="height:8px"></div>
       </div>
     </div>`;
     document.body.appendChild(overlay);
   },
 
-  saveCustomExercise(overlay){
+  openImportExercises(){
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    overlay.innerHTML=`
+    <div class="sheet">
+      <div class="sh-bar"></div>
+      <div class="sh-title">Import Exercises</div>
+      <div class="sh-body" style="padding-bottom:24px">
+        <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px">
+          Paste a JSON array of exercises. Each item needs at minimum: <code style="background:var(--surface3);padding:1px 5px;border-radius:4px">name</code>, <code style="background:var(--surface3);padding:1px 5px;border-radius:4px">muscle</code>.
+        </div>
+        <div class="fgrp">
+          <label class="f-lbl">JSON</label>
+          <textarea class="note-in" id="importJson" rows="8" placeholder='[{"name":"Cable Fly","muscle":"Chest","equipment":"Cable","level":"Beginner"}]' style="font-family:monospace;font-size:12px"></textarea>
+        </div>
+        <button class="btn btn-p btn-full" onclick="App._doImportExercises(this.closest('.overlay'))">Import</button>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+  },
+
+  _doImportExercises(overlay){
+    const raw=document.getElementById('importJson')?.value?.trim();
+    try{
+      const arr=JSON.parse(raw);
+      if(!Array.isArray(arr))throw new Error('Not an array');
+      const customs=DB.get('customExercises')||[];
+      let added=0;
+      for(const item of arr){
+        if(!item.name||!item.muscle)continue;
+        customs.push({
+          id:Date.now()+added,name:item.name,origName:item.name,
+          muscle:item.muscle,target:item.target||'Total',secondary:item.secondary||'',
+          equipment:item.equipment||'Bodyweight',level:item.level||'Beginner',
+          pp:'',modality:'FW',joint:'M',ulc:'Upper',notes:item.notes||'',custom:true,
+        });
+        added++;
+      }
+      DB.set('customExercises',customs);
+      schedSync();
+      overlay.remove();
+      this.toast(`Imported ${added} exercise${added!==1?'s':''} ✓`);
+      this.render();
+    }catch(e){
+      this.toast('Invalid JSON — check format');
+    }
+  },
+
+  saveCustomExercise(overlay,editId){
     const name=document.getElementById('cxName')?.value?.trim();
     if(!name){this.toast('Enter a name');return;}
-    const ex={
-      id:Date.now(),
-      name,
-      origName:name,
-      muscle:document.getElementById('cxMuscle')?.value||'Chest',
-      target:'Total',
-      secondary:'',
-      equipment:document.getElementById('cxEquip')?.value||'Bodyweight',
-      level:document.getElementById('cxLevel')?.value||'Beginner',
-      pp:'',modality:'FW',joint:'M',ulc:'Upper',
-      notes:document.getElementById('cxNotes')?.value||'',
-      custom:true,
-    };
     const customs=DB.get('customExercises')||[];
-    customs.push(ex);
+    if(editId){
+      // Edit existing custom exercise
+      const idx=customs.findIndex(e=>e.id===editId);
+      if(idx>=0){
+        customs[idx]={...customs[idx],name,
+          muscle:document.getElementById('cxMuscle')?.value||customs[idx].muscle,
+          equipment:document.getElementById('cxEquip')?.value||customs[idx].equipment,
+          level:document.getElementById('cxLevel')?.value||customs[idx].level,
+          notes:document.getElementById('cxNotes')?.value||'',
+        };
+      }
+    } else {
+      // Also allow editing any exercise that's been overridden
+      customs.push({
+        id:Date.now(),name,origName:name,
+        muscle:document.getElementById('cxMuscle')?.value||'Chest',
+        target:'Total',secondary:'',
+        equipment:document.getElementById('cxEquip')?.value||'Bodyweight',
+        level:document.getElementById('cxLevel')?.value||'Beginner',
+        pp:'',modality:'FW',joint:'M',ulc:'Upper',
+        notes:document.getElementById('cxNotes')?.value||'',custom:true,
+      });
+    }
     DB.set('customExercises',customs);
     schedSync();
     overlay.remove();
-    this.toast('Exercise added! ✓');
+    this.toast(editId?'Exercise updated ✓':'Exercise added ✓');
     this.render();
   },
 
@@ -1917,9 +2251,10 @@ const App = {
       <div class="section-lbl" style="padding-top:4px">Profiles</div>
       <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin-bottom:4px;padding-bottom:4px">
         ${profiles.map(p=>`
-          <div onclick="App.switchProfile('${p.id}')" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:10px;border-radius:12px;background:${p.id===this.state.profileId?'var(--accent-dim)':'none'};border:.5px solid ${p.id===this.state.profileId?'var(--accent)':'transparent'};min-width:70px;transition:all .2s">
+          <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px;border-radius:12px;background:${p.id===this.state.profileId?'var(--accent-dim)':'none'};border:.5px solid ${p.id===this.state.profileId?'var(--accent)':'transparent'};min-width:70px;transition:all .2s;position:relative;cursor:pointer" onclick="App.switchProfile('${p.id}')">
             <div class="avatar" style="background:${p.color}22;border:2px solid ${p.id===this.state.profileId?p.color:'transparent'};font-size:20px;width:52px;height:52px">${p.emoji}</div>
             <span style="font-size:11px;font-weight:600;color:${p.id===this.state.profileId?'var(--accent2)':'var(--t2)'}">${p.name}</span>
+            ${profiles.length>1?`<button onclick="event.stopPropagation();App.deleteProfile('${p.id}')" style="position:absolute;top:2px;right:2px;background:var(--red-dim);border:none;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;color:var(--red);line-height:1;font-family:inherit">✕</button>`:''}
           </div>
         `).join('')}
         <div onclick="App.openAddProfile()" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:10px;border-radius:12px;background:var(--surface2);border:.5px solid var(--border);min-width:70px">
@@ -1993,17 +2328,64 @@ const App = {
         </div>
       </div>
 
+      <!-- Tools & Progress -->
+      <div class="section-lbl">Tools & Progress</div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="ri" onclick="App.nav('calendar')" style="cursor:pointer">
+          <div class="ri-ico" style="background:var(--accent-dim)">📅</div>
+          <div class="ri-c"><div class="ri-t">Training Calendar</div><div class="ri-s">6-month workout heatmap</div></div>
+          <div class="ri-r">›</div>
+        </div>
+        <div class="ri" onclick="App.nav('charts')" style="cursor:pointer">
+          <div class="ri-ico" style="background:var(--teal-dim)">📈</div>
+          <div class="ri-c"><div class="ri-t">Volume Charts</div><div class="ri-s">Progress graphs per exercise</div></div>
+          <div class="ri-r">›</div>
+        </div>
+        <div class="ri" onclick="App.nav('badges')" style="cursor:pointer">
+          <div class="ri-ico" style="background:var(--amber-dim)">🏅</div>
+          <div class="ri-c"><div class="ri-t">Milestones & Badges</div><div class="ri-s">18 achievements to unlock</div></div>
+          <div class="ri-r">›</div>
+        </div>
+        <div class="ri" onclick="App.nav('tools')" style="cursor:pointer">
+          <div class="ri-ico" style="background:var(--green-dim)">⚖️</div>
+          <div class="ri-c"><div class="ri-t">Tools</div><div class="ri-s">Plate calculator · Converter · Templates</div></div>
+          <div class="ri-r">›</div>
+        </div>
+        <div class="ri" onclick="App.nav('smart')" style="cursor:pointer">
+          <div class="ri-ico" style="background:var(--teal-dim)">🧠</div>
+          <div class="ri-c"><div class="ri-t">Smart Reps AI</div><div class="ri-s">Personalized weight & rep recommendations</div></div>
+          <div class="ri-r">›</div>
+        </div>
+      </div>
+
       <!-- Danger zone -->
       <div class="section-lbl">Danger Zone</div>
       <div class="card">
         <button class="btn btn-d btn-full btn-sm" onclick="App.clearProfileData()">Clear All Workout History</button>
       </div>
 
-      
       <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--t3)">LiftLab v${CURRENT_VERSION} · 274 exercises · GitHub-synced</div>
     </div>`;
   },
 
+  deleteProfile(id){
+    const profiles=DB.get('profiles')||[];
+    if(profiles.length<=1){this.toast('Cannot delete the only profile');return;}
+    const prof=profiles.find(p=>p.id===id);
+    if(!confirm(`Delete profile "${prof?.name}"? Their workout history will also be deleted.`))return;
+    const newProfiles=profiles.filter(p=>p.id!==id);
+    DB.set('profiles',newProfiles);
+    let history=DB.get('workoutHistory')||[];
+    history=history.filter(w=>w.profileId!==id);
+    DB.set('workoutHistory',history);
+    if(this.state.profileId===id){
+      this.state.profileId=newProfiles[0].id;
+      DB.set('activeProfileId',this.state.profileId);
+    }
+    schedSync();
+    this.toast('Profile deleted');
+    this.render();
+  },
   switchProfile(id){
     this.state.profileId=id;
     DB.set('activeProfileId',id);
@@ -2489,17 +2871,40 @@ const App = {
     </div></div>`;
     document.body.appendChild(overlay);
   },
-  _doSavePlan(overlay){
+  _doSavePlan(overlay,overwriteIdx){
     const build=DB.get('buildWorkout')||{};
     const name=document.getElementById('planName')?.value?.trim()||build.name||'My Plan';
     const emoji=document.getElementById('planEmoji')?.value||'💪';
+    const folder=(document.getElementById('planFolder')?.value||'').trim();
     const plan={
-      id:uuid(),name,emoji,
-      exercises:(build.exercises||[]).map(e=>({exId:e.exId,supersetWith:e.supersetWith||null,sets:Array.from({length:(e.sets||[{},{},{}]).length},()=>({weight:'',reps:'',completed:false,note:''}))})),
+      id:uuid(),name,emoji,folder:folder||null,
+      exercises:(build.exercises||[]).map(e=>({exId:e.exId,ssGroup:e.ssGroup||null,sets:Array.from({length:(e.sets||[{},{},{}]).length},()=>({weight:'',reps:'',completed:false,note:''}))})),
       muscles:[...new Set((build.exercises||[]).map(e=>{const ex=getExercise(e.exId);return ex?.muscle}).filter(Boolean))],
       savedAt:new Date().toISOString(),custom:true,
     };
     const plans=DB.get('savedPlans')||[];
+    // Check for duplicate name
+    const dupIdx=plans.findIndex(p=>p.name.toLowerCase()===name.toLowerCase());
+    if(dupIdx>=0&&overwriteIdx===undefined){
+      // Ask user to overwrite or save new
+      if(!confirm(`A plan named "${name}" already exists. Overwrite it?`)){
+        plan.name=name+' 2';
+      } else {
+        plans[dupIdx]={...plan,id:plans[dupIdx].id};
+        DB.set('savedPlans',plans);
+        schedSync();
+        overlay.remove();
+        this.toast('Plan updated ✓');
+        return;
+      }
+    } else if(overwriteIdx!==undefined&&overwriteIdx>=0){
+      plans[overwriteIdx]={...plan,id:plans[overwriteIdx].id};
+      DB.set('savedPlans',plans);
+      schedSync();
+      overlay.remove();
+      this.toast('Plan updated ✓');
+      return;
+    }
     plans.push(plan);
     DB.set('savedPlans',plans);
     schedSync();
@@ -2910,6 +3315,68 @@ const App = {
         <div class="hist-d">${fmtDate(d.date)}</div>
         <div class="hist-v">${d.maxW} lbs max · ${Math.round(d.totalVol)} vol · ${d.sets} sets</div>
       </div>`).join('')||'<div style="padding:12px;color:var(--t3);font-size:13px">No data</div>';
+  },
+
+  // ==================== SMART REPS AI ====================
+  renderSmartReps(m,hT,hB){
+    hT.textContent='Smart Reps AI';
+    hB.innerHTML='';
+    if(!this._aiMessages)this._aiMessages=[];
+    const prof=((DB.get('profiles')||[]).find(p=>p.id===this.state.profileId)||{});
+    const history=(DB.get('workoutHistory')||[]).filter(w=>w.profileId===this.state.profileId);
+    const pbs={};
+    for(const w of history)for(const e of(w.exercises||[]))for(const s of(e.sets||[])){
+      if(s.completed&&s.weight){const ex=getExercise(e.exId);if(ex){const v=s.weight*(s.reps||1);if(!pbs[ex.name]||v>pbs[ex.name].vol)pbs[ex.name]={weight:s.weight,reps:s.reps,vol:v};}}
+    }
+    const pbSummary=Object.entries(pbs).slice(0,15).map(([n,v])=>`${n}: ${v.weight}lbs x ${v.reps}`).join(', ');
+    this._aiContext=`You are a helpful gym coach inside LiftLab. The user is ${prof.name||'a lifter'} who has completed ${history.length} workouts. Their personal bests: ${pbSummary||'no history yet'}. Give specific, actionable advice about weights, reps, and form. Keep responses to 2-4 sentences. Reference their actual history when recommending weights.`;
+    m.innerHTML=`
+    <div style="display:flex;flex-direction:column;height:calc(100vh - var(--hdr-h) - var(--safe-t) - var(--nav-h) - env(safe-area-inset-bottom,0px))">
+      <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 16px" id="aiChat">
+        ${this._aiMessages.length===0?`
+        <div style="text-align:center;padding:32px 16px">
+          <div style="font-size:44px;margin-bottom:12px">🧠</div>
+          <div style="font-size:17px;font-weight:700;margin-bottom:8px">Smart Reps</div>
+          <div style="font-size:13px;color:var(--t3);line-height:1.6;margin-bottom:20px">Ask anything about your workout — weights, reps, form, or what to do next. Recommendations are based on your actual lift history.</div>
+          <div style="display:flex;flex-direction:column;gap:8px;text-align:left">
+            ${['What weight should I use for bench press today?','How many reps should I do for muscle growth?','What back exercises should I do?','Am I progressing well on my lifts?'].map(q=>`
+              <button onclick="App._aiSend('${q}')" style="background:var(--surface2);border:.5px solid var(--border2);border-radius:12px;padding:11px 14px;text-align:left;font-size:13px;color:var(--t1);cursor:pointer;font-family:inherit;transition:background .15s">${q}</button>
+            `).join('')}
+          </div>
+        </div>`
+        :this._aiMessages.map(msg=>`<div class="ai-msg ${msg.role==='user'?'user':'ai'}${msg.thinking?' thinking':''}">${msg.content}</div>`).join('')}
+      </div>
+      <div style="flex-shrink:0;padding:8px 16px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));border-top:.5px solid var(--border);display:flex;gap:8px;background:var(--glass-nav);backdrop-filter:blur(16px)">
+        <input type="text" id="aiInput" placeholder="Ask about weights, reps, form..." style="flex:1" onkeydown="if(event.key==='Enter'&&this.value.trim()){App._aiSend(this.value);}">
+        <button onclick="App._aiSend(document.getElementById('aiInput')?.value)" class="btn btn-p btn-sm">Send</button>
+      </div>
+    </div>`;
+    requestAnimationFrame(()=>{const el=document.getElementById('aiChat');if(el)el.scrollTop=el.scrollHeight;});
+  },
+  async _aiSend(msg){
+    if(!msg||!msg.trim())return;
+    const input=document.getElementById('aiInput');
+    if(input){input.value='';input.blur();}
+    if(!this._aiMessages)this._aiMessages=[];
+    this._aiMessages.push({role:'user',content:msg.trim()});
+    this._aiMessages.push({role:'assistant',content:'Thinking...', thinking:true});
+    this.renderSmartReps(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
+    try{
+      const msgs=this._aiMessages.filter(m=>!m.thinking).map(m=>({role:m.role,content:m.content}));
+      const res=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,system:this._aiContext,messages:msgs})
+      });
+      const data=await res.json();
+      const reply=data.content?.[0]?.text||'Sorry, could not get a response.';
+      this._aiMessages.pop();
+      this._aiMessages.push({role:'assistant',content:reply});
+    }catch(e){
+      this._aiMessages.pop();
+      this._aiMessages.push({role:'assistant',content:'Could not connect to AI. Check your internet connection and try again.'});
+    }
+    this.renderSmartReps(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
   },
 
   // ==================== TOUCH DRAG TO REORDER + SWIPE TO DELETE ====================
