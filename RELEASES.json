@@ -1,5 +1,15 @@
 [
   {
+  "version": "1.4.4",
+  "date": "2026-05-14",
+  "notes": [
+    "Fixed: Smart Reps AI now connects successfully — missing required Anthropic API headers were added",
+    "Fixed: Home screen saved plans replaced with a clean summary line and 'View All' link instead of an expanding folder grid",
+    "Fixed: White horizontal line near Quick Start buttons and workout-in-progress banner resolved",
+    "Fixed: Gap/indent between first two exercises in Build view caused by mismatched superset wrapper divs"
+    ]
+  },
+  {
   "version": "1.4.3",
   "date": "2026-05-14",
   "notes": [
