@@ -260,7 +260,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.4.3';
+const CURRENT_VERSION = '1.4.4';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -496,7 +496,7 @@ const App = {
       if(!existing){
         const banner=document.createElement('div');
         banner.id='wkLiveBanner';
-        banner.style.cssText='position:fixed;top:calc(var(--hdr-h) + var(--safe-t));left:0;right:0;z-index:99;background:var(--accent);padding:5px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;';
+        banner.style.cssText='position:fixed;top:calc(var(--hdr-h) + var(--safe-t));left:0;right:0;z-index:99;background:var(--accent);padding:5px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-bottom:.5px solid rgba(255,255,255,.15);';
         banner.innerHTML='<span style="font-size:12px;font-weight:600;color:#fff">Workout in progress</span><span class="wk-elapsed-badge" style="font-size:12px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums">'+fmtElapsed(this.state.workoutElapsed)+'</span>';
         banner.onclick=()=>App.nav('workout_live');
         document.body.appendChild(banner);
@@ -545,7 +545,7 @@ const App = {
     // Sync dot
     const syncConnected=!!GH.creds();
     hB.innerHTML=`
-      <div onclick="App.openSyncSheet()" style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--surface2);border-radius:100px;border:.5px solid var(--border);cursor:pointer">
+      <div onclick="App.openSyncSheet()" style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--surface2);border-radius:100px;border:.5px solid var(--border2);cursor:pointer">
         <span class="sync-dot ${syncConnected?'ok':''}" id="syncDot"></span>
         <span style="font-size:12px;color:var(--t2)">Sync</span>
       </div>`;
@@ -594,8 +594,8 @@ const App = {
 
       <!-- Quick Start -->
       <div class="section-lbl">Quick Start</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <button class="btn btn-p btn-full" onclick="App.openBodyMapPicker()" style="height:56px;border-radius:14px;flex-direction:column;gap:2px;font-size:13px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:2px">
+        <button class="btn btn-p btn-full" onclick="App.openBodyMapPicker()" style="height:56px;border-radius:14px;flex-direction:column;gap:2px;font-size:13px;border:none">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v8M9 10l3-3 3 3M9 21h6M12 15l-3 6M12 15l3 6"/></svg>
           Body Map
         </button>
@@ -619,23 +619,12 @@ const App = {
       ${(()=>{
         const saved=DB.get('savedPlans')||[];
         if(!saved.length)return'';
-        const folders=[...new Set(saved.map(p=>p.folder||''))];
-        return folders.map(folder=>{
-          const folderPlans=saved.filter(p=>(p.folder||'')===(folder||''));
-          const label=folder?'📁 '+folder:'My Plans';
-          const cards=folderPlans.map((plan)=>{
-            const pi=saved.indexOf(plan);
-            return '<div style="flex-shrink:0;width:150px;background:var(--surface);border:.5px solid var(--accent-dim);border-radius:14px;padding:14px;cursor:pointer;position:relative" onclick="App.loadSavedPlan('+pi+')">'
-              +'<div style="font-size:22px;margin-bottom:6px"><span class="emo">'+(plan.emoji||'💪')+'</span></div>'
-              +'<div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:3px">'+plan.name+'</div>'
-              +(plan.folder?'<div style="font-size:10px;color:var(--accent2);margin-bottom:3px">📁 '+plan.folder+'</div>':'')
-              +'<div style="font-size:11px;color:var(--t3)">'+(plan.exercises||[]).length+' exercises</div>'
-              +'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">'+(plan.muscles||[]).slice(0,2).map(mu=>'<span class="pill p-a" style="font-size:9px">'+mu+'</span>').join('')+'</div>'
-              +'<button onclick="event.stopPropagation();App.deleteSavedPlan('+pi+')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--t3);font-size:14px;cursor:pointer;padding:2px">✕</button>'
-              +'</div>';
-          }).join('');
-          return '<div class="section-lbl">'+label+'</div><div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px">'+cards+'</div>';
-        }).join('');
+        const count=saved.length;
+        const folders=[...new Set(saved.map(p=>p.folder||'').filter(Boolean))];
+        return`<div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:6px">
+          <div style="font-size:13px;font-weight:700;color:var(--t1)">My Plans <span style="font-size:12px;font-weight:400;color:var(--t3)">${count} saved${folders.length?' · '+folders.length+' folder'+(folders.length!==1?'s':''):''}</span></div>
+          <button onclick="App.nav('plans')" style="background:none;border:none;color:var(--accent2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:4px 0">View All →</button>
+        </div>`;
       })()}
 
       <!-- Suggested workouts -->
@@ -993,8 +982,15 @@ const App = {
     const favs=DB.get('favorites')||[];
     const isFav=favs.includes(ex.id);
     // Superset wrapping: top card opens the group div, end card closes it
-    const ssWrapOpen=isSuperTop?`<div class="ss-group-wrap" id="ssgrp-${i}"><div class="ss-group-label">SS</div><div style="margin-left:4px">`:'<div>';
-    const ssWrapClose=(isSuperEnd||(!isSuper))?'</div></div>':'</div>';
+    // ssWrapOpen: superset top opens group wrapper (2 divs); others open just 1
+    const ssWrapOpen=isSuperTop
+      ?`<div class="ss-group-wrap" id="ssgrp-${i}"><div class="ss-group-label">SS</div><div style="margin-left:4px">`
+      :'';
+    // ssWrapClose: superset end closes both group divs; non-superset closes nothing extra
+    const ssWrapClose=isSuperTop&&isSuperEnd?'</div></div>'  // single-item SS (shouldn't happen)
+      :isSuperEnd?'</div></div>'                              // end of multi-item SS group
+      :isSuperTop?''                                          // top opened, not closed here
+      :'';                                                    // mid or non-superset: nothing
     const card=`
     ${ssWrapOpen}
     <div class="swipeable" id="bex-wrap-${i}" data-drag-idx="${i}">
@@ -3695,7 +3691,11 @@ const App = {
       const msgs=this._aiMessages.filter(m=>!m.thinking).map(m=>({role:m.role,content:m.content}));
       const res=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:{
+          'Content-Type':'application/json',
+          'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'
+        },
         body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,system:this._aiContext,messages:msgs})
       });
       const data=await res.json();
