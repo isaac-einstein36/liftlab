@@ -1,5 +1,17 @@
 [
   {
+  "version": "1.4.3",
+  "date": "2026-05-14",
+  "notes": [
+    "Fixed: Numbers and text now align correctly on iPhone — emoji fonts moved to end of font stack so system fonts handle text metrics",
+    "Fixed: Edit button on profile chips no longer covers the profile name — moved to top-left corner",
+    "Fixed: Training goal now saves correctly per-profile (was saving as 'undefined' due to template interpolation timing)",
+    "New: Search bar in the muscle group exercise picker — filter by name without leaving the sheet",
+    "Improved: Muscle group emoji icons are larger (26px) and properly spaced in Build and Home views",
+    "Fixed: Workout history detail sheet is now bounded to 82% screen height with internal scrolling and a close button"
+    ]
+  },
+  {
   "version": "1.4.2",
   "date": "2026-05-14",
   "notes": [
