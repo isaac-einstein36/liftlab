@@ -260,7 +260,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.4.4';
+const CURRENT_VERSION = '1.4.5';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -972,13 +972,16 @@ const App = {
     if(!ex)return'';
     const rec=recommendWeight(ex.id);
     const isSuper=!!(e.ssGroup||e.supersetWith);
+    const grp=e.ssGroup||e.supersetWith||null;
     const nextEx=all[i+1];
     const prevEx=all[i-1];
-    // Is this the top of a superset group (nothing above in same group)
-    const isSuperTop=isSuper&&(!prevEx||(prevEx.ssGroup||null)!==(e.ssGroup||null));
+    // Only compute group position when actually in a superset
+    const prevInSameGroup=isSuper&&grp&&prevEx&&(prevEx.ssGroup||prevEx.supersetWith||null)===grp;
+    const nextInSameGroup=isSuper&&grp&&nextEx&&(nextEx.ssGroup||nextEx.supersetWith||null)===grp;
+    const isSuperTop=isSuper&&!prevInSameGroup;   // first in group (or only member)
+    const isSuperEnd=isSuper&&!nextInSameGroup;    // last in group (or only member)
     const isSuperBot=isSuper&&!isSuperTop;
-    const isSuperMid=isSuper&&!isSuperTop&&!!(nextEx&&(nextEx.ssGroup||null)===(e.ssGroup||null));
-    const isSuperEnd=isSuper&&isSuperBot&&!(nextEx&&(nextEx.ssGroup||null)===(e.ssGroup||null));
+    const isSuperMid=isSuper&&!isSuperTop&&nextInSameGroup;
     const favs=DB.get('favorites')||[];
     const isFav=favs.includes(ex.id);
     // Superset wrapping: top card opens the group div, end card closes it
@@ -1016,13 +1019,13 @@ const App = {
           <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
             <span style="font-size:12px;color:var(--t3);flex-shrink:0">Sets:</span>
             ${[2,3,4,5].map(n=>`<button onclick="App.setSets(${i},${n})" class="chip ${(e.sets||[]).length===n?'on':''}" style="padding:4px 10px;font-size:12px">${n}</button>`).join('')}
-            ${nextEx&&!(nextEx.ssGroup&&nextEx.ssGroup===e.ssGroup)?`<button onclick="App.addToSuperset(${i})" style="margin-left:auto;font-size:10px;font-weight:700;color:var(--amber);background:var(--amber-dim);border:.5px solid rgba(251,191,36,.3);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:inherit">${isSuper?'+ Add next to SS':'+ Superset ↓'}</button>`:isSuper&&nextEx?`<button onclick="App.addToSuperset(${i})" style="margin-left:auto;font-size:10px;font-weight:700;color:var(--amber);background:var(--amber-dim);border:.5px solid rgba(251,191,36,.3);border-radius:6px;padding:3px 9px;cursor:pointer;font-family:inherit">+ Add next to SS</button>`:''}
+            ${nextEx&&!nextInSameGroup?`<button onclick="App.addToSuperset(${i})" style="margin-left:auto;font-size:10px;font-weight:700;color:var(--amber);background:var(--amber-dim);border:.5px solid rgba(251,191,36,.3);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:inherit">${isSuper?'+ Add next to SS':'+ Superset ↓'}</button>`:''}
             ${isSuper?`<button onclick="App.toggleSuperset(${i})" style="font-size:10px;font-weight:700;color:var(--t3);background:var(--surface3);border:none;border-radius:6px;padding:3px 9px;cursor:pointer;font-family:inherit;margin-left:4px">✕ Remove SS</button>`:''}
           </div>
         </div>
       </div>
     </div>
-    ${isSuper&&nextEx&&(nextEx.ssGroup||null)===(e.ssGroup||null)?`<div style="display:flex;align-items:center;gap:6px;padding:3px 8px 3px 16px;background:rgba(251,191,36,.04)"><div style="width:2px;height:20px;background:var(--amber);border-radius:1px;margin-left:4px;flex-shrink:0"></div><span style="font-size:10px;font-weight:700;color:var(--amber)">↕ perform together</span></div>`:''}
+    ${nextInSameGroup?`<div style="display:flex;align-items:center;gap:6px;padding:3px 8px 3px 16px;background:rgba(251,191,36,.04)"><div style="width:2px;height:20px;background:var(--amber);border-radius:1px;margin-left:4px;flex-shrink:0"></div><span style="font-size:10px;font-weight:700;color:var(--amber)">↕ perform together</span></div>`:''}
     ${ssWrapClose}`;
     return card;
   },
@@ -1457,8 +1460,21 @@ const App = {
     const rec=recommendWeight(ex.id);
     const last=getLastPerformance(ex.id);
     const allDone=(e.sets||[]).length&&(e.sets||[]).every(s=>s.completed);
+    // Superset detection in live workout
+    const grp=e.ssGroup||e.supersetWith||null;
+    const exData=wk.exercises;
+    const prevLive=exData[ei-1];
+    const nextLive=exData[ei+1];
+    const isLiveSuper=!!grp;
+    const prevInGrp=isLiveSuper&&prevLive&&(prevLive.ssGroup||prevLive.supersetWith||null)===grp;
+    const nextInGrp=isLiveSuper&&nextLive&&(nextLive.ssGroup||nextLive.supersetWith||null)===grp;
+    const isLiveSuperTop=isLiveSuper&&!prevInGrp;
+    const isLiveSuperEnd=isLiveSuper&&!nextInGrp;
+    const borderColor=allDone?'var(--green-dim)':isLiveSuper?'rgba(251,191,36,.4)':'var(--border)';
+    const marginBot=isLiveSuper&&!isLiveSuperEnd?'4px':'12px';
     return`
-    <div class="card" style="margin-bottom:12px;${allDone?'border-color:var(--green-dim);':''}" id="liveex-${ei}">
+    ${isLiveSuperTop?`<div style="border-left:3px solid var(--amber);border-radius:0 14px 14px 0;background:linear-gradient(90deg,rgba(251,191,36,.05) 0%,transparent 40%);padding-left:0;margin-bottom:0">`:''}
+    <div class="card" style="margin-bottom:${marginBot};border-color:${borderColor};${isLiveSuper&&!isLiveSuperTop?'border-radius:0 14px 14px 0;':''}margin-left:${isLiveSuper?'4px':'0'}" id="liveex-${ei}">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <div style="width:36px;height:36px;border-radius:9px;background:${(MUSCLE_META[ex.muscle]?.color||'#7c6dff')}22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${muscleEmoji(ex.muscle)}</div>
         <div style="flex:1;min-width:0">
@@ -1494,7 +1510,10 @@ const App = {
       </div>
       ${this._getSetsForProfile(e,activePid).map((s,si)=>this.liveSetRow(ei,si,s,activePid)).join('')}
       <button onclick="App.addSet(${ei})" class="btn-g" style="width:100%;margin-top:8px;font-size:12px">+ Add Set</button>
-    </div>`;
+    </div>
+    ${isLiveSuperTop&&isLiveSuperEnd?'</div>':''}
+    ${isLiveSuperEnd&&!isLiveSuperTop?'</div>':''}
+    ${!isLiveSuper?'':''}`;
   },
 
   _getProfileGoal(profileId){
@@ -3696,15 +3715,19 @@ const App = {
           'anthropic-version':'2023-06-01',
           'anthropic-dangerous-direct-browser-access':'true'
         },
-        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,system:this._aiContext,messages:msgs})
+        body:JSON.stringify({model:'claude-opus-4-5',max_tokens:400,system:this._aiContext,messages:msgs})
       });
       const data=await res.json();
-      const reply=data.content?.[0]?.text||'Sorry, could not get a response.';
+      if(!res.ok||data.error){
+        const errMsg=data.error?.message||`API error ${res.status}`;
+        throw new Error(errMsg);
+      }
+      const reply=data.content?.[0]?.text||'No response text returned.';
       this._aiMessages.pop();
       this._aiMessages.push({role:'assistant',content:reply});
     }catch(e){
       this._aiMessages.pop();
-      this._aiMessages.push({role:'assistant',content:'Could not connect to AI. Check your internet connection and try again.'});
+      this._aiMessages.push({role:'assistant',content:'Could not connect: '+(e.message||'unknown error')+'. This feature requires an internet connection and calls the Claude API directly.'});
     }
     this.renderSmartReps(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
   },
