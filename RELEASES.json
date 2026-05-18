@@ -1,5 +1,14 @@
 [
   {
+  "version": "1.4.5",
+  "date": "2026-05-14",
+  "notes": [
+    "Fixed: Smart Reps AI now responds correctly — switched to stable model identifier and added proper API error inspection",
+    "Fixed: Superset amber lines now reliably show and hide when adding/removing exercises from groups — rewrote group position detection logic",
+    "Fixed: Supersets now visually display during a live workout — amber left border, grouped card styling, and reduced spacing between paired exercises"
+    ]
+  },
+  {
   "version": "1.4.4",
   "date": "2026-05-14",
   "notes": [
