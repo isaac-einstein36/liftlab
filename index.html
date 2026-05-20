@@ -260,7 +260,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.4.5';
+const CURRENT_VERSION = '1.4.6';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -2533,6 +2533,14 @@ const App = {
           </div>
           <div class="ri-r">›</div>
         </div>
+        <div class="ri" onclick="App._showApiKeySetup()">
+          <div class="ri-ico" style="background:var(--teal-dim)">🧠</div>
+          <div class="ri-c">
+            <div class="ri-t">Smart Reps API Key</div>
+            <div class="ri-s">${DB.get('anthropicKey')?'Connected ✓':'Not connected — tap to set up'}</div>
+          </div>
+          <div class="ri-r">›</div>
+        </div>
         <div class="ri" onclick="App.openVersionHistory()">
           <div class="ri-ico" style="background:var(--surface3)">📋</div>
           <div class="ri-c">
@@ -3660,6 +3668,53 @@ const App = {
   },
 
   // ==================== SMART REPS AI ====================
+  _showApiKeySetup(){
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    overlay.innerHTML=`
+    <div class="sheet">
+      <div class="sh-bar"></div>
+      <div style="display:flex;align-items:center;padding:14px 20px 10px">
+        <div style="font-size:17px;font-weight:700;flex:1">Connect Smart Reps AI</div>
+        <button onclick="this.closest('.overlay').remove()" style="background:var(--surface2);border:.5px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--t2);cursor:pointer">✕</button>
+      </div>
+      <div class="sh-body" style="padding-bottom:28px">
+        <div style="background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--t2);line-height:1.65">
+          <div style="font-weight:700;color:var(--t1);margin-bottom:6px">How it works</div>
+          Smart Reps AI calls Claude (Anthropic) directly using your own API key — stored only on your device, used only to call Anthropic.
+          <div style="margin-top:8px"><strong>Cost:</strong> ~$0.001–0.005 per question. A free Anthropic account includes $5 of credit.</div>
+        </div>
+        <div class="fgrp">
+          <label class="f-lbl">Step 1 — Get a free API key</label>
+          <a href="https://console.anthropic.com/account/keys" target="_blank" class="btn btn-s btn-full" style="text-decoration:none;display:flex">Open Anthropic Console →</a>
+          <div style="font-size:11px;color:var(--t3);margin-top:5px">Sign up → API Keys → Create Key. Copy the key starting with <code style="background:var(--surface3);padding:1px 4px;border-radius:3px">sk-ant-</code></div>
+        </div>
+        <div class="fgrp">
+          <label class="f-lbl">Step 2 — Paste your key</label>
+          <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off">
+        </div>
+        <button class="btn btn-p btn-full" onclick="App._saveApiKey(this.closest('.overlay'))">Save & Connect</button>
+        ${DB.get('anthropicKey')?'<button class="btn btn-d btn-full btn-sm" style="margin-top:8px" onclick="App._removeApiKey(this)">Remove Saved Key</button>':''}
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+  },
+  _removeApiKey(btn){
+    DB.del('anthropicKey');
+    btn.closest('.overlay')?.remove();
+    this.toast('API key removed');
+    this.renderSmartReps(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
+  },
+  _saveApiKey(overlay){
+    const key=document.getElementById('apiKeyInput')?.value?.trim();
+    if(!key||!key.startsWith('sk-ant-')){this.toast('Key should start with sk-ant-');return;}
+    DB.set('anthropicKey',key);
+    overlay.remove();
+    this.toast('API key saved ✓');
+    this.renderSmartReps(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
+  },
+
   renderSmartReps(m,hT,hB){
     hT.textContent='Smart Reps AI';
     hB.innerHTML='';
@@ -3679,10 +3734,10 @@ const App = {
         <div style="text-align:center;padding:32px 16px">
           <div style="font-size:44px;margin-bottom:12px">🧠</div>
           <div style="font-size:17px;font-weight:700;margin-bottom:8px">Smart Reps</div>
-          <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:8px">Ask anything about weights, reps, form, or progression — personalized to your history.</div>
-          <div style="background:var(--surface2);border:.5px solid var(--border);border-radius:10px;padding:10px 12px;text-align:left;margin-bottom:16px;font-size:12px;color:var(--t2);line-height:1.6">
-            <strong>How it works:</strong> This calls the Claude AI API directly. No Claude account needed — no free-tier limits or login. Your workout history is sent to generate a personalized response. Anthropic does not store your data beyond the request.
-          </div>
+          <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:12px">Ask anything about weights, reps, form, or progression — personalized to your lifting history.</div>
+          ${DB.get('anthropicKey')?
+            '<div style="background:var(--green-dim);border:.5px solid rgba(52,211,153,.3);border-radius:10px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px"><span>✅</span><div><div style="font-size:13px;font-weight:700;color:var(--green)">API key connected</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Ready · <button onclick=\"App._showApiKeySetup()\" style=\"background:none;border:none;color:var(--t3);font-size:11px;cursor:pointer;font-family:inherit;padding:0;text-decoration:underline\">Manage key</button></div></div></div>'
+          :'<div style=\"background:var(--amber-dim);border:.5px solid rgba(251,191,36,.3);border-radius:10px;padding:12px 14px;margin-bottom:16px\"><div style=\"font-size:13px;font-weight:700;color:var(--amber);margin-bottom:4px\">API key required</div><div style=\"font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:10px\">Takes 2 minutes. Free Anthropic account includes $5 credit (~1000+ questions).</div><button onclick=\"App._showApiKeySetup()\" class=\"btn btn-p btn-full btn-sm\">Set Up API Key →</button></div>'}
           <div style="display:flex;flex-direction:column;gap:8px;text-align:left">
             ${['What weight should I use for bench press today?','How many reps should I do for muscle growth?','What back exercises should I do?','Am I progressing well on my lifts?'].map(q=>`
               <button onclick="App._aiSend('${q}')" style="background:var(--surface2);border:.5px solid var(--border2);border-radius:12px;padding:11px 14px;text-align:left;font-size:13px;color:var(--t1);cursor:pointer;font-family:inherit;transition:background .15s">${q}</button>
@@ -3700,6 +3755,7 @@ const App = {
   },
   async _aiSend(msg){
     if(!msg||!msg.trim())return;
+    if(!DB.get('anthropicKey')){this._showApiKeySetup();return;}
     const input=document.getElementById('aiInput');
     if(input){input.value='';input.blur();}
     if(!this._aiMessages)this._aiMessages=[];
@@ -3713,7 +3769,8 @@ const App = {
         headers:{
           'Content-Type':'application/json',
           'anthropic-version':'2023-06-01',
-          'anthropic-dangerous-direct-browser-access':'true'
+          'anthropic-dangerous-direct-browser-access':'true',
+          'x-api-key':DB.get('anthropicKey')||''
         },
         body:JSON.stringify({model:'claude-opus-4-5',max_tokens:400,system:this._aiContext,messages:msgs})
       });
@@ -3722,6 +3779,7 @@ const App = {
         const errMsg=data.error?.message||`API error ${res.status}`;
         throw new Error(errMsg);
       }
+      if(!res.ok||data.error){throw new Error(data.error?.message||'HTTP '+res.status);}
       const reply=data.content?.[0]?.text||'No response text returned.';
       this._aiMessages.pop();
       this._aiMessages.push({role:'assistant',content:reply});
