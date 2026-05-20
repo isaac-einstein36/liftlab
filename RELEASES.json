@@ -1,4 +1,14 @@
 [
+ {
+  "version": "1.4.6",
+  "date": "2026-05-14",
+  "notes": [
+    "Fixed: Smart Reps AI now works — requires your own Anthropic API key (free, takes 2 minutes to set up)",
+    "New: API key setup wizard in Profile → Settings → Smart Reps API Key with step-by-step instructions",
+    "Smart Reps page shows connected/not-connected status and links directly to Anthropic Console to get a key",
+    "API key stored only on your device — never shared with anyone except Anthropic when you ask a question"
+  ]
+}, 
   {
   "version": "1.4.5",
   "date": "2026-05-14",
