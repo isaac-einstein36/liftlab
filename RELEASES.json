@@ -1,4 +1,14 @@
 [
+{
+  "version": "1.4.7",
+  "date": "2026-05-14",
+  "notes": [
+    "Removed Smart Reps AI chat feature — the in-workout inline recommendations (based on your history) remain",
+    "Custom exercises now support a sub-muscle target field (e.g. Quadriceps under Legs, Long Head under Biceps)",
+    "All exercises are now editable — built-in exercises save changes as local overrides, synced via GitHub",
+    "Live workout sets auto-fill: Set 1 shows last session's values as placeholders; Sets 2+ copy the previous set's weight and reps"
+    ]
+  }, 
  {
   "version": "1.4.6",
   "date": "2026-05-14",
