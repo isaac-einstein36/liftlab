@@ -1,4 +1,13 @@
 [
+  {
+  "version": "1.4.8",
+  "date": "2026-05-14",
+  "notes": [
+    "Fixed: Sets 2, 3, etc. now correctly auto-fill from the previous set's weight and reps during a workout",
+    "New: Editable muscle groups — Profile → Muscle Groups to add sub-muscle targets to any built-in group or create entirely new muscle groups",
+    "Muscle group customizations sync via GitHub and apply immediately to the exercise form and filters"
+    ]
+  },
 {
   "version": "1.4.7",
   "date": "2026-05-14",
