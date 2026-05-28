@@ -1,5 +1,13 @@
 [
   {
+  "version": "1.4.9",
+  "date": "2026-05-14",
+  "notes": [
+    "Fixed: Muscle Groups page '+ New Group' button now opens a form to create a fully custom group with any name, emoji, and sub-muscle targets",
+    "Fixed: Sets 2, 3, etc. now auto-fill from the previous set immediately when you check it complete — weight and reps copy into the next set's inputs in real time"
+  ]
+},
+  {
   "version": "1.4.8",
   "date": "2026-05-14",
   "notes": [
