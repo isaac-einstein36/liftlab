@@ -260,7 +260,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.4.9';
+const CURRENT_VERSION = '1.5.0';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -6083,6 +6083,7 @@ const App = {
     const liveMeta=getMuscleMetaLive();
     const meta=liveMeta[name];
     if(!meta)return;
+    const targetsText=meta.targets.join('\n');
     const overlay=document.createElement('div');
     overlay.className='overlay';
     overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
@@ -6095,7 +6096,7 @@ const App = {
     <div class="sh-body" style="padding-bottom:24px">
       <div class="fgrp"><label class="f-lbl">Emoji</label><input type="text" id="mgEmoji" value="${meta.emoji}" maxlength="2" style="font-size:22px;width:60px"></div>
       <div class="fgrp"><label class="f-lbl">Sub-muscle targets <span style="color:var(--t3);font-weight:400">(one per line — edits add to existing)</span></label>
-        <textarea class="note-in" id="mgTargets" rows="6">${meta.targets.join('\\n')}</textarea>
+        <textarea class="note-in" id="mgTargets" rows="6">${targetsText}</textarea>
       </div>
       <button class="btn btn-p btn-full" onclick="App._saveMuscleGroup('${name}',this.closest('.overlay'))">Save Changes</button>
     </div></div>`;
@@ -6107,7 +6108,7 @@ const App = {
     if(!name){this.toast('Enter a name');return;}
     const emoji=document.getElementById('mgEmoji')?.value?.trim()||'💪';
     const targetsRaw=document.getElementById('mgTargets')?.value||'';
-    const targets=targetsRaw.split('\n').map(t=>t.trim()).filter(Boolean);
+    const targets=targetsRaw.split(/\r?\n/).map(t=>t.trim()).filter(Boolean);
     const custom=DB.get('customMuscleGroups')||{};
     custom[name]={...(custom[name]||{}),emoji,targets};
     DB.set('customMuscleGroups',custom);
