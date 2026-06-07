@@ -1,4 +1,12 @@
 [
+ {
+  "version": "1.5.0",
+  "date": "2026-05-14",
+  "notes": [
+    "Fixed: Custom muscle group targets now store and display as separate lines — were previously concatenated with literal \\n characters",
+    "Fixed: Editing an existing muscle group's targets now shows each target on its own line in the textarea"
+  ]
+}, 
   {
   "version": "1.4.9",
   "date": "2026-05-14",
