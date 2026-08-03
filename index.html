@@ -260,7 +260,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.5.0';
+const CURRENT_VERSION = '1.5.1';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -735,9 +735,249 @@ const App = {
     }
   },
 
+  // ==================== BULK WORKOUT IMPORT ====================
+  openImportWorkouts(){
+    const existingFolders=[...new Set((DB.get('savedPlans')||[]).flatMap(p=>p.folders?.length?p.folders:[p.folder].filter(Boolean)))];
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    overlay.innerHTML=`
+    <div class="sheet" style="max-height:88vh;display:flex;flex-direction:column">
+      <div class="sh-bar"></div>
+      <div style="display:flex;align-items:center;padding:14px 20px 8px;flex-shrink:0">
+        <div style="font-size:17px;font-weight:700;flex:1">Import Workouts</div>
+        <button onclick="this.closest('.overlay').remove()" style="background:var(--surface2);border:.5px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--t2);cursor:pointer">✕</button>
+      </div>
+      <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:0 20px 24px">
+        <div class="seg" style="margin-bottom:14px">
+          <button class="seg-b on" id="impFmtCsv" onclick="App._setImportFormat('csv',this)">CSV</button>
+          <button class="seg-b" id="impFmtJson" onclick="App._setImportFormat('json',this)">JSON</button>
+        </div>
+
+        <div id="impCsvHelp">
+          <div style="font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:10px">
+            CSV columns: <code style="background:var(--surface3);padding:1px 5px;border-radius:4px">plan_name, exercise_name, sets, muscle</code> (muscle optional — helps matching). One row per exercise; group rows under the same plan_name.
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--t3);font-family:monospace;margin-bottom:14px;overflow-x:auto;white-space:pre">plan_name,exercise_name,sets,muscle
+Push Day,Barbell Bench Press,4,Chest
+Push Day,Overhead Press,3,Shoulders
+Leg Day,Back Squat,4,Legs</div>
+        </div>
+        <div id="impJsonHelp" style="display:none">
+          <div style="font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:10px">
+            JSON array of plans, each with a name and exercises (by name):
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--t3);font-family:monospace;margin-bottom:14px;overflow-x:auto;white-space:pre">[{"name":"Push Day","exercises":[
+  {"name":"Barbell Bench Press","sets":4},
+  {"name":"Overhead Press","sets":3}
+]}]</div>
+        </div>
+
+        <div class="fgrp">
+          <label class="f-lbl">Paste data, or choose a file</label>
+          <textarea class="note-in" id="impData" rows="6" placeholder="Paste CSV or JSON here..."></textarea>
+        </div>
+        <div class="fgrp">
+          <input type="file" id="impFile" accept=".csv,.json,text/csv,application/json" onchange="App._loadImportFile(this.files[0])">
+        </div>
+
+        <div class="fgrp">
+          <label class="f-lbl">Add to folder(s) <span style="color:var(--t3);font-weight:400">(applies to all imported plans)</span></label>
+          <div id="impFolderTagsWrap" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+            ${existingFolders.map(f=>`<div onclick="App._togglePlanTag('${f}',this)" data-tag="${f}" style="padding:5px 12px;border-radius:100px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--t2);font-size:13px;cursor:pointer">${f}</div>`).join('')}
+          </div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="impFolderNew" placeholder="New folder name..." style="flex:1">
+            <button onclick="App._addImportTag()" class="btn btn-s btn-sm">Add</button>
+          </div>
+        </div>
+
+        <div id="impPreview" style="margin-bottom:14px"></div>
+
+        <button class="btn btn-s btn-full" style="margin-bottom:8px" onclick="App._previewImport()">Preview</button>
+        <button class="btn btn-p btn-full" onclick="App._doImportWorkouts(this.closest('.overlay'))">Import All</button>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+    this._importFormat='csv';
+  },
+
+  _setImportFormat(fmt,btn){
+    this._importFormat=fmt;
+    document.querySelectorAll('#impFmtCsv,#impFmtJson').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById('impCsvHelp').style.display=fmt==='csv'?'block':'none';
+    document.getElementById('impJsonHelp').style.display=fmt==='json'?'block':'none';
+  },
+
+  _loadImportFile(file){
+    if(!file)return;
+    // Auto-detect format from extension
+    if(file.name.endsWith('.json')){
+      this._importFormat='json';
+      document.getElementById('impFmtJson')?.click();
+    } else {
+      this._importFormat='csv';
+      document.getElementById('impFmtCsv')?.click();
+    }
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const el=document.getElementById('impData');
+      if(el)el.value=e.target.result;
+    };
+    reader.readAsText(file);
+  },
+
+  _addImportTag(){
+    const input=document.getElementById('impFolderNew');
+    const val=input?.value?.trim();
+    if(!val)return;
+    const wrap=document.getElementById('impFolderTagsWrap');
+    if(!wrap||wrap.querySelector(`[data-tag="${val}"]`)){if(input)input.value='';return;}
+    const el=document.createElement('div');
+    el.setAttribute('data-tag',val);
+    el.setAttribute('data-on','1');
+    el.style.cssText='padding:5px 12px;border-radius:100px;border:1.5px solid var(--accent);background:var(--accent-dim);color:var(--accent2);font-size:13px;cursor:pointer';
+    el.textContent=val;
+    el.onclick=()=>App._togglePlanTag(val,el);
+    wrap.appendChild(el);
+    input.value='';
+  },
+
+  _getSelectedImportFolders(){
+    return [...document.querySelectorAll('#impFolderTagsWrap [data-tag]')]
+      .filter(el=>el.dataset.on==='1'||el.style.background.includes('accent-dim'))
+      .map(el=>el.dataset.tag);
+  },
+
+  _parseImportCsv(text){
+    const lines=text.trim().split(/\r?\n/).filter(l=>l.trim());
+    if(!lines.length)return[];
+    const headers=lines[0].split(',').map(h=>h.trim().toLowerCase());
+    const nameIdx=headers.indexOf('plan_name');
+    const exIdx=headers.indexOf('exercise_name');
+    const setsIdx=headers.indexOf('sets');
+    const muscleIdx=headers.indexOf('muscle');
+    if(nameIdx<0||exIdx<0){throw new Error('CSV must have plan_name and exercise_name columns');}
+    const plansMap={};
+    for(let i=1;i<lines.length;i++){
+      // Simple CSV split (does not handle quoted commas)
+      const cols=lines[i].split(',').map(c=>c.trim());
+      const planName=cols[nameIdx];
+      const exName=cols[exIdx];
+      if(!planName||!exName)continue;
+      const sets=setsIdx>=0?parseInt(cols[setsIdx])||3:3;
+      const muscleHint=muscleIdx>=0?cols[muscleIdx]:'';
+      if(!plansMap[planName])plansMap[planName]={name:planName,exercises:[]};
+      plansMap[planName].exercises.push({name:exName,sets,muscleHint});
+    }
+    return Object.values(plansMap);
+  },
+
+  _resolveExerciseByName(name,muscleHint){
+    const all=allExercises();
+    const nameLower=name.toLowerCase().trim();
+    // Exact match first
+    let match=all.find(e=>e.name.toLowerCase()===nameLower);
+    if(match)return match;
+    // Match with muscle hint to disambiguate
+    if(muscleHint){
+      match=all.find(e=>e.name.toLowerCase().includes(nameLower)&&e.muscle.toLowerCase()===muscleHint.toLowerCase());
+      if(match)return match;
+    }
+    // Partial/fuzzy match
+    match=all.find(e=>e.name.toLowerCase().includes(nameLower)||nameLower.includes(e.name.toLowerCase()));
+    return match||null;
+  },
+
+  _previewImport(){
+    const raw=document.getElementById('impData')?.value?.trim();
+    const el=document.getElementById('impPreview');
+    if(!el)return;
+    if(!raw){el.innerHTML='<div style="font-size:12px;color:var(--t3)">Paste or upload data first</div>';return;}
+    let plans=[];
+    try{
+      if(this._importFormat==='json'){
+        const parsed=JSON.parse(raw);
+        plans=(Array.isArray(parsed)?parsed:[parsed]).map(p=>({
+          name:p.name,
+          exercises:(p.exercises||[]).map(e=>({name:e.name,sets:e.sets||3,muscleHint:e.muscle||''}))
+        }));
+      } else {
+        plans=this._parseImportCsv(raw);
+      }
+    }catch(err){
+      el.innerHTML=`<div style="font-size:12px;color:var(--red)">Parse error: ${err.message}</div>`;
+      return;
+    }
+    let matched=0,unmatched=0;
+    const rows=plans.map(p=>{
+      const exRows=p.exercises.map(e=>{
+        const found=this._resolveExerciseByName(e.name,e.muscleHint);
+        if(found)matched++;else unmatched++;
+        return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0"><span style="color:${found?'var(--t2)':'var(--red)'}">${e.name}</span><span style="color:${found?'var(--green)':'var(--red)'}">${found?'✓ matched':'✕ not found'}</span></div>`;
+      }).join('');
+      return `<div style="margin-bottom:10px"><div style="font-size:13px;font-weight:700;margin-bottom:4px">${p.name} <span style="font-size:11px;color:var(--t3);font-weight:400">(${p.exercises.length} exercises)</span></div>${exRows}</div>`;
+    }).join('');
+    el.innerHTML=`<div class="card" style="padding:12px">
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px">${plans.length} plan${plans.length!==1?'s':''} · <span style="color:var(--green)">${matched} matched</span> · <span style="color:${unmatched?'var(--red)':'var(--t3)'}">${unmatched} not found</span></div>
+      ${rows}
+    </div>`;
+    this._importPreviewData=plans;
+  },
+
+  _doImportWorkouts(overlay){
+    const raw=document.getElementById('impData')?.value?.trim();
+    if(!raw){this.toast('Paste or upload data first');return;}
+    let plans=this._importPreviewData;
+    if(!plans){
+      try{
+        if(this._importFormat==='json'){
+          const parsed=JSON.parse(raw);
+          plans=(Array.isArray(parsed)?parsed:[parsed]).map(p=>({name:p.name,exercises:(p.exercises||[]).map(e=>({name:e.name,sets:e.sets||3,muscleHint:e.muscle||''}))}));
+        } else {
+          plans=this._parseImportCsv(raw);
+        }
+      }catch(err){this.toast('Parse error: '+err.message);return;}
+    }
+    const folders=this._getSelectedImportFolders();
+    const savedPlans=DB.get('savedPlans')||[];
+    let imported=0,skippedExercises=0;
+    for(const p of plans){
+      const resolvedExercises=[];
+      for(const e of p.exercises){
+        const found=this._resolveExerciseByName(e.name,e.muscleHint);
+        if(!found){skippedExercises++;continue;}
+        resolvedExercises.push({
+          exId:found.id,
+          sets:Array.from({length:e.sets||3},()=>({weight:'',reps:'',completed:false,note:''}))
+        });
+      }
+      if(!resolvedExercises.length)continue;
+      savedPlans.push({
+        id:uuid(),
+        name:p.name,
+        emoji:'📋',
+        exercises:resolvedExercises,
+        muscles:[...new Set(resolvedExercises.map(e=>{const ex=getExercise(e.exId);return ex?.muscle}).filter(Boolean))],
+        folders:folders.length?folders:[],
+        folder:folders[0]||null,
+        savedAt:new Date().toISOString(),
+        custom:true,
+        imported:true,
+      });
+      imported++;
+    }
+    DB.set('savedPlans',savedPlans);
+    schedSync();
+    overlay.remove();
+    this.toast(`Imported ${imported} plan${imported!==1?'s':''}${skippedExercises?` · ${skippedExercises} exercises skipped (no match)`:''} ✓`);
+    this.renderSavedPlans(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
+  },
+
   renderSavedPlans(m,hT,hB){
     hT.textContent='My Plans';
-    hB.innerHTML=`<button onclick="App.saveBuildAsTemplate()" class="btn btn-sm btn-p">+ Save Plan</button>`;
+    hB.innerHTML=`<button onclick="App.openImportWorkouts()" class="icon-btn" title="Import Workouts" style="margin-right:4px"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button><button onclick="App.saveBuildAsTemplate()" class="btn btn-sm btn-p">+ Save</button>`;
     const saved=DB.get('savedPlans')||[];
 
     if(!saved.length){
@@ -2688,7 +2928,24 @@ const App = {
           <div class="ri-ico" style="background:var(--surface3)">📤</div>
           <div class="ri-c">
             <div class="ri-t">Export Data</div>
-            <div class="ri-s">Download as JSON</div>
+            <div class="ri-s">Download full backup as JSON</div>
+          </div>
+          <div class="ri-r">›</div>
+        </div>
+        <div class="ri" onclick="document.getElementById('importBackupFile').click()" style="cursor:pointer">
+          <div class="ri-ico" style="background:var(--surface3)">📥</div>
+          <div class="ri-c">
+            <div class="ri-t">Import Backup</div>
+            <div class="ri-s">Restore from a JSON backup file</div>
+          </div>
+          <div class="ri-r">›</div>
+        </div>
+        <input type="file" id="importBackupFile" accept=".json,application/json" style="display:none" onchange="App._handleBackupFileSelect(this.files[0])">
+        <div class="ri" onclick="App.nav('plans');setTimeout(()=>App.openImportWorkouts(),100)" style="cursor:pointer">
+          <div class="ri-ico" style="background:var(--surface3)">📋</div>
+          <div class="ri-c">
+            <div class="ri-t">Import Workouts</div>
+            <div class="ri-s">Bulk import plans from CSV or JSON</div>
           </div>
           <div class="ri-r">›</div>
         </div>
@@ -2954,11 +3211,59 @@ const App = {
   },
 
   exportData(){
-    const data={profiles:DB.get('profiles')||[],workoutHistory:DB.get('workoutHistory')||[],customExercises:DB.get('customExercises')||[],exportedAt:new Date().toISOString()};
+    const data={
+      profiles:DB.get('profiles')||[],
+      workoutHistory:DB.get('workoutHistory')||[],
+      customExercises:DB.get('customExercises')||[],
+      exerciseOverrides:DB.get('exerciseOverrides')||{},
+      customMuscleGroups:DB.get('customMuscleGroups')||{},
+      savedPlans:DB.get('savedPlans')||[],
+      templates:DB.get('templates')||[],
+      favorites:DB.get('favorites')||[],
+      recAdjust:DB.get('recAdjust')||{},
+      settings:DB.get('settings')||{},
+      theme:DB.get('theme')||'auto',
+      activeProfileId:DB.get('activeProfileId')||null,
+      exportedAt:new Date().toISOString(),
+      exportVersion:CURRENT_VERSION,
+    };
     const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download='liftlab-data.json';a.click();
+    const a=document.createElement('a');a.href=url;a.download='liftlab-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();
     URL.revokeObjectURL(url);
+    this.toast('Full backup downloaded ✓');
+  },
+  _handleBackupFileSelect(file){
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=e=>{
+      if(!confirm('This will overwrite your current data with the backup. Continue?'))return;
+      this.importFullBackup(e.target.result);
+    };
+    reader.readAsText(file);
+  },
+  importFullBackup(fileOrJson){
+    try{
+      const data=typeof fileOrJson==='string'?JSON.parse(fileOrJson):fileOrJson;
+      if(data.profiles)DB.set('profiles',data.profiles);
+      if(data.workoutHistory)DB.set('workoutHistory',data.workoutHistory);
+      if(data.customExercises)DB.set('customExercises',data.customExercises);
+      if(data.exerciseOverrides)DB.set('exerciseOverrides',data.exerciseOverrides);
+      if(data.customMuscleGroups){DB.set('customMuscleGroups',data.customMuscleGroups);refreshMuscleMeta();}
+      if(data.savedPlans)DB.set('savedPlans',data.savedPlans);
+      if(data.templates)DB.set('templates',data.templates);
+      if(data.favorites)DB.set('favorites',data.favorites);
+      if(data.recAdjust)DB.set('recAdjust',data.recAdjust);
+      if(data.settings)DB.set('settings',data.settings);
+      if(data.theme)DB.set('theme',data.theme);
+      schedSync();
+      this.toast('Backup restored ✓');
+      this.render();
+      return true;
+    }catch(e){
+      this.toast('Invalid backup file');
+      return false;
+    }
   },
 
   // ==================== VERSION HISTORY ====================
@@ -4929,7 +5234,24 @@ const App = {
           <div class="ri-ico" style="background:var(--surface3)">📤</div>
           <div class="ri-c">
             <div class="ri-t">Export Data</div>
-            <div class="ri-s">Download as JSON</div>
+            <div class="ri-s">Download full backup as JSON</div>
+          </div>
+          <div class="ri-r">›</div>
+        </div>
+        <div class="ri" onclick="document.getElementById('importBackupFile').click()" style="cursor:pointer">
+          <div class="ri-ico" style="background:var(--surface3)">📥</div>
+          <div class="ri-c">
+            <div class="ri-t">Import Backup</div>
+            <div class="ri-s">Restore from a JSON backup file</div>
+          </div>
+          <div class="ri-r">›</div>
+        </div>
+        <input type="file" id="importBackupFile" accept=".json,application/json" style="display:none" onchange="App._handleBackupFileSelect(this.files[0])">
+        <div class="ri" onclick="App.nav('plans');setTimeout(()=>App.openImportWorkouts(),100)" style="cursor:pointer">
+          <div class="ri-ico" style="background:var(--surface3)">📋</div>
+          <div class="ri-c">
+            <div class="ri-t">Import Workouts</div>
+            <div class="ri-s">Bulk import plans from CSV or JSON</div>
           </div>
           <div class="ri-r">›</div>
         </div>
@@ -5195,11 +5517,59 @@ const App = {
   },
 
   exportData(){
-    const data={profiles:DB.get('profiles')||[],workoutHistory:DB.get('workoutHistory')||[],customExercises:DB.get('customExercises')||[],exportedAt:new Date().toISOString()};
+    const data={
+      profiles:DB.get('profiles')||[],
+      workoutHistory:DB.get('workoutHistory')||[],
+      customExercises:DB.get('customExercises')||[],
+      exerciseOverrides:DB.get('exerciseOverrides')||{},
+      customMuscleGroups:DB.get('customMuscleGroups')||{},
+      savedPlans:DB.get('savedPlans')||[],
+      templates:DB.get('templates')||[],
+      favorites:DB.get('favorites')||[],
+      recAdjust:DB.get('recAdjust')||{},
+      settings:DB.get('settings')||{},
+      theme:DB.get('theme')||'auto',
+      activeProfileId:DB.get('activeProfileId')||null,
+      exportedAt:new Date().toISOString(),
+      exportVersion:CURRENT_VERSION,
+    };
     const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download='liftlab-data.json';a.click();
+    const a=document.createElement('a');a.href=url;a.download='liftlab-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();
     URL.revokeObjectURL(url);
+    this.toast('Full backup downloaded ✓');
+  },
+  _handleBackupFileSelect(file){
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=e=>{
+      if(!confirm('This will overwrite your current data with the backup. Continue?'))return;
+      this.importFullBackup(e.target.result);
+    };
+    reader.readAsText(file);
+  },
+  importFullBackup(fileOrJson){
+    try{
+      const data=typeof fileOrJson==='string'?JSON.parse(fileOrJson):fileOrJson;
+      if(data.profiles)DB.set('profiles',data.profiles);
+      if(data.workoutHistory)DB.set('workoutHistory',data.workoutHistory);
+      if(data.customExercises)DB.set('customExercises',data.customExercises);
+      if(data.exerciseOverrides)DB.set('exerciseOverrides',data.exerciseOverrides);
+      if(data.customMuscleGroups){DB.set('customMuscleGroups',data.customMuscleGroups);refreshMuscleMeta();}
+      if(data.savedPlans)DB.set('savedPlans',data.savedPlans);
+      if(data.templates)DB.set('templates',data.templates);
+      if(data.favorites)DB.set('favorites',data.favorites);
+      if(data.recAdjust)DB.set('recAdjust',data.recAdjust);
+      if(data.settings)DB.set('settings',data.settings);
+      if(data.theme)DB.set('theme',data.theme);
+      schedSync();
+      this.toast('Backup restored ✓');
+      this.render();
+      return true;
+    }catch(e){
+      this.toast('Invalid backup file');
+      return false;
+    }
   },
 
   // ==================== VERSION HISTORY ====================
