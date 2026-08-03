@@ -1,5 +1,15 @@
 [
  {
+  "version": "1.5.1",
+  "date": "2026-05-14",
+  "notes": [
+    "Export Data now includes all current app data — exercise overrides, custom muscle groups, saved plans, templates, favorites, and settings (previously only exported profiles, history, and custom exercises)",
+    "New: Import Backup — restore a full JSON export from Profile → Settings",
+    "New: Bulk Import Workouts — import multiple plans at once from CSV or JSON, with automatic exercise name matching and a preview before committing",
+    "Bulk-imported plans can be tagged into existing or new folders during import"
+  ]
+},
+ {
   "version": "1.5.0",
   "date": "2026-05-14",
   "notes": [
