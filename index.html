@@ -260,7 +260,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.5.1';
+const CURRENT_VERSION = '1.5.2';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -794,7 +794,7 @@ Leg Day,Back Squat,4,Legs</div>
 
         <div id="impPreview" style="margin-bottom:14px"></div>
 
-        <button class="btn btn-s btn-full" style="margin-bottom:8px" onclick="App._previewImport()">Preview</button>
+        <button class="btn btn-s btn-full" style="margin-bottom:8px" onclick="App._previewImport()">Preview & Match Exercises</button>
         <button class="btn btn-p btn-full" onclick="App._doImportWorkouts(this.closest('.overlay'))">Import All</button>
       </div>
     </div>`;
@@ -890,6 +890,45 @@ Leg Day,Back Squat,4,Legs</div>
     return match||null;
   },
 
+  // Levenshtein-based similarity score, 0 (no match) to 1 (identical)
+  _stringSimilarity(a,b){
+    a=a.toLowerCase().trim();b=b.toLowerCase().trim();
+    if(a===b)return 1;
+    if(!a.length||!b.length)return 0;
+    // Token overlap bonus (words in common)
+    const aWords=new Set(a.split(/\s+/));
+    const bWords=new Set(b.split(/\s+/));
+    const common=[...aWords].filter(w=>bWords.has(w)).length;
+    const wordScore=common/Math.max(aWords.size,bWords.size);
+    // Levenshtein distance
+    const m=a.length,n=b.length;
+    const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));
+    for(let i=0;i<=m;i++)dp[i][0]=i;
+    for(let j=0;j<=n;j++)dp[0][j]=j;
+    for(let i=1;i<=m;i++){
+      for(let j=1;j<=n;j++){
+        dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1]);
+      }
+    }
+    const dist=dp[m][n];
+    const levScore=1-(dist/Math.max(m,n));
+    // Blend: word overlap weighted higher since exercise names share key terms
+    return wordScore*0.6+levScore*0.4;
+  },
+
+  // Returns top N closest exercises by name similarity, optionally biased by muscle hint
+  _getCloseMatches(name,muscleHint,limit){
+    limit=limit||5;
+    const all=allExercises();
+    const scored=all.map(e=>{
+      let score=this._stringSimilarity(name,e.name);
+      if(muscleHint&&e.muscle.toLowerCase()===muscleHint.toLowerCase())score+=0.15;
+      return{ex:e,score};
+    });
+    scored.sort((a,b)=>b.score-a.score);
+    return scored.slice(0,limit).filter(s=>s.score>0.15);
+  },
+
   _previewImport(){
     const raw=document.getElementById('impData')?.value?.trim();
     const el=document.getElementById('impPreview');
@@ -910,35 +949,97 @@ Leg Day,Back Squat,4,Legs</div>
       el.innerHTML=`<div style="font-size:12px;color:var(--red)">Parse error: ${err.message}</div>`;
       return;
     }
+    // Resolve each exercise; attach resolvedId (auto match) or null (needs pick)
+    for(const p of plans){
+      for(const e of p.exercises){
+        if(e.resolvedId===undefined){
+          const found=this._resolveExerciseByName(e.name,e.muscleHint);
+          e.resolvedId=found?found.id:null;
+          e.userPicked=false;
+        }
+      }
+    }
+    this._importPreviewData=plans;
+    this._renderImportPreview();
+  },
+
+  _renderImportPreview(){
+    const el=document.getElementById('impPreview');
+    const plans=this._importPreviewData;
+    if(!el||!plans)return;
     let matched=0,unmatched=0;
-    const rows=plans.map(p=>{
-      const exRows=p.exercises.map(e=>{
-        const found=this._resolveExerciseByName(e.name,e.muscleHint);
-        if(found)matched++;else unmatched++;
-        return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0"><span style="color:${found?'var(--t2)':'var(--red)'}">${e.name}</span><span style="color:${found?'var(--green)':'var(--red)'}">${found?'✓ matched':'✕ not found'}</span></div>`;
+    const rows=plans.map((p,pi)=>{
+      const exRows=p.exercises.map((e,ei)=>{
+        const isMatched=!!e.resolvedId;
+        if(isMatched)matched++;else unmatched++;
+        const matchedName=isMatched?getExercise(e.resolvedId)?.name:null;
+        if(isMatched){
+          return`<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:3px 0">
+            <span style="color:var(--t2)">${e.name}${e.userPicked?' <span style="color:var(--accent2)">(picked)</span>':''}</span>
+            <span style="color:var(--green);display:flex;align-items:center;gap:4px">✓ ${matchedName}${e.userPicked?`<button onclick="App._clearImportMatch(${pi},${ei})" style="background:none;border:none;color:var(--t3);font-size:10px;cursor:pointer;padding:0;text-decoration:underline;font-family:inherit">undo</button>`:''}</span>
+          </div>`;
+        }
+        // Unmatched: show name + "Pick closest match" control
+        const closeMatches=this._getCloseMatches(e.name,e.muscleHint,5);
+        const pickerId=`impPick-${pi}-${ei}`;
+        return`<div style="padding:6px 0;border-bottom:.5px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:11px;color:var(--red)">${e.name}</span>
+            <span style="font-size:10px;color:var(--red)">✕ not found</span>
+          </div>
+          ${closeMatches.length?`
+          <div style="display:flex;flex-wrap:wrap;gap:5px">
+            ${closeMatches.map(m=>`<button onclick="App._pickImportMatch(${pi},${ei},${m.ex.id})" style="font-size:10px;background:var(--surface2);border:.5px solid var(--border2);color:var(--t2);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit">${m.ex.name} <span style="color:var(--t3)">(${Math.round(m.score*100)}%)</span></button>`).join('')}
+            <button onclick="App._skipImportExercise(${pi},${ei})" style="font-size:10px;background:none;border:.5px solid var(--border2);color:var(--t3);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit">Skip this exercise</button>
+          </div>`:`<div style="font-size:10px;color:var(--t3)">No close matches found — will be skipped</div>`}
+        </div>`;
       }).join('');
-      return `<div style="margin-bottom:10px"><div style="font-size:13px;font-weight:700;margin-bottom:4px">${p.name} <span style="font-size:11px;color:var(--t3);font-weight:400">(${p.exercises.length} exercises)</span></div>${exRows}</div>`;
+      return `<div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:4px">${p.name} <span style="font-size:11px;color:var(--t3);font-weight:400">(${p.exercises.length} exercises)</span></div>${exRows}</div>`;
     }).join('');
     el.innerHTML=`<div class="card" style="padding:12px">
-      <div style="font-size:12px;font-weight:700;margin-bottom:8px">${plans.length} plan${plans.length!==1?'s':''} · <span style="color:var(--green)">${matched} matched</span> · <span style="color:${unmatched?'var(--red)':'var(--t3)'}">${unmatched} not found</span></div>
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px">${plans.length} plan${plans.length!==1?'s':''} · <span style="color:var(--green)">${matched} matched</span> · <span style="color:${unmatched?'var(--amber)':'var(--t3)'}">${unmatched} need review</span></div>
       ${rows}
     </div>`;
-    this._importPreviewData=plans;
+  },
+
+  _pickImportMatch(planIdx,exIdx,exId){
+    const plans=this._importPreviewData;
+    if(!plans||!plans[planIdx]||!plans[planIdx].exercises[exIdx])return;
+    plans[planIdx].exercises[exIdx].resolvedId=exId;
+    plans[planIdx].exercises[exIdx].userPicked=true;
+    this._renderImportPreview();
+  },
+  _clearImportMatch(planIdx,exIdx){
+    const plans=this._importPreviewData;
+    if(!plans||!plans[planIdx]||!plans[planIdx].exercises[exIdx])return;
+    const e=plans[planIdx].exercises[exIdx];
+    const found=this._resolveExerciseByName(e.name,e.muscleHint);
+    e.resolvedId=found?found.id:null;
+    e.userPicked=false;
+    this._renderImportPreview();
+  },
+  _skipImportExercise(planIdx,exIdx){
+    const plans=this._importPreviewData;
+    if(!plans||!plans[planIdx]||!plans[planIdx].exercises[exIdx])return;
+    plans[planIdx].exercises[exIdx].resolvedId=null;
+    plans[planIdx].exercises[exIdx].userPicked=false;
+    plans[planIdx].exercises[exIdx].skipped=true;
+    this._renderImportPreview();
   },
 
   _doImportWorkouts(overlay){
     const raw=document.getElementById('impData')?.value?.trim();
     if(!raw){this.toast('Paste or upload data first');return;}
+    // Ensure preview has run so resolvedId/userPicked state exists
+    if(!this._importPreviewData){
+      this._previewImport();
+    }
     let plans=this._importPreviewData;
-    if(!plans){
-      try{
-        if(this._importFormat==='json'){
-          const parsed=JSON.parse(raw);
-          plans=(Array.isArray(parsed)?parsed:[parsed]).map(p=>({name:p.name,exercises:(p.exercises||[]).map(e=>({name:e.name,sets:e.sets||3,muscleHint:e.muscle||''}))}));
-        } else {
-          plans=this._parseImportCsv(raw);
-        }
-      }catch(err){this.toast('Parse error: '+err.message);return;}
+    if(!plans||!plans.length){this.toast('Nothing to import');return;}
+    // Warn if there are still unresolved exercises the user hasn't picked or skipped
+    const stillUnresolved=plans.some(p=>p.exercises.some(e=>!e.resolvedId&&!e.skipped));
+    if(stillUnresolved){
+      if(!confirm('Some exercises are still unmatched and will be skipped. Continue importing anyway?'))return;
     }
     const folders=this._getSelectedImportFolders();
     const savedPlans=DB.get('savedPlans')||[];
@@ -946,10 +1047,9 @@ Leg Day,Back Squat,4,Legs</div>
     for(const p of plans){
       const resolvedExercises=[];
       for(const e of p.exercises){
-        const found=this._resolveExerciseByName(e.name,e.muscleHint);
-        if(!found){skippedExercises++;continue;}
+        if(!e.resolvedId){skippedExercises++;continue;}
         resolvedExercises.push({
-          exId:found.id,
+          exId:e.resolvedId,
           sets:Array.from({length:e.sets||3},()=>({weight:'',reps:'',completed:false,note:''}))
         });
       }
@@ -971,7 +1071,8 @@ Leg Day,Back Squat,4,Legs</div>
     DB.set('savedPlans',savedPlans);
     schedSync();
     overlay.remove();
-    this.toast(`Imported ${imported} plan${imported!==1?'s':''}${skippedExercises?` · ${skippedExercises} exercises skipped (no match)`:''} ✓`);
+    this.toast(`Imported ${imported} plan${imported!==1?'s':''}${skippedExercises?` · ${skippedExercises} exercises skipped`:''} ✓`);
+    this._importPreviewData=null;
     this.renderSavedPlans(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
   },
 
