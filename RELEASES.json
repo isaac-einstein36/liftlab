@@ -1,5 +1,15 @@
 [
  {
+  "version": "1.5.2",
+  "date": "2026-05-14",
+  "notes": [
+    "New: When importing workouts, unmatched exercises now show up to 5 closest existing matches with similarity scores you can tap to select",
+    "New: Skip individual unmatched exercises explicitly during import, or undo a picked match",
+    "Import preview updates live as you resolve matches, showing matched vs. needs-review counts",
+    "Confirmation prompt before importing if any exercises are still unresolved"
+  ]
+},
+ {
   "version": "1.5.1",
   "date": "2026-05-14",
   "notes": [
