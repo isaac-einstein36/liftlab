@@ -1,5 +1,14 @@
 [
  {
+  "version": "1.5.3",
+  "date": "2026-05-14",
+  "notes": [
+    "New: Equipment list is now editable — Profile → Tools → Equipment to add or remove equipment types",
+    "Custom equipment appears immediately in exercise filters and the exercise creation form",
+    "Equipment customizations sync via GitHub and are included in full data backups"
+  ]
+},
+ {
   "version": "1.5.2",
   "date": "2026-05-14",
   "notes": [
