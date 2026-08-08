@@ -260,7 +260,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.5.2';
+const CURRENT_VERSION = '1.5.3';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -300,7 +300,15 @@ const getMuscleMetaLive=()=>{
 let MUSCLE_META={...MUSCLE_META_BASE};
 const refreshMuscleMeta=()=>{MUSCLE_META=getMuscleMetaLive();};
 
-const EQUIPMENT_LIST = ['Barbell','Dumbbell','Cable','Rope Cable','EZ-Bar','Smith Machine','Bodyweight','Machine','Plate','Ab Wheel','Medicine Ball','V-Bar'];
+const EQUIPMENT_LIST_BASE = ['Barbell','Dumbbell','Cable','Rope Cable','EZ-Bar','Smith Machine','Bodyweight','Machine','Plate','Ab Wheel','Medicine Ball','V-Bar'];
+// Live equipment list merges base with any custom equipment stored in DB
+const getEquipmentListLive=()=>{
+  const custom=DB.get('customEquipment')||[];
+  return [...new Set([...EQUIPMENT_LIST_BASE,...custom])];
+};
+// Starts as base only (DB not available at module load); refreshed in App.init()
+let EQUIPMENT_LIST=[...EQUIPMENT_LIST_BASE];
+const refreshEquipmentList=()=>{EQUIPMENT_LIST=getEquipmentListLive();};
 
 const LEVEL_ORDER = {Beginner:0, Intermediate:1, Advanced:2};
 
@@ -316,7 +324,7 @@ const GH = {
   creds(){const t=DB.get('gh_token');const g=DB.get('gh_gist_id');return(t&&g)?{token:t,gistId:g}:null},
   async push(){
     const c=this.creds();if(!c)return false;
-    const data={profiles:DB.get('profiles',[]),workoutHistory:DB.get('workoutHistory',[]),customExercises:DB.get('customExercises',[]),exerciseOverrides:DB.get('exerciseOverrides',{}),customMuscleGroups:DB.get('customMuscleGroups',{}),savedPlans:DB.get('savedPlans',[]),templates:DB.get('templates',[]),settings:DB.get('settings',{}),recAdjust:DB.get('recAdjust',{}),v:2};
+    const data={profiles:DB.get('profiles',[]),workoutHistory:DB.get('workoutHistory',[]),customExercises:DB.get('customExercises',[]),exerciseOverrides:DB.get('exerciseOverrides',{}),customMuscleGroups:DB.get('customMuscleGroups',{}),customEquipment:DB.get('customEquipment',[]),savedPlans:DB.get('savedPlans',[]),templates:DB.get('templates',[]),settings:DB.get('settings',{}),recAdjust:DB.get('recAdjust',{}),v:2};
     try{
       const r=await fetch(`https://api.github.com/gists/${c.gistId}`,{method:'PATCH',headers:{'Authorization':`token ${c.token}`,'Content-Type':'application/json'},body:JSON.stringify({files:{'liftlab-data.json':{content:JSON.stringify(data)}}})});
       if(r.ok){DB.set('lastGhSync',new Date().toISOString());return true;}
@@ -337,6 +345,7 @@ const GH = {
       if(data.customExercises)DB.set('customExercises',data.customExercises);
       if(data.exerciseOverrides)DB.set('exerciseOverrides',data.exerciseOverrides);
       if(data.customMuscleGroups){DB.set('customMuscleGroups',data.customMuscleGroups);refreshMuscleMeta();}
+      if(data.customEquipment){DB.set('customEquipment',data.customEquipment);refreshEquipmentList();}
       if(data.savedPlans)DB.set('savedPlans',data.savedPlans);
       if(data.templates)DB.set('templates',data.templates);
       if(data.recAdjust)DB.set('recAdjust',data.recAdjust);
@@ -462,8 +471,9 @@ const App = {
   _toastTimer:null,
 
   init(){
-    // Refresh MUSCLE_META now that DB is available
+    // Refresh MUSCLE_META and EQUIPMENT_LIST now that DB is available
     refreshMuscleMeta();
+    refreshEquipmentList();
     // Apply saved theme
     const theme=DB.get('theme')||'auto';
     document.getElementById('htmlRoot').setAttribute('data-theme',theme);
@@ -554,6 +564,7 @@ const App = {
       case'badges':this.renderBadges(m,hT,hB);break;
       case'plans':this.renderSavedPlans(m,hT,hB);break;
       case'muscles':this.renderMuscleGroups(m,hT,hB);break;
+      case'equipment':this.renderEquipment(m,hT,hB);break;
 
       default:this.renderHome(m,hT,hB);
     }
@@ -3062,6 +3073,7 @@ Leg Day,Back Squat,4,Legs</div>
           {ico:'⚖️',bg:'var(--green-dim)',title:'Tools',sub:'Plate calc · Templates',nav:'tools'},
           {ico:'📋',bg:'var(--surface3)',title:'Saved Plans',sub:'Your workout library',nav:'plans'},
           {ico:'🦾',bg:'var(--surface3)',title:'Muscle Groups',sub:'Edit groups & sub-muscles',nav:'muscles'},
+          {ico:'🏋️',bg:'var(--surface3)',title:'Equipment',sub:'Edit equipment list',nav:'equipment'},
         ].map(t=>`
           <button onclick="App.nav('${t.nav}')" style="background:var(--surface);border:.5px solid var(--border);border-radius:14px;padding:14px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px;font-family:inherit;transition:background .15s" onmouseenter="this.style.background='var(--surface2)'" onmouseleave="this.style.background='var(--surface)'">
             <div style="width:36px;height:36px;border-radius:10px;background:${t.bg};display:flex;align-items:center;justify-content:center;font-size:18px">${t.ico}</div>
@@ -3318,6 +3330,7 @@ Leg Day,Back Squat,4,Legs</div>
       customExercises:DB.get('customExercises')||[],
       exerciseOverrides:DB.get('exerciseOverrides')||{},
       customMuscleGroups:DB.get('customMuscleGroups')||{},
+      customEquipment:DB.get('customEquipment')||[],
       savedPlans:DB.get('savedPlans')||[],
       templates:DB.get('templates')||[],
       favorites:DB.get('favorites')||[],
@@ -3351,6 +3364,7 @@ Leg Day,Back Squat,4,Legs</div>
       if(data.customExercises)DB.set('customExercises',data.customExercises);
       if(data.exerciseOverrides)DB.set('exerciseOverrides',data.exerciseOverrides);
       if(data.customMuscleGroups){DB.set('customMuscleGroups',data.customMuscleGroups);refreshMuscleMeta();}
+      if(data.customEquipment){DB.set('customEquipment',data.customEquipment);refreshEquipmentList();}
       if(data.savedPlans)DB.set('savedPlans',data.savedPlans);
       if(data.templates)DB.set('templates',data.templates);
       if(data.favorites)DB.set('favorites',data.favorites);
@@ -5368,6 +5382,7 @@ Leg Day,Back Squat,4,Legs</div>
           {ico:'⚖️',bg:'var(--green-dim)',title:'Tools',sub:'Plate calc · Templates',nav:'tools'},
           {ico:'📋',bg:'var(--surface3)',title:'Saved Plans',sub:'Your workout library',nav:'plans'},
           {ico:'🦾',bg:'var(--surface3)',title:'Muscle Groups',sub:'Edit groups & sub-muscles',nav:'muscles'},
+          {ico:'🏋️',bg:'var(--surface3)',title:'Equipment',sub:'Edit equipment list',nav:'equipment'},
         ].map(t=>`
           <button onclick="App.nav('${t.nav}')" style="background:var(--surface);border:.5px solid var(--border);border-radius:14px;padding:14px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px;font-family:inherit;transition:background .15s" onmouseenter="this.style.background='var(--surface2)'" onmouseleave="this.style.background='var(--surface)'">
             <div style="width:36px;height:36px;border-radius:10px;background:${t.bg};display:flex;align-items:center;justify-content:center;font-size:18px">${t.ico}</div>
@@ -5624,6 +5639,7 @@ Leg Day,Back Squat,4,Legs</div>
       customExercises:DB.get('customExercises')||[],
       exerciseOverrides:DB.get('exerciseOverrides')||{},
       customMuscleGroups:DB.get('customMuscleGroups')||{},
+      customEquipment:DB.get('customEquipment')||[],
       savedPlans:DB.get('savedPlans')||[],
       templates:DB.get('templates')||[],
       favorites:DB.get('favorites')||[],
@@ -5657,6 +5673,7 @@ Leg Day,Back Squat,4,Legs</div>
       if(data.customExercises)DB.set('customExercises',data.customExercises);
       if(data.exerciseOverrides)DB.set('exerciseOverrides',data.exerciseOverrides);
       if(data.customMuscleGroups){DB.set('customMuscleGroups',data.customMuscleGroups);refreshMuscleMeta();}
+      if(data.customEquipment){DB.set('customEquipment',data.customEquipment);refreshEquipmentList();}
       if(data.savedPlans)DB.set('savedPlans',data.savedPlans);
       if(data.templates)DB.set('templates',data.templates);
       if(data.favorites)DB.set('favorites',data.favorites);
@@ -6598,6 +6615,74 @@ Leg Day,Back Squat,4,Legs</div>
     refreshMuscleMeta();
     schedSync();
     this.renderMuscleGroups(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
+  },
+
+  // ==================== EQUIPMENT EDITOR ====================
+  renderEquipment(m,hT,hB){
+    hT.textContent='Equipment';
+    hB.innerHTML=`<button onclick="App.openAddEquipment()" class="btn btn-sm btn-p">+ New</button>`;
+    const list=getEquipmentListLive();
+    const custom=DB.get('customEquipment')||[];
+    m.innerHTML=`<div style="padding:16px">
+      <div style="font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.6">
+        Add or remove equipment types shown when filtering exercises or creating a custom exercise.
+      </div>
+      <div class="card">
+        ${list.map(eq=>{
+          const isCustom=custom.includes(eq);
+          return`<div class="ri">
+            <div class="ri-ico" style="background:var(--surface3)">🏋️</div>
+            <div class="ri-c"><div class="ri-t">${eq}</div>${isCustom?'<div class="ri-s">Custom</div>':''}</div>
+            ${isCustom?`<button onclick="App.deleteEquipment('${eq.replace(/'/g,"\\'")}')" style="background:var(--red-dim);border:none;border-radius:7px;padding:5px 10px;font-size:11px;color:var(--red);cursor:pointer;font-family:inherit">Delete</button>`:`<span class="pill" style="background:var(--surface3);color:var(--t3)">Built-in</span>`}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  },
+
+  openAddEquipment(){
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    overlay.innerHTML=`
+    <div class="sheet"><div class="sh-bar"></div>
+    <div style="display:flex;align-items:center;padding:14px 20px 10px">
+      <div style="font-size:17px;font-weight:700;flex:1">New Equipment</div>
+      <button onclick="this.closest('.overlay').remove()" style="background:var(--surface2);border:.5px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">✕</button>
+    </div>
+    <div class="sh-body" style="padding-bottom:24px">
+      <div class="fgrp"><label class="f-lbl">Name</label><input type="text" id="eqName" placeholder="e.g. Resistance Band, Trap Bar"></div>
+      <button class="btn btn-p btn-full" onclick="App._saveEquipment(this.closest('.overlay'))">Add Equipment</button>
+    </div></div>`;
+    document.body.appendChild(overlay);
+  },
+
+  _saveEquipment(overlay){
+    const name=document.getElementById('eqName')?.value?.trim();
+    if(!name){this.toast('Enter a name');return;}
+    const list=getEquipmentListLive();
+    if(list.some(e=>e.toLowerCase()===name.toLowerCase())){
+      this.toast('That equipment already exists');
+      return;
+    }
+    const custom=DB.get('customEquipment')||[];
+    custom.push(name);
+    DB.set('customEquipment',custom);
+    refreshEquipmentList();
+    schedSync();
+    overlay.remove();
+    this.toast(`${name} added ✓`);
+    this.renderEquipment(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
+  },
+
+  deleteEquipment(name){
+    if(!confirm(`Delete "${name}"?`))return;
+    let custom=DB.get('customEquipment')||[];
+    custom=custom.filter(e=>e!==name);
+    DB.set('customEquipment',custom);
+    refreshEquipmentList();
+    schedSync();
+    this.renderEquipment(document.getElementById('main'),document.getElementById('hT'),document.getElementById('hB'));
   },
 
   // ==================== TOUCH DRAG TO REORDER + SWIPE TO DELETE ====================
