@@ -260,7 +260,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 // ============================================================
 // LiftLab — Full Workout Tracker App
 // ============================================================
-const CURRENT_VERSION = '1.5.3';
+const CURRENT_VERSION = '1.5.4';
 const RELEASES_URL = 'https://raw.githubusercontent.com/isaac-einstein36/liftlab/main/RELEASES.json';
 
 // ---- Exercise Database (injected) ----
@@ -992,17 +992,20 @@ Leg Day,Back Squat,4,Legs</div>
         }
         // Unmatched: show name + "Pick closest match" control
         const closeMatches=this._getCloseMatches(e.name,e.muscleHint,5);
-        const pickerId=`impPick-${pi}-${ei}`;
         return`<div style="padding:6px 0;border-bottom:.5px solid var(--border)">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
             <span style="font-size:11px;color:var(--red)">${e.name}</span>
             <span style="font-size:10px;color:var(--red)">✕ not found</span>
           </div>
           ${closeMatches.length?`
-          <div style="display:flex;flex-wrap:wrap;gap:5px">
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:5px">
             ${closeMatches.map(m=>`<button onclick="App._pickImportMatch(${pi},${ei},${m.ex.id})" style="font-size:10px;background:var(--surface2);border:.5px solid var(--border2);color:var(--t2);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit">${m.ex.name} <span style="color:var(--t3)">(${Math.round(m.score*100)}%)</span></button>`).join('')}
-            <button onclick="App._skipImportExercise(${pi},${ei})" style="font-size:10px;background:none;border:.5px solid var(--border2);color:var(--t3);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit">Skip this exercise</button>
-          </div>`:`<div style="font-size:10px;color:var(--t3)">No close matches found — will be skipped</div>`}
+          </div>`:`<div style="font-size:10px;color:var(--t3);margin-bottom:5px">No close matches found</div>`}
+          <div style="display:flex;flex-wrap:wrap;gap:5px">
+            <button onclick="App._searchImportMatch(${pi},${ei})" style="font-size:10px;background:var(--accent-dim);border:.5px solid var(--accent);color:var(--accent2);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit">🔍 Search all exercises</button>
+            <button onclick="App._createImportExercise(${pi},${ei})" style="font-size:10px;background:var(--green-dim);border:.5px solid rgba(52,211,153,.4);color:var(--green);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit">+ Create new exercise</button>
+            <button onclick="App._skipImportExercise(${pi},${ei})" style="font-size:10px;background:none;border:.5px solid var(--border2);color:var(--t3);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit">Skip</button>
+          </div>
         </div>`;
       }).join('');
       return `<div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:4px">${p.name} <span style="font-size:11px;color:var(--t3);font-weight:400">(${p.exercises.length} exercises)</span></div>${exRows}</div>`;
@@ -1036,6 +1039,125 @@ Leg Day,Back Squat,4,Legs</div>
     plans[planIdx].exercises[exIdx].userPicked=false;
     plans[planIdx].exercises[exIdx].skipped=true;
     this._renderImportPreview();
+  },
+
+  // Full searchable exercise picker for an unmatched import row
+  _searchImportMatch(planIdx,exIdx){
+    const plans=this._importPreviewData;
+    const entry=plans?.[planIdx]?.exercises?.[exIdx];
+    if(!entry)return;
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    const renderResults=(query)=>{
+      const all=allExercises();
+      let shown=all;
+      if(query)shown=shown.filter(ex=>ex.name.toLowerCase().includes(query.toLowerCase()));
+      shown=shown.slice(0,50);
+      return shown.map(ex=>`
+        <div class="ex-card" onclick="App._confirmImportSearchPick(${planIdx},${exIdx},${ex.id})">
+          <div class="ex-ico" style="background:${(MUSCLE_META[ex.muscle]?.color||'#7c6dff')}22"><span class="emo">${muscleEmoji(ex.muscle)}</span></div>
+          <div class="ex-info"><div class="ex-name">${ex.name}</div><div class="ex-meta">${ex.muscle} · ${ex.equipment||'Bodyweight'}</div></div>
+          ${levelPill(ex.level)}
+        </div>`).join('')||'<div style="padding:20px;text-align:center;color:var(--t3);font-size:13px">No matches</div>';
+    };
+    overlay.innerHTML=`
+    <div class="sheet" style="max-height:88vh;display:flex;flex-direction:column">
+      <div class="sh-bar"></div>
+      <div style="display:flex;align-items:center;padding:14px 20px 8px;flex-shrink:0">
+        <div style="font-size:16px;font-weight:700;flex:1">Find match for "${entry.name}"</div>
+        <button onclick="this.closest('.overlay').remove()" style="background:var(--surface2);border:.5px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--t2);cursor:pointer">✕</button>
+      </div>
+      <div class="sb" style="margin:0 16px 10px;flex-shrink:0">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search all exercises..." value="${entry.name}" oninput="document.getElementById('impSearchResults').innerHTML=App._renderImportSearchResults(this.value)" style="background:none;border:none;padding:10px 0;font-size:15px;color:var(--t1);outline:none;flex:1">
+      </div>
+      <div id="impSearchResults" style="overflow-y:auto;flex:1;padding:0 16px 20px">${renderResults(entry.name)}</div>
+    </div>`;
+    this._impSearchPlanIdx=planIdx;
+    this._impSearchExIdx=exIdx;
+    document.body.appendChild(overlay);
+  },
+  _renderImportSearchResults(query){
+    const all=allExercises();
+    let shown=all;
+    if(query)shown=shown.filter(ex=>ex.name.toLowerCase().includes(query.toLowerCase()));
+    shown=shown.slice(0,50);
+    const pi=this._impSearchPlanIdx,ei=this._impSearchExIdx;
+    return shown.map(ex=>`
+      <div class="ex-card" onclick="App._confirmImportSearchPick(${pi},${ei},${ex.id})">
+        <div class="ex-ico" style="background:${(MUSCLE_META[ex.muscle]?.color||'#7c6dff')}22"><span class="emo">${muscleEmoji(ex.muscle)}</span></div>
+        <div class="ex-info"><div class="ex-name">${ex.name}</div><div class="ex-meta">${ex.muscle} · ${ex.equipment||'Bodyweight'}</div></div>
+        ${levelPill(ex.level)}
+      </div>`).join('')||'<div style="padding:20px;text-align:center;color:var(--t3);font-size:13px">No matches</div>';
+  },
+  _confirmImportSearchPick(planIdx,exIdx,exId){
+    this._pickImportMatch(planIdx,exIdx,exId);
+    document.querySelector('.overlay')?.remove();
+  },
+
+  // Quick-create a new exercise directly from an unmatched import row
+  _createImportExercise(planIdx,exIdx){
+    const plans=this._importPreviewData;
+    const entry=plans?.[planIdx]?.exercises?.[exIdx];
+    if(!entry)return;
+    const overlay=document.createElement('div');
+    overlay.className='overlay';
+    overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+    const liveMeta=getMuscleMetaLive();
+    overlay.innerHTML=`
+    <div class="sheet"><div class="sh-bar"></div>
+    <div style="display:flex;align-items:center;padding:14px 20px 8px">
+      <div style="font-size:16px;font-weight:700;flex:1">Create Exercise</div>
+      <button onclick="this.closest('.overlay').remove()" style="background:var(--surface2);border:.5px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--t2);cursor:pointer">✕</button>
+    </div>
+    <div class="sh-body" style="padding-bottom:24px">
+      <div class="fgrp"><label class="f-lbl">Name</label><input type="text" id="impNewExName" value="${entry.name}"></div>
+      <div class="fgrp"><label class="f-lbl">Muscle Group</label>
+        <select id="impNewExMuscle" onchange="App._updateImportTargetOptions(this.value)">
+          ${Object.keys(liveMeta).map(mu=>`<option value="${mu}" ${entry.muscleHint===mu?'selected':''}>${mu}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fgrp"><label class="f-lbl">Target Area <span style="color:var(--t3);font-weight:400">(optional)</span></label>
+        <select id="impNewExTarget"><option value="">— General / Total —</option></select>
+      </div>
+      <div class="fgrp"><label class="f-lbl">Equipment</label>
+        <select id="impNewExEquip">${getEquipmentListLive().map(eq=>`<option value="${eq}">${eq}</option>`).join('')}</select>
+      </div>
+      <div class="fgrp"><label class="f-lbl">Difficulty</label>
+        <select id="impNewExLevel"><option>Beginner</option><option selected>Intermediate</option><option>Advanced</option></select>
+      </div>
+      <button class="btn btn-p btn-full" onclick="App._saveImportExercise(${planIdx},${exIdx},this.closest('.overlay'))">Create & Use</button>
+    </div></div>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(()=>this._updateImportTargetOptions(document.getElementById('impNewExMuscle')?.value));
+  },
+  _updateImportTargetOptions(muscle){
+    const sel=document.getElementById('impNewExTarget');
+    if(!sel||!muscle)return;
+    const liveMeta=getMuscleMetaLive();
+    const targets=liveMeta[muscle]?.targets||[];
+    sel.innerHTML='<option value="">— General / Total —</option>'+targets.map(t=>`<option value="${t}">${t}</option>`).join('');
+  },
+  _saveImportExercise(planIdx,exIdx,overlay){
+    const name=document.getElementById('impNewExName')?.value?.trim();
+    if(!name){this.toast('Enter a name');return;}
+    const newEx={
+      id:Date.now(),name,origName:name,
+      muscle:document.getElementById('impNewExMuscle')?.value||'Chest',
+      target:document.getElementById('impNewExTarget')?.value||'Total',
+      secondary:'',
+      equipment:document.getElementById('impNewExEquip')?.value||'Bodyweight',
+      level:document.getElementById('impNewExLevel')?.value||'Intermediate',
+      pp:'',modality:'FW',joint:'M',ulc:'Upper',notes:'',custom:true,
+    };
+    const customs=DB.get('customExercises')||[];
+    customs.push(newEx);
+    DB.set('customExercises',customs);
+    schedSync();
+    overlay.remove();
+    this.toast(`"${name}" created ✓`);
+    this._pickImportMatch(planIdx,exIdx,newEx.id);
   },
 
   _doImportWorkouts(overlay){
