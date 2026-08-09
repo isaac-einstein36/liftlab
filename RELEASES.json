@@ -1,5 +1,14 @@
 [
  {
+  "version": "1.5.4",
+  "date": "2026-05-14",
+  "notes": [
+    "New: Unmatched exercises during import can now be resolved by searching your full exercise library, not just the suggested close matches",
+    "New: Create a brand new exercise directly from an unmatched import row — pre-filled with the imported name, and automatically used as the match once saved",
+    "New exercise creation during import supports muscle group, sub-muscle target, equipment (including custom equipment), and difficulty"
+  ]
+},
+ {
   "version": "1.5.3",
   "date": "2026-05-14",
   "notes": [
